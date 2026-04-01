@@ -1,0 +1,136 @@
+<div class="register-container">
+  <div class="register-box">
+    <h1>Create Account</h1>
+
+    <div class="alert alert-success" *ngIf="success">
+      Registration successful! Redirecting...
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input
+          id="firstName"
+          type="text"
+          formControlName="firstName"
+          class="form-control"
+          placeholder="Enter your first name"
+        />
+        <div class="error-message" *ngIf="submitted && f['firstName'].errors">
+          <span *ngIf="f['firstName'].errors['required']">First name is required</span>
+          <span *ngIf="f['firstName'].errors['minlength']">
+            First name must be at least 2 characters
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input
+          id="lastName"
+          type="text"
+          formControlName="lastName"
+          class="form-control"
+          placeholder="Enter your last name"
+        />
+        <div class="error-message" *ngIf="submitted && f['lastName'].errors">
+          <span *ngIf="f['lastName'].errors['required']">Last name is required</span>
+          <span *ngIf="f['lastName'].errors['minlength']">
+            Last name must be at least 2 characters
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          class="form-control"
+          placeholder="Choose a username"
+        />
+        <div class="error-message" *ngIf="submitted && f['username'].errors">
+          <span *ngIf="f['username'].errors['required']">Username is required</span>
+          <span *ngIf="f['username'].errors['minlength']">
+            Username must be at least 3 characters
+          </span>
+          <span *ngIf="f['username'].errors['maxlength']">
+            Username cannot exceed 30 characters
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="Enter your email"
+        />
+        <div class="error-message" *ngIf="submitted && f['email'].errors">
+          <span *ngIf="f['email'].errors['required']">Email is required</span>
+          <span *ngIf="f['email'].errors['email']">
+            Please enter a valid email
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="Enter password (min 6 characters)"
+        />
+        <div class="error-message" *ngIf="submitted && f['password'].errors">
+          <span *ngIf="f['password'].errors['required']">Password is required</span>
+          <span *ngIf="f['password'].errors['minlength']">
+            Password must be at least 6 characters
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          class="form-control"
+          placeholder="Confirm your password"
+        />
+        <div class="error-message" *ngIf="submitted && f['confirmPassword'].errors">
+          <span *ngIf="f['confirmPassword'].errors['required']">
+            Please confirm your password
+          </span>
+          <span *ngIf="f['confirmPassword'].errors['passwordMismatch']">
+            Passwords do not match
+          </span>
+        </div>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        [disabled]="loading"
+      >
+        <span *ngIf="loading" class="spinner"></span>
+        <span *ngIf="!loading">Register</span>
+      </button>
+    </form>
+
+    <p class="login-link">
+      Already have an account?
+      <a (click)="navigateToLogin()" class="link">Login here</a>
+    </p>
+  </div>
+</div>

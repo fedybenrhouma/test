@@ -1,0 +1,197 @@
+<div class="dashboard-container">
+  <nav class="navbar">
+    <div class="navbar-content">
+      <h1>Dashboard</h1>
+      <button (click)="logout()" class="btn btn-logout">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-content">
+    <div class="sidebar">
+      <div class="user-card">
+        <div class="avatar">{{ currentUser?.firstName?.charAt(0) ?? 'U' }}</div>
+        <h3>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h3>
+        <p>@{{ currentUser?.username }}</p>
+        <p class="email">{{ currentUser?.email }}</p>
+      </div>
+
+      <div class="menu">
+        <button
+          (click)="setActiveTab('profile')"
+          [class.active]="activeTab === 'profile'"
+          class="menu-item"
+        >
+          <span class="icon">👤</span>
+          Profile
+        </button>
+        <button
+          (click)="setActiveTab('security')"
+          [class.active]="activeTab === 'security'"
+          class="menu-item"
+        >
+          <span class="icon">🔒</span>
+          Security
+        </button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="tab-content" *ngIf="activeTab === 'profile'">
+        <h2>Edit Profile</h2>
+
+        <div class="alert alert-success" *ngIf="profileSuccess">
+          Profile updated successfully!
+        </div>
+
+        <div class="alert alert-danger" *ngIf="profileError">
+          {{ profileError }}
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input
+                id="firstName"
+                type="text"
+                formControlName="firstName"
+                class="form-control"
+                placeholder="First name"
+              />
+              <div class="error-message" *ngIf="profileSubmitted && pf['firstName'].errors">
+                <span *ngIf="pf['firstName'].errors['required']">
+                  First name is required
+                </span>
+                <span *ngIf="pf['firstName'].errors['minlength']">
+                  Must be at least 2 characters
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input
+                id="lastName"
+                type="text"
+                formControlName="lastName"
+                class="form-control"
+                placeholder="Last name"
+              />
+              <div class="error-message" *ngIf="profileSubmitted && pf['lastName'].errors">
+                <span *ngIf="pf['lastName'].errors['required']">
+                  Last name is required
+                </span>
+                <span *ngIf="pf['lastName'].errors['minlength']">
+                  Must be at least 2 characters
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              class="form-control"
+              placeholder="Username"
+            />
+            <div class="error-message" *ngIf="profileSubmitted && pf['username'].errors">
+              <span *ngIf="pf['username'].errors['required']">
+                Username is required
+              </span>
+              <span *ngIf="pf['username'].errors['minlength']">
+                Must be at least 3 characters
+              </span>
+              <span *ngIf="pf['username'].errors['maxlength']">
+                Cannot exceed 30 characters
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="profileLoading"
+          >
+            {{ profileLoading ? 'Updating...' : 'Update Profile' }}
+          </button>
+        </form>
+      </div>
+
+      <div class="tab-content" *ngIf="activeTab === 'security'">
+        <h2>Change Password</h2>
+
+        <div class="alert alert-success" *ngIf="passwordSuccess">
+          Password changed successfully!
+        </div>
+
+        <div class="alert alert-danger" *ngIf="passwordError">
+          {{ passwordError }}
+        </div>
+
+        <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input
+              id="currentPassword"
+              type="password"
+              formControlName="currentPassword"
+              class="form-control"
+              placeholder="Enter current password"
+            />
+            <div class="error-message" *ngIf="passwordSubmitted && pwf['currentPassword'].errors">
+              <span *ngIf="pwf['currentPassword'].errors['required']">
+                Current password is required
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input
+              id="newPassword"
+              type="password"
+              formControlName="newPassword"
+              class="form-control"
+              placeholder="Enter new password (min 6 characters)"
+            />
+            <div class="error-message" *ngIf="passwordSubmitted && pwf['newPassword'].errors">
+              <span *ngIf="pwf['newPassword'].errors['required']">
+                New password is required
+              </span>
+              <span *ngIf="pwf['newPassword'].errors['minlength']">
+                Must be at least 6 characters
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              formControlName="confirmPassword"
+              class="form-control"
+              placeholder="Confirm new password"
+            />
+            <div class="error-message" *ngIf="passwordSubmitted && pwf['confirmPassword'].errors">
+              <span *ngIf="pwf['confirmPassword'].errors['required']">
+                Please confirm your password
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="passwordLoading"
+          >
+            {{ passwordLoading ? 'Changing...' : 'Change Password' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
