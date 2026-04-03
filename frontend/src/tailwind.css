@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@source "./app/**/*.html";
+@source "./app/**/*.ts";
+
+@theme {
+  --color-primary-light: #667eea;
+  --color-primary-dark: #764ba2;
+  --color-color-bg-light: #f5f7fa;
+  --color-color-error: #dc3545;
+  --color-color-success: #155724;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+    background-color: var(--color-color-bg-light);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+      'Segoe UI Symbol';
+  }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}

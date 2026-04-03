@@ -1,22 +1,22 @@
-<div class="register-container">
-  <div class="register-box">
-    <h1>Create Account</h1>
+<div class="flex min-h-screen items-center justify-center bg-linear-to-br from-[#667eea] to-[#764ba2] p-5">
+  <div class="w-full max-w-[450px] rounded-lg bg-white p-10 shadow-[0_4px_6px_rgba(0,0,0,0.1)]">
+    <h1 class="mb-[30px] text-center text-[24px] font-semibold text-[#333]">Create Account</h1>
 
-    <div class="alert alert-success" *ngIf="success">
+    <div class="mb-5 rounded-sm border border-[#c3e6cb] bg-[#d4edda] p-3 text-[#155724]" *ngIf="success">
       Registration successful! Redirecting...
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="firstName">First Name</label>
+      <div class="mb-4 flex flex-col">
+        <label for="firstName" class="mb-[6px] text-[14px] font-medium text-[#333]">First Name</label>
         <input
           id="firstName"
           type="text"
           formControlName="firstName"
-          class="form-control"
+          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
           placeholder="Enter your first name"
         />
-        <div class="error-message" *ngIf="submitted && f['firstName'].errors">
+        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['firstName'].errors">
           <span *ngIf="f['firstName'].errors['required']">First name is required</span>
           <span *ngIf="f['firstName'].errors['minlength']">
             First name must be at least 2 characters
@@ -24,16 +24,16 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="lastName">Last Name</label>
+      <div class="mb-4 flex flex-col">
+        <label for="lastName" class="mb-[6px] text-[14px] font-medium text-[#333]">Last Name</label>
         <input
           id="lastName"
           type="text"
           formControlName="lastName"
-          class="form-control"
+          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
           placeholder="Enter your last name"
         />
-        <div class="error-message" *ngIf="submitted && f['lastName'].errors">
+        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['lastName'].errors">
           <span *ngIf="f['lastName'].errors['required']">Last name is required</span>
           <span *ngIf="f['lastName'].errors['minlength']">
             Last name must be at least 2 characters
@@ -41,16 +41,16 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="username">Username</label>
+      <div class="mb-4 flex flex-col">
+        <label for="username" class="mb-[6px] text-[14px] font-medium text-[#333]">Username</label>
         <input
           id="username"
           type="text"
           formControlName="username"
-          class="form-control"
+          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
           placeholder="Choose a username"
         />
-        <div class="error-message" *ngIf="submitted && f['username'].errors">
+        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['username'].errors">
           <span *ngIf="f['username'].errors['required']">Username is required</span>
           <span *ngIf="f['username'].errors['minlength']">
             Username must be at least 3 characters
@@ -61,16 +61,16 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
+      <div class="mb-4 flex flex-col">
+        <label for="email" class="mb-[6px] text-[14px] font-medium text-[#333]">Email</label>
         <input
           id="email"
           type="email"
           formControlName="email"
-          class="form-control"
+          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
           placeholder="Enter your email"
         />
-        <div class="error-message" *ngIf="submitted && f['email'].errors">
+        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['email'].errors">
           <span *ngIf="f['email'].errors['required']">Email is required</span>
           <span *ngIf="f['email'].errors['email']">
             Please enter a valid email
@@ -78,16 +78,16 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
+      <div class="mb-4 flex flex-col">
+        <label for="password" class="mb-[6px] text-[14px] font-medium text-[#333]">Password</label>
         <input
           id="password"
           type="password"
           formControlName="password"
-          class="form-control"
+          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
           placeholder="Enter password (min 6 characters)"
         />
-        <div class="error-message" *ngIf="submitted && f['password'].errors">
+        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['password'].errors">
           <span *ngIf="f['password'].errors['required']">Password is required</span>
           <span *ngIf="f['password'].errors['minlength']">
             Password must be at least 6 characters
@@ -95,16 +95,16 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
+      <div class="mb-4 flex flex-col">
+        <label for="confirmPassword" class="mb-[6px] text-[14px] font-medium text-[#333]">Confirm Password</label>
         <input
           id="confirmPassword"
           type="password"
           formControlName="confirmPassword"
-          class="form-control"
+          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
           placeholder="Confirm your password"
         />
-        <div class="error-message" *ngIf="submitted && f['confirmPassword'].errors">
+        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['confirmPassword'].errors">
           <span *ngIf="f['confirmPassword'].errors['required']">
             Please confirm your password
           </span>
@@ -114,23 +114,23 @@
         </div>
       </div>
 
-      <div class="alert alert-danger" *ngIf="error">
+      <div class="mb-5 rounded-sm border border-[#f5c6cb] bg-[#f8d7da] p-3 text-[#721c24]" *ngIf="error">
         {{ error }}
       </div>
 
       <button
         type="submit"
-        class="btn btn-primary btn-block"
+        class="mt-[10px] flex w-full cursor-pointer items-center justify-center rounded-sm border-none bg-[#667eea] p-[10px] text-base font-semibold text-white transition-all hover:bg-[#556fd1] disabled:cursor-not-allowed disabled:opacity-60"
         [disabled]="loading"
       >
-        <span *ngIf="loading" class="spinner"></span>
-        <span *ngIf="!loading">Register</span>
+        <span *ngIf="loading" class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        <span>Register</span>
       </button>
     </form>
 
-    <p class="login-link">
+    <p class="mt-5 text-center text-[14px] text-[#666]">
       Already have an account?
-      <a (click)="navigateToLogin()" class="link">Login here</a>
+      <a (click)="navigateToLogin()" class="cursor-pointer font-semibold text-[#667eea] no-underline hover:underline">Login here</a>
     </p>
   </div>
 </div>

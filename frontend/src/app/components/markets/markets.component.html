@@ -1,0 +1,71 @@
+<div class="min-h-screen bg-color-bg-light px-5 pt-5 pb-[200px]">
+  <div class="mb-[30px] text-center">
+    <h1 class="m-0 mb-[10px] text-[28px] font-bold text-[#333]">Top Cryptocurrencies by Market Cap</h1>
+    <p class="m-0 text-[14px] text-[#666]">Live data updated every 60 seconds</p>
+  </div>
+
+  <div *ngIf="error" class="mb-5 rounded-sm border border-[#f5c6cb] bg-[#f8d7da] p-[15px] text-[#721c24]">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="flex flex-col items-center justify-center p-[60px_20px]">
+    <div class="h-[50px] w-[50px] animate-spin rounded-full border-4 border-[#f3f3f3] border-t-[#667eea]"></div>
+    <p class="mt-5 text-[#666]">Loading market data...</p>
+  </div>
+
+  <div *ngIf="!loading && displayedCoins.length > 0" class="mb-[30px] overflow-x-auto rounded-lg bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white">
+          <th class="p-[15px_12px] text-left text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px] sm:text-[11px]">Rank</th>
+          <th class="p-[15px_12px] text-left text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px] sm:text-[11px]">Name</th>
+          <th class="p-[15px_12px] text-left text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px] sm:text-[11px]">Price</th>
+          <th class="p-[15px_12px_15px_20px] text-right text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px_10px_10px] sm:text-[11px]">1h %</th>
+          <th class="p-[15px_12px_15px_20px] text-right text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px_10px_10px] sm:text-[11px]">24h %</th>
+          <th class="p-[15px_12px_15px_20px] text-right text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px_10px_10px] sm:text-[11px]">7d %</th>
+          <th class="p-[15px_12px] text-left text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px] sm:text-[11px]">Market Cap</th>
+          <th class="p-[15px_12px] text-left text-[13px] font-semibold uppercase tracking-wider sm:p-[10px_8px] sm:text-[11px]">Volume (24h)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let coin of displayedCoins" class="border-bottom border-[#f0f0f0] transition-colors hover:bg-[#f9f9f9] last:border-none cursor-pointer" (click)="openChart(coin.symbol)">
+          <td class="p-[15px_12px] text-[14px] font-semibold text-[#666] sm:p-[10px_8px] sm:text-[12px] w-[60px]">{{ coin.market_cap_rank }}</td>
+          <td class="flex min-w-[200px] items-center gap-3 p-[15px_12px] sm:min-w-[150px] sm:p-[10px_8px]">
+            <img [src]="coin.image" [alt]="coin.name" class="h-8 w-8 rounded-full sm:h-6 sm:w-6" />
+            <div>
+              <div class="text-[14px] font-semibold text-[#333] sm:text-[12px]">{{ coin.name }}</div>
+              <div class="text-[12px] uppercase text-[#999]">{{ coin.symbol }}</div>
+            </div>
+          </td>
+          <td class="whitespace-nowrap p-[15px_12px] text-[14px] font-semibold text-[#333] sm:p-[10px_8px] sm:text-[12px]">{{ formatPrice(coin.current_price) }}</td>
+          <td class="whitespace-nowrap p-[15px_20px_15px_12px] text-right text-[14px] font-medium sm:p-[10px_10px_10px_8px] sm:text-[12px]" [ngClass]="getPercentClass(coin.price_change_percentage_1h_in_currency)">
+            {{ formatPercent(coin.price_change_percentage_1h_in_currency) }}
+          </td>
+          <td class="whitespace-nowrap p-[15px_20px_15px_12px] text-right text-[14px] font-medium sm:p-[10px_10px_10px_8px] sm:text-[12px]" [ngClass]="getPercentClass(coin.price_change_percentage_24h_in_currency)">
+            {{ formatPercent(coin.price_change_percentage_24h_in_currency) }}
+          </td>
+          <td class="whitespace-nowrap p-[15px_20px_15px_12px] text-right text-[14px] font-medium sm:p-[10px_10px_10px_8px] sm:text-[12px]" [ngClass]="getPercentClass(coin.price_change_percentage_7d_in_currency)">
+            {{ formatPercent(coin.price_change_percentage_7d_in_currency) }}
+          </td>
+          <td class="whitespace-nowrap p-[15px_12px] text-right font-mono text-[14px] text-[#333] sm:p-[10px_8px] sm:text-[12px] sm:pr-[10px]">{{ formatMarketCap(coin.market_cap) }}</td>
+          <td class="whitespace-nowrap p-[15px_12px] text-right font-mono text-[14px] text-[#333] sm:p-[10px_8px] sm:text-[12px] sm:pr-[10px]">{{ formatVolume(coin.total_volume) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div #sentinel class="invisible h-[1px]"></div>
+
+    <div *ngIf="appending" class="-mt-[1px] flex flex-col items-center justify-center rounded-lg bg-white p-[30px_20px]">
+      <div class="h-[30px] w-[30px] animate-spin rounded-full border-[3px] border-[#f3f3f3] border-t-[#667eea]"></div>
+      <p class="mt-[15px] text-[14px] text-[#666]">Loading more cryptocurrencies...</p>
+    </div>
+
+    <div *ngIf="!canLoadMore() && displayedCoins.length > 0" class="-mt-[1px] rounded-lg bg-white p-[30px_20px] text-center text-[14px] text-[#999]">
+      <p>All {{ displayedCoins.length }} coins loaded</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && displayedCoins.length === 0" class="rounded-lg bg-white p-[60px_20px] text-center">
+    <p class="text-base text-[#999]">No data available</p>
+  </div>
+</div>

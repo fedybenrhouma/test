@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -38,7 +38,8 @@ export class DashboardComponent implements OnInit {
     private authService: AuthService,
     private userService: UserService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -64,15 +65,33 @@ export class DashboardComponent implements OnInit {
   }
 
   loadUserProfile(): void {
+    // First try to get from auth service
     this.currentUser = this.authService.getCurrentUser();
-
+    
     if (this.currentUser) {
+      console.log('Loading user from authService:', this.currentUser);
       this.profileForm.patchValue({
         firstName: this.currentUser.firstName,
         lastName: this.currentUser.lastName,
         username: this.currentUser.username,
       });
     }
+
+    // Fetch fresh data from server
+    this.userService.getProfile().subscribe({
+      next: (response) => {
+        console.log('Fresh user data from server:', response.user);
+        this.currentUser = response.user;
+        this.profileForm.patchValue({
+          firstName: response.user.firstName,
+          lastName: response.user.lastName,
+          username: response.user.username,
+        });
+      },
+      error: (error) => {
+        console.error('Error fetching profile:', error);
+      }
+    });
   }
 
   get pf() {
@@ -89,29 +108,46 @@ export class DashboardComponent implements OnInit {
     this.profileSuccess = false;
 
     if (this.profileForm.invalid) {
+      console.log('Profile form is invalid');
       return;
     }
 
     this.profileLoading = true;
+    this.cdr.markForCheck();
 
     const { firstName, lastName, username } = this.profileForm.value;
 
+    console.log('Updating profile with:', { firstName, lastName, username });
+
     this.userService.updateProfile({ firstName, lastName, username }).subscribe({
       next: (response) => {
+        console.log('Profile updated successfully:', response);
         this.profileLoading = false;
+        this.cdr.markForCheck();
         this.profileSuccess = true;
         this.currentUser = response.user;
+        
+        // Update auth service with new user data
         localStorage.setItem('current_user', JSON.stringify(response.user));
+        console.log('User data saved to localStorage');
 
         setTimeout(() => {
           this.profileSuccess = false;
+          this.cdr.markForCheck();
         }, 3000);
       },
       error: (error) => {
+        console.error('Profile update error:', error);
         this.profileLoading = false;
+        this.cdr.markForCheck();
         this.profileError =
           error.error?.message || 'Failed to update profile. Try again.';
       },
+      complete: () => {
+        console.log('Profile update request completed');
+        this.profileLoading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -134,25 +170,38 @@ export class DashboardComponent implements OnInit {
 
     this.passwordLoading = true;
 
+    console.log('Changing password...');
+
     this.userService
       .changePassword({ currentPassword, newPassword })
       .subscribe({
         next: (response) => {
+          console.log('Password changed successfully:', response);
           this.passwordLoading = false;
+          this.cdr.markForCheck();
           this.passwordSuccess = true;
           this.passwordForm.reset();
           this.passwordSubmitted = false;
 
           setTimeout(() => {
             this.passwordSuccess = false;
+            this.cdr.markForCheck();
           }, 3000);
         },
         error: (error) => {
+          console.error('Password change error:', error);
           this.passwordLoading = false;
+          this.cdr.markForCheck();
           this.passwordError =
             error.error?.message ||
+            error.message ||
             'Failed to change password. Try again.';
         },
+        complete: () => {
+          console.log('Password change request completed');
+          this.passwordLoading = false;
+          this.cdr.markForCheck();
+        }
       });
   }
 

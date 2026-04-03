@@ -1,0 +1,201 @@
+<div class="fixed inset-0 z-[999] animate-[fadeIn_0.2s_ease] bg-black/50" (click)="onBackdropClick()"></div>
+
+<div class="fixed top-1/2 left-1/2 z-[1000] w-[90%] max-w-[450px] -translate-x-1/2 -translate-y-1/2 animate-[slideUp_0.3s_ease] sm:w-[95%] sm:max-w-full">
+  <div class="relative rounded-xl bg-white p-10 shadow-[0_20px_60px_rgba(0,0,0,0.3)] sm:p-[30px_20px]" (click)="$event.stopPropagation()">
+    <button class="absolute top-[15px] right-[15px] cursor-pointer border-none bg-none text-[24px] text-[#999] transition-colors hover:text-[#333]" (click)="closeModal()">✕</button>
+
+    <div class="mb-[30px] text-center">
+      <h2 class="m-0 text-[28px] font-bold text-[#333]">{{ isSignUp ? 'Create Account' : 'Log In' }}</h2>
+    </div>
+
+    <div *ngIf="error" class="mb-5 rounded-md border border-[#f5c6cb] bg-[#f8d7da] p-3 text-[14px] text-[#721c24]">
+      {{ error }}
+    </div>
+
+    <!-- Login Form -->
+    <form *ngIf="!isSignUp" [formGroup]="loginForm" (ngSubmit)="onLogin()" class="flex flex-col gap-5">
+      <div class="flex flex-col gap-2">
+        <label for="email" class="text-[14px] font-semibold text-[#333]">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="rounded-md border border-[#ddd] p-3 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+          placeholder="Enter your email address..."
+        />
+        <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="lf['email'].invalid && lf['email'].touched">
+          <span *ngIf="lf['email']?.errors?.['required']">
+            Email is required
+          </span>
+          <span *ngIf="lf['email']?.errors?.['email']">
+            Please enter a valid email
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="password" class="text-[14px] font-semibold text-[#333]">Password</label>
+        <div class="relative">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            class="w-full rounded-md border border-[#ddd] p-3 pr-10 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+            placeholder="Enter your password..."
+          />
+          <button
+            type="button"
+            class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer border-none bg-none p-0 text-[18px] opacity-60 transition-opacity hover:opacity-100"
+            (click)="togglePasswordVisibility()"
+          >
+            {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+        <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="lf['password'].invalid && lf['password'].touched">
+          <span *ngIf="lf['password']?.errors?.['required']">
+            Password is required
+          </span>
+          <span *ngIf="lf['password']?.errors?.['minlength']">
+            Password must be at least 6 characters
+          </span>
+        </div>
+      </div>
+
+      <button type="submit" class="cursor-pointer rounded-md border-none bg-linear-to-br from-[#667eea] to-[#764ba2] p-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-[2px] hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none" [disabled]="isLoading">
+        {{ isLoading ? 'Logging in...' : 'Log In' }}
+      </button>
+    </form>
+
+    <!-- Sign Up Form -->
+    <form *ngIf="isSignUp" [formGroup]="signUpForm" (ngSubmit)="onSignUp()" class="flex flex-col gap-5">
+      <div class="grid grid-cols-2 gap-[15px] sm:grid-cols-1">
+        <div class="flex flex-col gap-2">
+          <label for="firstName" class="text-[14px] font-semibold text-[#333]">First Name</label>
+          <input
+            id="firstName"
+            type="text"
+            formControlName="firstName"
+            class="rounded-md border border-[#ddd] p-3 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+            placeholder="First name"
+          />
+          <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="signUpSubmitted && sf['firstName'].invalid">
+            <span *ngIf="sf['firstName']?.errors?.['required']">
+              First name is required
+            </span>
+            <span *ngIf="sf['firstName']?.errors?.['minlength']">
+              Must be at least 2 characters
+            </span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="lastName" class="text-[14px] font-semibold text-[#333]">Last Name</label>
+          <input
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            class="rounded-md border border-[#ddd] p-3 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+            placeholder="Last name"
+          />
+          <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="signUpSubmitted && sf['lastName'].invalid">
+            <span *ngIf="sf['lastName']?.errors?.['required']">
+              Last name is required
+            </span>
+            <span *ngIf="sf['lastName']?.errors?.['minlength']">
+              Must be at least 2 characters
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="email-signup" class="text-[14px] font-semibold text-[#333]">Email Address</label>
+        <input
+          id="email-signup"
+          type="email"
+          formControlName="email"
+          class="rounded-md border border-[#ddd] p-3 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+          placeholder="Enter your email address..."
+        />
+        <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="signUpSubmitted && sf['email'].invalid">
+          <span *ngIf="sf['email']?.errors?.['required']">
+            Email is required
+          </span>
+          <span *ngIf="sf['email']?.errors?.['email']">
+            Please enter a valid email
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="username" class="text-[14px] font-semibold text-[#333]">Username</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          class="rounded-md border border-[#ddd] p-3 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+          placeholder="Choose a username"
+        />
+        <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="signUpSubmitted && sf['username'].invalid">
+          <span *ngIf="sf['username']?.errors?.['required']">
+            Username is required
+          </span>
+          <span *ngIf="sf['username']?.errors?.['minlength']">
+            Must be at least 3 characters
+          </span>
+          <span *ngIf="sf['username']?.errors?.['maxlength']">
+            Cannot exceed 30 characters
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="password-signup" class="text-[14px] font-semibold text-[#333]">Password</label>
+        <input
+          id="password-signup"
+          type="password"
+          formControlName="password"
+          class="rounded-md border border-[#ddd] p-3 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+          placeholder="Create a password (min 6 characters)"
+        />
+        <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="signUpSubmitted && sf['password'].invalid">
+          <span *ngIf="sf['password']?.errors?.['required']">
+            Password is required
+          </span>
+          <span *ngIf="sf['password']?.errors?.['minlength']">
+            Must be at least 6 characters
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="confirmPassword" class="text-[14px] font-semibold text-[#333]">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          class="rounded-md border border-[#ddd] p-3 text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
+          placeholder="Confirm your password"
+        />
+        <div class="mt-[-4px] text-[12px] text-color-error" *ngIf="signUpSubmitted && sf['confirmPassword'].invalid">
+          <span *ngIf="sf['confirmPassword']?.errors?.['required']">
+            Please confirm your password
+          </span>
+        </div>
+      </div>
+
+      <button type="submit" class="cursor-pointer rounded-md border-none bg-linear-to-br from-[#667eea] to-[#764ba2] p-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-[2px] hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none" [disabled]="isLoading">
+        {{ isLoading ? 'Creating account...' : 'Sign Up' }}
+      </button>
+    </form>
+
+    <div class="mt-[25px] text-center">
+      <p class="m-0 text-[14px] text-[#666]">
+        {{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}
+        <button type="button" class="ml-1 cursor-pointer border-none bg-none p-0 font-semibold text-[#667eea] underline hover:text-[#764ba2]" (click)="toggleMode()">
+          {{ isSignUp ? 'Log In' : 'Sign Up' }}
+        </button>
+      </p>
+    </div>
+  </div>
+</div>

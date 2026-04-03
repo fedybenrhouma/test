@@ -102,14 +102,20 @@ export class AuthService {
 
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('auth_token');
+      const token = localStorage.getItem('auth_token');
+      console.log('getToken - Retrieved token:', token ? 'Present' : 'Not found');
+      return token;
     }
+    console.log('getToken - Not in browser platform');
     return null;
   }
 
   private setToken(token: string): void {
     if (isPlatformBrowser(this.platformId)) {
+      console.log('setToken - Storing token in localStorage');
       localStorage.setItem('auth_token', token);
+      const stored = localStorage.getItem('auth_token');
+      console.log('setToken - Token verified in localStorage:', stored ? 'SUCCESS' : 'FAILED');
     }
   }
 

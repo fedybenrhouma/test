@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const sequelize = require('./config/database');
+const redis = require('./config/redis');
 const User = require('./models/User');
 
 const app = express();
@@ -24,6 +25,7 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/crypto', require('./routes/markets'));
 
 // 404 handler
 app.use((req, res) => {

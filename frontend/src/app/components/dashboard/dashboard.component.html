@@ -1,64 +1,63 @@
-<div class="dashboard-container">
-  <nav class="navbar">
-    <div class="navbar-content">
-      <h1>Dashboard</h1>
-      <button (click)="logout()" class="btn btn-logout">Logout</button>
-    </div>
-  </nav>
-
-  <div class="dashboard-content">
-    <div class="sidebar">
-      <div class="user-card">
-        <div class="avatar">{{ currentUser?.firstName?.charAt(0) ?? 'U' }}</div>
-        <h3>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h3>
-        <p>@{{ currentUser?.username }}</p>
-        <p class="email">{{ currentUser?.email }}</p>
+<div class="min-h-screen bg-color-bg-light pt-5">
+  <div class="mx-auto flex max-w-[1200px] gap-5 px-5 md:flex-col">
+    <div class="basis-[300px] md:basis-auto">
+      <div class="mb-5 rounded-lg bg-white p-[30px] text-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+        <div
+          class="mx-auto mb-[15px] flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-[#667eea] to-[#764ba2] text-[32px] font-bold text-white"
+        >
+          {{ currentUser?.firstName?.charAt(0) ?? 'U' }}
+        </div>
+        <h3 class="my-[10px] text-[#333] text-lg font-bold">
+          {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+        </h3>
+        <p class="my-[5px] text-[14px] text-[#666]">@{{ currentUser?.username }}</p>
+        <p class="my-[5px] text-[12px] text-[#999]">{{ currentUser?.email }}</p>
       </div>
 
-      <div class="menu">
+      <div class="flex flex-col gap-[10px]">
         <button
           (click)="setActiveTab('profile')"
-          [class.active]="activeTab === 'profile'"
-          class="menu-item"
+          [class]="activeTab === 'profile' ? 'bg-linear-to-br from-[#667eea] to-[#764ba2] text-white border-transparent' : 'bg-white border-[#ddd] text-[#333] hover:bg-color-bg-light'"
+          class="cursor-pointer rounded-sm border p-[12px_16px] text-left text-[14px] font-medium transition-all"
         >
-          <span class="icon">👤</span>
+          <span class="mr-2">👤</span>
           Profile
         </button>
         <button
           (click)="setActiveTab('security')"
-          [class.active]="activeTab === 'security'"
-          class="menu-item"
+          [class]="activeTab === 'security' ? 'bg-linear-to-br from-[#667eea] to-[#764ba2] text-white border-transparent' : 'bg-white border-[#ddd] text-[#333] hover:bg-color-bg-light'"
+          class="cursor-pointer rounded-sm border p-[12px_16px] text-left text-[14px] font-medium transition-all"
         >
-          <span class="icon">🔒</span>
+          <span class="mr-2">🔐</span>
           Security
         </button>
       </div>
     </div>
 
-    <div class="main-content">
+    <div class="flex-1 rounded-lg bg-white p-[30px] shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
       <div class="tab-content" *ngIf="activeTab === 'profile'">
-        <h2>Edit Profile</h2>
+        <h2 class="mt-0 mb-5 text-[24px] font-bold text-[#333]">Edit Profile</h2>
 
-        <div class="alert alert-success" *ngIf="profileSuccess">
+        <div class="mb-5 rounded-sm border border-[#c3e6cb] bg-[#d4edda] p-3 text-[#155724]" *ngIf="profileSuccess">
           Profile updated successfully!
         </div>
 
-        <div class="alert alert-danger" *ngIf="profileError">
+        <div class="mb-5 rounded-sm border border-[#f5c6cb] bg-[#f8d7da] p-3 text-[#721c24]" *ngIf="profileError">
           {{ profileError }}
         </div>
 
         <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="firstName">First Name</label>
+          <div class="mb-5 grid grid-cols-2 gap-5 sm:grid-cols-1">
+            <div class="flex flex-col">
+              <label for="firstName" class="mb-2 text-[14px] font-medium text-[#333]">First Name</label>
               <input
                 id="firstName"
                 type="text"
                 formControlName="firstName"
-                class="form-control"
+                class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
                 placeholder="First name"
               />
-              <div class="error-message" *ngIf="profileSubmitted && pf['firstName'].errors">
+              <div class="mt-[5px] text-[12px] text-color-error" *ngIf="profileSubmitted && pf['firstName'].errors">
                 <span *ngIf="pf['firstName'].errors['required']">
                   First name is required
                 </span>
@@ -68,16 +67,16 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="lastName">Last Name</label>
+            <div class="flex flex-col">
+              <label for="lastName" class="mb-2 text-[14px] font-medium text-[#333]">Last Name</label>
               <input
                 id="lastName"
                 type="text"
                 formControlName="lastName"
-                class="form-control"
+                class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
                 placeholder="Last name"
               />
-              <div class="error-message" *ngIf="profileSubmitted && pf['lastName'].errors">
+              <div class="mt-[5px] text-[12px] text-color-error" *ngIf="profileSubmitted && pf['lastName'].errors">
                 <span *ngIf="pf['lastName'].errors['required']">
                   Last name is required
                 </span>
@@ -88,16 +87,16 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="username">Username</label>
+          <div class="mb-5 flex flex-col">
+            <label for="username" class="mb-2 text-[14px] font-medium text-[#333]">Username</label>
             <input
               id="username"
               type="text"
               formControlName="username"
-              class="form-control"
+              class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
               placeholder="Username"
             />
-            <div class="error-message" *ngIf="profileSubmitted && pf['username'].errors">
+            <div class="mt-[5px] text-[12px] text-color-error" *ngIf="profileSubmitted && pf['username'].errors">
               <span *ngIf="pf['username'].errors['required']">
                 Username is required
               </span>
@@ -112,7 +111,7 @@
 
           <button
             type="submit"
-            class="btn btn-primary"
+            class="cursor-pointer rounded-sm border-none bg-linear-to-br from-[#667eea] to-[#764ba2] p-[10px_24px] text-[14px] font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             [disabled]="profileLoading"
           >
             {{ profileLoading ? 'Updating...' : 'Update Profile' }}
@@ -121,43 +120,43 @@
       </div>
 
       <div class="tab-content" *ngIf="activeTab === 'security'">
-        <h2>Change Password</h2>
+        <h2 class="mt-0 mb-5 text-[24px] font-bold text-[#333]">Change Password</h2>
 
-        <div class="alert alert-success" *ngIf="passwordSuccess">
+        <div class="mb-5 rounded-sm border border-[#c3e6cb] bg-[#d4edda] p-3 text-[#155724]" *ngIf="passwordSuccess">
           Password changed successfully!
         </div>
 
-        <div class="alert alert-danger" *ngIf="passwordError">
+        <div class="mb-5 rounded-sm border border-[#f5c6cb] bg-[#f8d7da] p-3 text-[#721c24]" *ngIf="passwordError">
           {{ passwordError }}
         </div>
 
         <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
-          <div class="form-group">
-            <label for="currentPassword">Current Password</label>
+          <div class="mb-5 flex flex-col">
+            <label for="currentPassword" class="mb-2 text-[14px] font-medium text-[#333]">Current Password</label>
             <input
               id="currentPassword"
               type="password"
               formControlName="currentPassword"
-              class="form-control"
+              class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
               placeholder="Enter current password"
             />
-            <div class="error-message" *ngIf="passwordSubmitted && pwf['currentPassword'].errors">
+            <div class="mt-[5px] text-[12px] text-color-error" *ngIf="passwordSubmitted && pwf['currentPassword'].errors">
               <span *ngIf="pwf['currentPassword'].errors['required']">
                 Current password is required
               </span>
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="newPassword">New Password</label>
+          <div class="mb-5 flex flex-col">
+            <label for="newPassword" class="mb-2 text-[14px] font-medium text-[#333]">New Password</label>
             <input
               id="newPassword"
               type="password"
               formControlName="newPassword"
-              class="form-control"
+              class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
               placeholder="Enter new password (min 6 characters)"
             />
-            <div class="error-message" *ngIf="passwordSubmitted && pwf['newPassword'].errors">
+            <div class="mt-[5px] text-[12px] text-color-error" *ngIf="passwordSubmitted && pwf['newPassword'].errors">
               <span *ngIf="pwf['newPassword'].errors['required']">
                 New password is required
               </span>
@@ -167,16 +166,16 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="confirmPassword">Confirm New Password</label>
+          <div class="mb-5 flex flex-col">
+            <label for="confirmPassword" class="mb-2 text-[14px] font-medium text-[#333]">Confirm New Password</label>
             <input
               id="confirmPassword"
               type="password"
               formControlName="confirmPassword"
-              class="form-control"
+              class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea] focus:ring-3 focus:ring-[#667eea]/10"
               placeholder="Confirm new password"
             />
-            <div class="error-message" *ngIf="passwordSubmitted && pwf['confirmPassword'].errors">
+            <div class="mt-[5px] text-[12px] text-color-error" *ngIf="passwordSubmitted && pwf['confirmPassword'].errors">
               <span *ngIf="pwf['confirmPassword'].errors['required']">
                 Please confirm your password
               </span>
@@ -185,7 +184,7 @@
 
           <button
             type="submit"
-            class="btn btn-primary"
+            class="cursor-pointer rounded-sm border-none bg-linear-to-br from-[#667eea] to-[#764ba2] p-[10px_24px] text-[14px] font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             [disabled]="passwordLoading"
           >
             {{ passwordLoading ? 'Changing...' : 'Change Password' }}

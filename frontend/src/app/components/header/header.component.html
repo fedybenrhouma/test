@@ -1,0 +1,101 @@
+<header class="sticky top-0 z-[100] bg-linear-to-br from-[#667eea] to-[#764ba2] text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
+  <div class="mx-auto flex h-[70px] max-w-[1400px] items-center justify-between px-5 sm:px-[15px] sm:h-[60px]">
+    <div class="logo">
+      <h1 class="m-0 whitespace-nowrap text-2xl font-bold sm:text-lg">CryptoApp</h1>
+    </div>
+
+    <nav class="ml-[50px] hidden flex-1 gap-[30px] md:flex">
+      <a
+        routerLink="/markets"
+        routerLinkActive="!text-white"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-[14px] font-medium text-white/80 no-underline transition-colors hover:text-white"
+      >
+        Markets
+      </a>
+      <a
+        routerLink="/portfolio"
+        routerLinkActive="!text-white"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-[14px] font-medium text-white/80 no-underline transition-colors hover:text-white"
+      >
+        Portfolio
+      </a>
+    </nav>
+
+    <div class="flex items-center gap-5">
+      <div *ngIf="!isAuthenticated" class="flex gap-3">
+        <button
+          (click)="openLoginModal()"
+          class="cursor-pointer rounded-sm border-2 border-white bg-transparent px-[18px] py-2 text-[14px] font-semibold text-white no-underline transition-all hover:bg-white/10 sm:px-3 sm:py-[6px] sm:text-[12px]"
+        >
+          Log In
+        </button>
+        <a
+          routerLink="/register"
+          class="hidden cursor-pointer rounded-sm border-none bg-white px-[18px] py-2 text-[14px] font-semibold text-[#667eea] no-underline transition-all hover:-translate-y-[2px] hover:shadow-[0_4px_12px_rgba(0,0,0,0.2)] md:block"
+        >
+          Sign Up
+        </a>
+      </div>
+
+      <div *ngIf="isAuthenticated" class="relative">
+        <button
+          (click)="toggleAccountMenu()"
+          class="relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 border-white/30 bg-white/20 text-lg font-bold text-white transition-all hover:border-white/50 hover:bg-white/30 sm:h-10 sm:w-10 sm:text-base"
+        >
+          <span class="absolute top-[2px] right-[2px] text-[12px]">⚙️</span>
+          <span class="text-base sm:text-[16px]">{{ currentUser?.firstName?.charAt(0) ?? 'U' }}</span>
+        </button>
+
+        <div
+          *ngIf="showAccountMenu"
+          class="absolute top-[calc(100%+10px)] right-0 w-[280px] origin-top animate-[slideDown_0.3s_ease] overflow-hidden rounded-lg bg-white shadow-[0_8px_32px_rgba(0,0,0,0.2)] sm:right-[-10px] sm:w-[250px]"
+          (clickOutside)="closeAccountMenu()"
+        >
+          <div class="bg-color-bg-light p-[15px]">
+            <div class="flex items-center gap-3">
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-[#667eea] to-[#764ba2] text-[16px] font-bold text-white"
+              >
+                {{ currentUser?.firstName?.charAt(0) ?? 'U' }}
+              </div>
+              <div>
+                <div class="text-[14px] font-semibold text-[#333]">
+                  {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+                </div>
+                <div class="text-[12px] text-[#999]">{{ currentUser?.email }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="h-[1px] bg-[#e0e0e0]"></div>
+
+          <button
+            (click)="goToDashboard()"
+            class="flex w-full cursor-pointer items-center gap-3 bg-none p-[12px_15px] text-left text-[14px] font-medium text-[#333] transition-colors hover:bg-color-bg-light"
+          >
+            <span class="text-[16px]">👤</span>
+            Profile & Settings
+          </button>
+
+          <div class="h-[1px] bg-[#e0e0e0]"></div>
+
+          <button
+            (click)="logout()"
+            class="flex w-full cursor-pointer items-center gap-3 bg-none p-[12px_15px] text-left text-[14px] font-medium text-[#e74c3c] transition-colors hover:bg-[#ffe0e0]"
+          >
+            <span class="text-[16px]">🚪</span>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<app-login-modal
+  *ngIf="showLoginModal"
+  (close)="closeLoginModal()"
+  (loginSuccess)="onLoginSuccess()"
+></app-login-modal>
