@@ -6,14 +6,14 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 
 @Component({
-  selector: 'app-markets',
+  selector: 'app-watchlist',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './markets.component.html',
-  styleUrls: ['./markets.component.scss'],
+  templateUrl: './watchlist.html',
+  styleUrls: ['./watchlist.scss'],
 })
-export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
-  // All 250 coins from API (loaded once)
+export class Watchlist implements OnInit, AfterViewInit, OnDestroy {
+  // Filtered coins that match the watchlist
   allCoins: CryptoMarket[] = [];
   // Currently displayed coins (sliced from allCoins)
   displayedCoins: CryptoMarket[] = [];
@@ -40,7 +40,7 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadMarkets();
+    this.loading = true;
     
     this.authService.isAuthenticated$.subscribe(auth => {
       this.isAuthenticated = auth;
@@ -48,6 +48,8 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadWatchlist();
       } else {
         this.watchlist.clear();
+        this.displayedCoins = [];
+        this.loading = false;
         this.cdr.markForCheck();
       }
     });
@@ -58,15 +60,23 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (res) => {
         if (res.success) {
           this.watchlist = new Set(res.watchlist);
+          this.loadMarkets(); // Load market data AFTER watchlist is fetched
+        } else {
+          this.loading = false;
           this.cdr.markForCheck();
         }
       },
-      error: (err) => console.error('Failed to load watchlist', err)
+      error: (err) => {
+        console.error('Failed to load watchlist', err);
+        this.error = 'Failed to load watchlist data';
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
   toggleWatchlist(event: Event, coinId: string): void {
-    event.stopPropagation(); // prevent row click
+    event.stopPropagation();
 
     if (!this.isAuthenticated) {
       this.authService.triggerLoginModal();
@@ -76,6 +86,10 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.watchlist.has(coinId)) {
       this.watchlist.delete(coinId);
       this.userService.removeFromWatchlist(coinId).subscribe();
+      
+      // Optimistically remove from view
+      this.allCoins = this.allCoins.filter(c => c.id !== coinId);
+      this.displayedCoins = this.displayedCoins.filter(c => c.id !== coinId);
     } else {
       this.watchlist.add(coinId);
       this.userService.addToWatchlist(coinId).subscribe();
@@ -84,49 +98,29 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Initial setup attempt
     this.setupObserver();
   }
 
   private setupObserver(): void {
-    // Only run in browser, not SSR
-    if (!isPlatformBrowser(this.platformId)) {
-      console.log('Not in browser context, skipping IntersectionObserver setup');
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
 
-    if (!this.sentinel) {
-      console.log('Sentinel not yet available, will retry');
-      return;
-    }
+    if (!this.sentinel) return;
 
-    if (!('IntersectionObserver' in window)) {
-      console.log('IntersectionObserver not available in this browser');
-      return;
-    }
+    if (!('IntersectionObserver' in window)) return;
 
     if (this.observer) {
       this.observer.disconnect();
     }
 
-    console.log('Setting up IntersectionObserver for sentinel:', this.sentinel.nativeElement);
     this.observer = new IntersectionObserver(
       ([entry]) => {
-        console.log('Intersection observed:', {
-          isIntersecting: entry.isIntersecting,
-          totalCoins: this.allCoins.length,
-          displayedCount: this.displayedCoins.length,
-          canLoadMore: this.canLoadMore(),
-        });
         if (entry.isIntersecting && !this.loading && !this.appending && this.canLoadMore()) {
-          console.log('Triggering loadMoreCoins');
           this.loadMoreCoins();
         }
       },
       { threshold: 0.01, rootMargin: '50px' }
     );
     this.observer.observe(this.sentinel.nativeElement);
-    console.log('IntersectionObserver setup complete');
   }
 
   ngOnDestroy(): void {
@@ -136,63 +130,45 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadMarkets(): void {
-    this.loading = true;
     this.error = null;
     this.currentPage = 0;
     this.allCoins = [];
     this.displayedCoins = [];
-    this.cdr.markForCheck();
 
-    console.log('Loading all 250 coins from API...');
     this.cryptoService.getMarkets().subscribe({
       next: (response) => {
-        console.log('All markets loaded:', response.data.length, 'coins');
-        this.allCoins = response.data;
-        // Display first page (50 coins)
+        // Filter immediately based on watchlist
+        this.allCoins = response.data.filter((coin: CryptoMarket) => this.watchlist.has(coin.id));
         this.displayedCoins = this.allCoins.slice(0, this.pageSize);
         this.loading = false;
         this.cdr.markForCheck();
-        // Set up observer after markets are rendered
+        
         setTimeout(() => this.setupObserver(), 0);
       },
       error: (error) => {
         console.error('Error loading markets:', error);
-        this.error = 'Failed to load cryptocurrency markets';
+        this.error = 'Failed to load cryptocurrency data';
         this.loading = false;
         this.cdr.markForCheck();
       },
     });
   }
 
-  /**
-   * Load next batch of coins from local array
-   * NO API call - just slice from allCoins
-   */
   loadMoreCoins(): void {
-    if (!this.canLoadMore()) {
-      console.log('No more coins to load');
-      return;
-    }
+    if (!this.canLoadMore()) return;
 
-    console.log('Loading more coins from local array - page:', this.currentPage, 'total displayed:', this.displayedCoins.length);
     this.appending = true;
     this.cdr.markForCheck();
 
-    // Simulate network delay for UX consistency
     setTimeout(() => {
       this.currentPage++;
       const endIndex = (this.currentPage + 1) * this.pageSize;
       this.displayedCoins = this.allCoins.slice(0, endIndex);
-      
-      console.log('More coins appended:', this.displayedCoins.length, 'total');
       this.appending = false;
       this.cdr.markForCheck();
     }, 300);
   }
 
-  /**
-   * Check if there are more coins to load
-   */
   canLoadMore(): boolean {
     const nextBoundary = (this.currentPage + 2) * this.pageSize;
     return nextBoundary <= this.allCoins.length;

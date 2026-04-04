@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-color-bg-light px-5 pt-5 pb-[200px]">
   <div class="mb-[30px] text-center">
-    <h1 class="m-0 mb-[10px] text-[28px] font-bold text-[#333]">Top Cryptocurrencies by Market Cap</h1>
-    <p class="m-0 text-[14px] text-[#666]">Live data updated every 60 seconds</p>
+    <h1 class="m-0 mb-[10px] text-[28px] font-bold text-[#333]">My Watchlist</h1>
+    <p class="m-0 text-[14px] text-[#666]">Track your favorite cryptocurrencies</p>
   </div>
 
   <div *ngIf="error" class="mb-5 rounded-sm border border-[#f5c6cb] bg-[#f8d7da] p-[15px] text-[#721c24]">
@@ -10,7 +10,7 @@
 
   <div *ngIf="loading" class="flex flex-col items-center justify-center p-[60px_20px]">
     <div class="h-[50px] w-[50px] animate-spin rounded-full border-4 border-[#f3f3f3] border-t-[#667eea]"></div>
-    <p class="mt-5 text-[#666]">Loading market data...</p>
+    <p class="mt-5 text-[#666]">Loading watchlist data...</p>
   </div>
 
   <div *ngIf="!loading && displayedCoins.length > 0" class="mb-[30px] overflow-x-auto rounded-lg bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
@@ -72,7 +72,12 @@
     </div>
   </div>
 
-  <div *ngIf="!loading && displayedCoins.length === 0" class="rounded-lg bg-white p-[60px_20px] text-center">
-    <p class="text-base text-[#999]">No data available</p>
+  <div *ngIf="!loading && displayedCoins.length === 0" class="flex flex-col items-center justify-center rounded-lg bg-white p-[60px_20px] shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+    <i class="fa-regular fa-star text-[48px] text-[#ccc] mb-4"></i>
+    <h2 class="text-[20px] font-bold text-[#333] mb-2">Your watchlist is empty</h2>
+    <p class="text-[#666] mb-6 text-center max-w-[400px]">Keep track of your favorite coins by clicking the star icon next to them on the Markets page.</p>
+    <a href="/markets" class="rounded-md bg-linear-to-br from-[#667eea] to-[#764ba2] px-6 py-2.5 font-semibold text-white no-underline transition-transform hover:-translate-y-[2px] hover:shadow-[0_4px_12px_rgba(102,126,234,0.3)]">
+      Explore Markets
+    </a>
   </div>
 </div>

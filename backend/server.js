@@ -4,6 +4,11 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 const redis = require('./config/redis');
 const User = require('./models/User');
+const Watchlist = require('./models/Watchlist');
+
+// Define relationships
+User.hasMany(Watchlist, { foreignKey: 'userId', as: 'watchlist' });
+Watchlist.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 const app = express();
 

@@ -45,4 +45,16 @@ export class UserService {
       data
     );
   }
+
+  getWatchlist(): Observable<{ success: boolean; watchlist: string[] }> {
+    return this.http.get<{ success: boolean; watchlist: string[] }>(`${this.apiUrl}/watchlist`);
+  }
+
+  addToWatchlist(coinId: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/watchlist`, { coinId });
+  }
+
+  removeFromWatchlist(coinId: string): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/watchlist/${coinId}`);
+  }
 }

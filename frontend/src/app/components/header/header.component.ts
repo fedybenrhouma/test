@@ -36,6 +36,10 @@ export class HeaderComponent implements OnInit {
       this.currentUser = user;
       this.cdr.markForCheck();
     });
+
+    this.authService.triggerLoginModal$.subscribe(() => {
+      this.openLoginModal();
+    });
   }
 
   openLoginModal(): void {

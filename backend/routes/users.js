@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require('../models/User');
 const { verifyToken } = require('../middleware/auth');
 
+const Watchlist = require('../models/Watchlist');
+
 // Get current user profile (protected route)
 router.get('/profile', verifyToken, async (req, res) => {
   try {
@@ -150,6 +152,129 @@ router.post('/change-password', verifyToken, async (req, res) => {
       success: false,
       message: 'Error changing password',
       error: error.message,
+    });
+  }
+});
+
+// --- Watchlist Routes ---
+const redisClient = require('../config/redis');
+
+// Get user's watchlist
+router.get('/watchlist', verifyToken, async (req, res) => {
+  try {
+    const cacheKey = `watchlist:${req.user.id}`;
+    
+    // Check cache first
+    try {
+      const cachedWatchlist = await redisClient.v4.get(cacheKey);
+      if (cachedWatchlist) {
+        return res.status(200).json({
+          success: true,
+          watchlist: JSON.parse(cachedWatchlist),
+          source: 'cache'
+        });
+      }
+    } catch (cacheErr) {
+      console.warn('Redis cache read error:', cacheErr.message);
+    }
+
+    // If not in cache, query DB
+    const watchlist = await Watchlist.findAll({
+      where: { userId: req.user.id },
+      attributes: ['coinId']
+    });
+    
+    const coinIds = watchlist.map(w => w.coinId);
+
+    // Save to cache (expire in 1 hour)
+    try {
+      await redisClient.v4.setEx(cacheKey, 3600, JSON.stringify(coinIds));
+    } catch (cacheErr) {
+      console.warn('Redis cache write error:', cacheErr.message);
+    }
+    
+    return res.status(200).json({
+      success: true,
+      watchlist: coinIds,
+      source: 'database'
+    });
+  } catch (error) {
+    console.error('Get watchlist error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching watchlist',
+      error: error.message
+    });
+  }
+});
+
+// Add coin to watchlist
+router.post('/watchlist', verifyToken, async (req, res) => {
+  try {
+    const { coinId } = req.body;
+    if (!coinId) {
+      return res.status(400).json({ success: false, message: 'Coin ID is required' });
+    }
+
+    const [watchlistItem, created] = await Watchlist.findOrCreate({
+      where: { userId: req.user.id, coinId }
+    });
+
+    if (created) {
+      // Invalidate cache since watchlist changed
+      const cacheKey = `watchlist:${req.user.id}`;
+      try {
+        await redisClient.v4.del(cacheKey);
+      } catch (cacheErr) {
+        console.warn('Redis cache delete error:', cacheErr.message);
+      }
+    }
+
+    return res.status(created ? 201 : 200).json({
+      success: true,
+      message: created ? 'Added to watchlist' : 'Already in watchlist'
+    });
+  } catch (error) {
+    console.error('Add to watchlist error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error adding to watchlist',
+      error: error.message
+    });
+  }
+});
+
+// Remove coin from watchlist
+router.delete('/watchlist/:coinId', verifyToken, async (req, res) => {
+  try {
+    const { coinId } = req.params;
+    
+    const deleted = await Watchlist.destroy({
+      where: { userId: req.user.id, coinId }
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: 'Coin not found in watchlist' });
+    }
+
+    // Invalidate cache since watchlist changed
+    const cacheKey = `watchlist:${req.user.id}`;
+    try {
+      await redisClient.v4.del(cacheKey);
+    } catch (cacheErr) {
+      console.warn('Redis cache delete error:', cacheErr.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Removed from watchlist'
+    });
+  } catch (error) {
+    console.error('Remove from watchlist error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error removing from watchlist',
+      error: error.message
     });
   }
 });

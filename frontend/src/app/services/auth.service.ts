@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap, catchError } from 'rxjs';
 
 export interface User {
   id: string;
@@ -32,6 +32,9 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
+  private triggerLoginModalSubject = new Subject<void>();
+  public triggerLoginModal$ = this.triggerLoginModalSubject.asObservable();
+
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -40,6 +43,10 @@ export class AuthService {
       this.restoreUser();
       this.isAuthenticatedSubject.next(this.hasToken());
     }
+  }
+
+  triggerLoginModal(): void {
+    this.triggerLoginModalSubject.next();
   }
 
   register(data: {
