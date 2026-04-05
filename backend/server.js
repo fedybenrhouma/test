@@ -5,10 +5,14 @@ const sequelize = require('./config/database');
 const redis = require('./config/redis');
 const User = require('./models/User');
 const Watchlist = require('./models/Watchlist');
+const Alert = require('./models/Alert');
 
 // Define relationships
 User.hasMany(Watchlist, { foreignKey: 'userId', as: 'watchlist' });
 Watchlist.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+User.hasMany(Alert, { foreignKey: 'userId', as: 'alerts' });
+Alert.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 const app = express();
 
@@ -31,6 +35,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/crypto', require('./routes/markets'));
+app.use('/api/alerts', require('./routes/alerts'));
 
 // 404 handler
 app.use((req, res) => {

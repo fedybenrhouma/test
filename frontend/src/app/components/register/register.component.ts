@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -39,6 +39,7 @@ export class PasswordStrengthValidator {
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;

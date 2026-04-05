@@ -1,0 +1,143 @@
+<div class="min-h-screen bg-color-bg-light px-5 pt-5 pb-[200px]">
+  <div class="mx-auto max-w-[800px]">
+    
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="m-0 mb-2 text-[28px] font-bold text-[#333]">Notifications</h1>
+        <p class="m-0 text-[14px] text-[#666]">Alerts triggered in the last 2 months</p>
+      </div>
+      <button (click)="openManageModal()" class="bg-[#667eea] hover:bg-[#556fd1] text-white font-semibold py-2 px-4 rounded-md transition-colors cursor-pointer border-none outline-none shadow-sm flex items-center gap-2">
+        <i class="fa-solid fa-sliders"></i> Manage Alerts
+      </button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.05)] border border-[#eee] overflow-hidden">
+      <div *ngIf="notifications.length === 0" class="p-10 text-center text-[#999]">
+        <i class="fa-regular fa-bell-slash text-[48px] mb-4 text-[#ddd]"></i>
+        <h3 class="text-lg font-semibold text-[#666] mb-1">No notifications yet</h3>
+        <p class="text-sm">Set up alerts to get notified when coins hit your target price.</p>
+      </div>
+
+      <div *ngFor="let notif of notifications" class="p-5 border-b border-[#eee] last:border-none flex items-start gap-4 hover:bg-[#f9f9f9] transition-colors cursor-pointer" (click)="goToCoin(notif.coinId)">
+        <div class="w-10 h-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div class="flex-1">
+          <h4 class="m-0 font-bold text-[#333] text-[15px] mb-1">
+            {{ notif.symbol | uppercase }} crossed {{ notif.condition }} ${{ notif.targetPrice }}
+          </h4>
+          <p class="m-0 text-[#666] text-[13px] mb-2">
+            The price of {{ notif.coinId }} has triggered your alert condition.
+          </p>
+          <span class="text-[11px] text-[#999] bg-[#f0f0f0] px-2 py-1 rounded-md font-medium">
+            {{ formatDate(notif.triggeredAt) }}
+          </span>
+        </div>
+        <button (click)="deleteNotification(notif.id); $event.stopPropagation()" class="text-[#999] hover:text-red-500 bg-transparent border-none cursor-pointer p-2" title="Delete notification">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Manage Alerts Modal -->
+<div *ngIf="showManageModal" class="fixed inset-0 z-[1000] flex items-center justify-center px-4">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-[fadeIn_0.2s_ease]" (click)="closeManageModal()"></div>
+  
+  <!-- Modal Content -->
+  <div class="relative bg-white rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-[600px] max-h-[90vh] flex flex-col animate-[slideUp_0.3s_ease]">
+    
+    <div class="flex items-center justify-between p-6 border-b border-[#eee]">
+      <h2 class="m-0 text-xl font-bold text-[#333]">Manage Alerts</h2>
+      <button (click)="closeManageModal()" class="text-[#999] hover:text-[#333] bg-transparent border-none cursor-pointer text-xl transition-colors">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="p-6 overflow-y-auto flex-1">
+      
+      <!-- Create Alert Form -->
+      <div class="bg-[#f8f9fa] p-5 rounded-lg mb-8 border border-[#eaeaea]">
+        <h3 class="m-0 mb-4 text-[15px] font-bold text-[#333]">Create New Alert</h3>
+        
+        <div class="flex flex-col gap-4">
+          <!-- Search Coin -->
+          <div class="relative">
+            <label class="block text-[13px] font-semibold text-[#555] mb-1">Select Coin</label>
+            <div *ngIf="selectedCoin" class="flex items-center justify-between bg-white border border-[#667eea] p-2 rounded-md shadow-sm">
+              <div class="flex items-center gap-2">
+                <img [src]="selectedCoin.image" class="w-6 h-6 rounded-full">
+                <span class="font-bold text-[#333]">{{ selectedCoin.name }}</span>
+                <span class="text-[12px] text-[#999] uppercase">{{ selectedCoin.symbol }}</span>
+              </div>
+              <button (click)="selectedCoin = null" class="text-[#999] hover:text-red-500 bg-transparent border-none cursor-pointer p-1">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            
+            <input *ngIf="!selectedCoin" type="text" [(ngModel)]="searchQuery" (input)="onSearchChange()" placeholder="Search coin (e.g., Bitcoin)" class="w-full border border-[#ddd] rounded-md p-2.5 text-[14px] outline-none focus:border-[#667eea] focus:ring-2 focus:ring-[#667eea]/20 transition-all">
+            
+            <!-- Search Dropdown -->
+            <div *ngIf="!selectedCoin && searchResults.length > 0" class="absolute top-full left-0 right-0 mt-1 bg-white border border-[#ddd] rounded-md shadow-lg z-10 overflow-hidden">
+              <div *ngFor="let coin of searchResults" (click)="selectCoin(coin)" class="flex items-center gap-3 p-3 hover:bg-[#f5f7fa] cursor-pointer transition-colors border-b border-[#eee] last:border-none">
+                <img [src]="coin.image" class="w-6 h-6 rounded-full">
+                <span class="font-semibold text-[#333] text-[14px]">{{ coin.name }}</span>
+                <span class="text-[12px] text-[#999] uppercase">{{ coin.symbol }}</span>
+                <span class="ml-auto text-[13px] font-mono text-[#666]">${{ coin.current_price }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="selectedCoin" class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[13px] font-semibold text-[#555] mb-1">Target Price (USD)</label>
+              <input type="number" [(ngModel)]="targetPrice" class="w-full border border-[#ddd] rounded-md p-2.5 text-[14px] font-mono outline-none focus:border-[#667eea] focus:ring-2 focus:ring-[#667eea]/20 transition-all">
+              <div class="text-[11px] text-[#999] mt-1">Current: ${{ selectedCoin.current_price }}</div>
+            </div>
+            <div>
+              <label class="block text-[13px] font-semibold text-[#555] mb-1">Condition</label>
+              <select [(ngModel)]="condition" class="w-full border border-[#ddd] rounded-md p-2.5 text-[14px] outline-none focus:border-[#667eea] focus:ring-2 focus:ring-[#667eea]/20 transition-all bg-white">
+                <option value="above">Crosses Above</option>
+                <option value="below">Goes Below</option>
+              </select>
+            </div>
+          </div>
+
+          <button *ngIf="selectedCoin" (click)="createAlert()" [disabled]="isSubmitting || !targetPrice" class="w-full bg-[#667eea] hover:bg-[#556fd1] text-white font-bold py-2.5 px-4 rounded-md transition-colors cursor-pointer border-none outline-none shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mt-2">
+            <i class="fa-solid fa-plus mr-1"></i> Create Alert
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Alerts List -->
+      <h3 class="m-0 mb-4 text-[15px] font-bold text-[#333]">Active Alerts</h3>
+      <div *ngIf="activeAlerts.length === 0" class="text-center p-6 text-[#999] border border-dashed border-[#ddd] rounded-lg">
+        No active alerts.
+      </div>
+      <div class="flex flex-col gap-3">
+        <div *ngFor="let alert of activeAlerts" class="flex items-center justify-between p-4 bg-white border border-[#eee] rounded-lg shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[#f0f0f0] flex items-center justify-center text-[#666] font-bold text-[12px] uppercase">
+              {{ alert.symbol }}
+            </div>
+            <div>
+              <div class="font-bold text-[#333] text-[14px]">
+                <span class="text-[#667eea]">{{ alert.condition === 'above' ? '↑ Above' : '↓ Below' }}</span> 
+                <span class="font-mono ml-1">${{ alert.targetPrice }}</span>
+              </div>
+              <div class="text-[12px] text-[#999] capitalize">{{ alert.coinId }}</div>
+            </div>
+          </div>
+          <button (click)="deleteAlert(alert.id)" class="text-[#999] hover:text-red-500 bg-transparent border-none cursor-pointer p-2 transition-colors" title="Delete alert">
+            <i class="fa-solid fa-trash-can text-[15px]"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

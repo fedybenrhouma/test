@@ -2,6 +2,7 @@ import { Component, AfterViewInit, ElementRef, ViewChild, Inject, PLATFORM_ID, O
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { CryptoMarketService } from '../../services/crypto-market.service';
 
 declare global {
   interface Window {
@@ -18,7 +19,8 @@ declare global {
 })
 export class CoinChart implements AfterViewInit, OnDestroy {
   @ViewChild('tvWidgetContainer', { static: false }) tvWidgetContainer?: ElementRef;
-  symbol: string = 'BTC';
+  coinId: string = '';
+  symbol: string = '';
   private paramSub?: Subscription;
 
   chartAvailable: boolean = true;
@@ -28,16 +30,45 @@ export class CoinChart implements AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private cryptoService: CryptoMarketService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.paramSub = this.route.params.subscribe(params => {
-        if (params['symbol']) {
-          this.symbol = params['symbol'].toUpperCase();
+        if (params['name']) {
+          this.coinId = params['name'];
+          
+          // Check query params for symbol
+          this.route.queryParams.subscribe(queryParams => {
+            if (queryParams['symbol']) {
+              this.symbol = queryParams['symbol'].toUpperCase();
+              this.checkSymbolAndLoadChart();
+            } else {
+              // Fetch coin details to get the symbol
+              this.loadingChart = true;
+              this.cdr.detectChanges();
+              this.cryptoService.getCoinDetails(this.coinId).subscribe({
+                next: (res) => {
+                  if (res.success && res.data && res.data.symbol) {
+                    this.symbol = res.data.symbol.toUpperCase();
+                    this.checkSymbolAndLoadChart();
+                  } else {
+                    this.chartAvailable = false;
+                    this.loadingChart = false;
+                    this.cdr.detectChanges();
+                  }
+                },
+                error: () => {
+                  this.chartAvailable = false;
+                  this.loadingChart = false;
+                  this.cdr.detectChanges();
+                }
+              });
+            }
+          });
         }
-        this.checkSymbolAndLoadChart();
       });
     }
   }
@@ -49,7 +80,7 @@ export class CoinChart implements AfterViewInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/markets']);
+    this.router.navigate(['/coin', this.coinId]);
   }
 
   private async checkSymbolAndLoadChart() {

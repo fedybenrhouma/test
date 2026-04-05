@@ -1,6 +1,80 @@
-<div class="min-h-screen bg-color-bg-light p-[40px_20px]">
-  <div class="mx-auto max-w-[1200px] text-center">
-    <h1 class="mb-5 text-[32px] font-bold text-[#333]">Portfolio</h1>
-    <p class="text-lg text-[#666]">Portfolio tracking coming soon...</p>
+<div class="min-h-screen bg-[#0a0a0a] px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 animate-[fadeIn_0.3s_ease]">
+  <div class="mx-auto w-full max-w-2xl sm:max-w-3xl md:max-w-5xl">
+    <!-- Header Section -->
+    <div class="mb-8 text-center sm:mb-12 animate-[slideUp_0.4s_ease]">
+      <h1 class="mb-3 text-3xl font-display font-black text-[#f2f2f2] sm:text-4xl md:text-5xl">
+        Portfolio
+      </h1>
+      <p class="text-sm text-[#888] sm:text-base">Track and manage your cryptocurrency investments</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:mb-12 animate-[slideUp_0.5s_ease]">
+      <!-- Total Value Card -->
+      <div class="rounded-xl border border-white/7 bg-[#111111] p-4 sm:p-6 hover:border-white/15 transition-all duration-300">
+        <p class="mb-2 text-xs uppercase tracking-wider text-[#888] sm:text-sm">Total Value</p>
+        <p class="text-xl font-display font-bold text-[#00d68f] sm:text-2xl md:text-3xl">$0.00</p>
+        <p class="mt-2 text-xs text-[#666]">0 Holdings</p>
+      </div>
+
+      <!-- 24h Change Card -->
+      <div class="rounded-xl border border-white/7 bg-[#111111] p-4 sm:p-6 hover:border-white/15 transition-all duration-300">
+        <p class="mb-2 text-xs uppercase tracking-wider text-[#888] sm:text-sm">24h Change</p>
+        <p class="text-xl font-display font-bold text-[#ef233c] sm:text-2xl md:text-3xl">$0.00</p>
+        <p class="mt-2 text-xs text-[#666]">(0.00%)</p>
+      </div>
+
+      <!-- Total Invested Card -->
+      <div class="rounded-xl border border-white/7 bg-[#111111] p-4 sm:p-6 hover:border-white/15 transition-all duration-300">
+        <p class="mb-2 text-xs uppercase tracking-wider text-[#888] sm:text-sm">Total Invested</p>
+        <p class="text-xl font-display font-bold text-[#f2f2f2] sm:text-2xl md:text-3xl">$0.00</p>
+        <p class="mt-2 text-xs text-[#666]">Total Bought</p>
+      </div>
+
+      <!-- Profit/Loss Card -->
+      <div class="rounded-xl border border-white/7 bg-[#111111] p-4 sm:p-6 hover:border-white/15 transition-all duration-300">
+        <p class="mb-2 text-xs uppercase tracking-wider text-[#888] sm:text-sm">P&L</p>
+        <p class="text-xl font-display font-bold text-[#00d68f] sm:text-2xl md:text-3xl">$0.00</p>
+        <p class="mt-2 text-xs text-[#666]">Unrealized</p>
+      </div>
+    </div>
+
+    <!-- Holdings Section -->
+    <div class="animate-[slideUp_0.6s_ease]">
+      <h2 class="mb-4 text-lg font-display font-bold text-[#f2f2f2] sm:text-xl md:text-2xl sm:mb-6">
+        Your Holdings
+      </h2>
+      
+      <!-- Empty State -->
+      <div class="rounded-xl border border-white/7 border-dashed bg-[#111111]/50 p-8 text-center sm:p-12">
+        <div class="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5 sm:h-20 sm:w-20">
+          <svg class="h-8 w-8 text-[#888] sm:h-10 sm:w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h3 class="mb-2 text-base font-semibold text-[#f2f2f2] sm:text-lg">No holdings yet</h3>
+        <p class="text-sm text-[#888] sm:text-base">
+          Start building your portfolio by adding your first cryptocurrency
+        </p>
+      </div>
+
+      <!-- Holdings Table (Hidden on mobile when empty) -->
+      <div class="mt-6 hidden overflow-x-auto rounded-xl border border-white/7 bg-[#111111] sm:mt-8 md:block">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-white/7 bg-white/3">
+              <th class="px-4 py-3 text-left font-semibold text-[#f2f2f2] sm:px-6">Asset</th>
+              <th class="px-4 py-3 text-right font-semibold text-[#f2f2f2] sm:px-6">Amount</th>
+              <th class="px-4 py-3 text-right font-semibold text-[#f2f2f2] sm:px-6">Price</th>
+              <th class="px-4 py-3 text-right font-semibold text-[#f2f2f2] sm:px-6">Value</th>
+              <th class="px-4 py-3 text-right font-semibold text-[#f2f2f2] sm:px-6">Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Holdings will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>

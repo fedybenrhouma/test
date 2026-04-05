@@ -2,7 +2,11 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: 'chart/:symbol',
+    path: 'coin/:name',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'coin/:name/chart',
     renderMode: RenderMode.Client
   },
   {
@@ -11,6 +15,10 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'portfolio',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'notifications',
     renderMode: RenderMode.Client
   },
   {

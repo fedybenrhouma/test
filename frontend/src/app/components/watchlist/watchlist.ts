@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { CryptoMarketService, CryptoMarket } from '../../services/crypto-market.service';
@@ -11,6 +11,7 @@ import { UserService } from '../../services/user.service';
   imports: [CommonModule],
   templateUrl: './watchlist.html',
   styleUrls: ['./watchlist.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Watchlist implements OnInit, AfterViewInit, OnDestroy {
   // Filtered coins that match the watchlist
@@ -209,7 +210,7 @@ export class Watchlist implements OnInit, AfterViewInit, OnDestroy {
     return percent >= 0 ? 'text-[#27ae60]' : 'text-[#e74c3c]';
   }
 
-  openChart(symbol: string): void {
-    window.open(`/chart/${symbol}`, '_blank');
+  openDetails(id: string): void {
+    window.open(`/coin/${id}`, '_blank');
   }
 }

@@ -1,136 +1,154 @@
-<div class="flex min-h-screen items-center justify-center bg-linear-to-br from-[#667eea] to-[#764ba2] p-5">
-  <div class="w-full max-w-[450px] rounded-lg bg-white p-10 shadow-[0_4px_6px_rgba(0,0,0,0.1)]">
-    <h1 class="mb-[30px] text-center text-[24px] font-semibold text-[#333]">Create Account</h1>
-
-    <div class="mb-5 rounded-sm border border-[#c3e6cb] bg-[#d4edda] p-3 text-[#155724]" *ngIf="success">
-      Registration successful! Redirecting...
+<div class="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-3 py-6 sm:px-4 sm:py-8 overflow-y-auto animate-[fadeIn_0.3s_ease]">
+  <div class="w-full max-w-sm sm:max-w-[420px]">
+    <!-- Logo/Header -->
+    <div class="mb-6 text-center animate-[slideUp_0.4s_ease]">
+      <h1 class="text-3xl sm:text-4xl font-display font-black text-[#f2f2f2] mb-1.5 sm:mb-2 tracking-tight">CryptoMAS</h1>
+      <p class="text-xs sm:text-[14px] text-[#888888]">AI-powered trading debates & portfolio analysis</p>
     </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <div class="mb-4 flex flex-col">
-        <label for="firstName" class="mb-[6px] text-[14px] font-medium text-[#333]">First Name</label>
-        <input
-          id="firstName"
-          type="text"
-          formControlName="firstName"
-          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
-          placeholder="Enter your first name"
-        />
-        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['firstName'].errors">
-          <span *ngIf="f['firstName'].errors['required']">First name is required</span>
-          <span *ngIf="f['firstName'].errors['minlength']">
-            First name must be at least 2 characters
-          </span>
+    <!-- Register Card -->
+    <div class="bg-[#111111] border border-white/7 rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-[slideUp_0.5s_ease]">
+      <h2 class="text-lg sm:text-xl font-bold text-[#f2f2f2] mb-5 sm:mb-6 text-center animate-[slideUp_0.6s_ease]">Create Your Account</h2>
+
+      <div class="mb-4 sm:mb-5 rounded-lg border border-[#00d68f]/30 bg-[#00d68f]/10 p-3 text-[#00d68f] text-[12px] sm:text-[13px] animate-[slideUp_0.7s_ease]" *ngIf="success">
+        <div class="flex items-start gap-2">
+          <iconify-icon icon="lucide:check-circle" class="w-4 h-4 flex-shrink-0 mt-0.5"></iconify-icon>
+          <span>Registration successful! Redirecting...</span>
         </div>
       </div>
 
-      <div class="mb-4 flex flex-col">
-        <label for="lastName" class="mb-[6px] text-[14px] font-medium text-[#333]">Last Name</label>
-        <input
-          id="lastName"
-          type="text"
-          formControlName="lastName"
-          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
-          placeholder="Enter your last name"
-        />
-        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['lastName'].errors">
-          <span *ngIf="f['lastName'].errors['required']">Last name is required</span>
-          <span *ngIf="f['lastName'].errors['minlength']">
-            Last name must be at least 2 characters
-          </span>
-        </div>
-      </div>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-3 sm:space-y-4">
+        <div class="grid grid-cols-2 gap-2 sm:gap-3">
+          <div class="flex flex-col animate-[slideUp_0.8s_ease]">
+            <label for="firstName" class="mb-1.5 text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">First Name</label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-[14px] text-[#f2f2f2] placeholder-[#555555] outline-none transition-all duration-200 focus:border-[#ef233c] focus:ring-2 focus:ring-[#ef233c]/20 focus:scale-[1.02]"
+              placeholder="First name"
+            />
+            <div class="mt-1 text-[10px] sm:text-[11px] text-[#ef233c]" *ngIf="submitted && f['firstName'].errors">
+              <span *ngIf="f['firstName'].errors['required']">Required</span>
+              <span *ngIf="f['firstName'].errors['minlength']">Min 2 characters</span>
+            </div>
+          </div>
 
-      <div class="mb-4 flex flex-col">
-        <label for="username" class="mb-[6px] text-[14px] font-medium text-[#333]">Username</label>
-        <input
-          id="username"
-          type="text"
-          formControlName="username"
-          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
-          placeholder="Choose a username"
-        />
-        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['username'].errors">
-          <span *ngIf="f['username'].errors['required']">Username is required</span>
-          <span *ngIf="f['username'].errors['minlength']">
-            Username must be at least 3 characters
-          </span>
-          <span *ngIf="f['username'].errors['maxlength']">
-            Username cannot exceed 30 characters
-          </span>
+          <div class="flex flex-col animate-[slideUp_0.9s_ease]">
+            <label for="lastName" class="mb-1.5 text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Last Name</label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-[14px] text-[#f2f2f2] placeholder-[#555555] outline-none transition-all duration-200 focus:border-[#ef233c] focus:ring-2 focus:ring-[#ef233c]/20 focus:scale-[1.02]"
+              placeholder="Last name"
+            />
+            <div class="mt-1 text-[10px] sm:text-[11px] text-[#ef233c]" *ngIf="submitted && f['lastName'].errors">
+              <span *ngIf="f['lastName'].errors['required']">Required</span>
+              <span *ngIf="f['lastName'].errors['minlength']">Min 2 characters</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="mb-4 flex flex-col">
-        <label for="email" class="mb-[6px] text-[14px] font-medium text-[#333]">Email</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
-          placeholder="Enter your email"
-        />
-        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['email'].errors">
-          <span *ngIf="f['email'].errors['required']">Email is required</span>
-          <span *ngIf="f['email'].errors['email']">
-            Please enter a valid email
-          </span>
+        <div class="flex flex-col animate-[slideUp_1s_ease]">
+          <label for="username" class="mb-1.5 text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Username</label>
+          <input
+            id="username"
+            type="text"
+            formControlName="username"
+            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-[14px] text-[#f2f2f2] placeholder-[#555555] outline-none transition-all duration-200 focus:border-[#ef233c] focus:ring-2 focus:ring-[#ef233c]/20 focus:scale-[1.02]"
+            placeholder="Choose a username"
+          />
+          <div class="mt-1 text-[10px] sm:text-[11px] text-[#ef233c]" *ngIf="submitted && f['username'].errors">
+            <span *ngIf="f['username'].errors['required']">Required</span>
+            <span *ngIf="f['username'].errors['minlength']">Min 3 characters</span>
+            <span *ngIf="f['username'].errors['maxlength']">Max 30 characters</span>
+          </div>
         </div>
-      </div>
 
-      <div class="mb-4 flex flex-col">
-        <label for="password" class="mb-[6px] text-[14px] font-medium text-[#333]">Password</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
-          placeholder="Enter password (min 6 characters)"
-        />
-        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['password'].errors">
-          <span *ngIf="f['password'].errors['required']">Password is required</span>
-          <span *ngIf="f['password'].errors['minlength']">
-            Password must be at least 6 characters
-          </span>
+        <div class="flex flex-col animate-[slideUp_1.1s_ease]">
+          <label for="email" class="mb-1.5 text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-[14px] text-[#f2f2f2] placeholder-[#555555] outline-none transition-all duration-200 focus:border-[#ef233c] focus:ring-2 focus:ring-[#ef233c]/20 focus:scale-[1.02]"
+            placeholder="your@email.com"
+          />
+          <div class="mt-1 text-[10px] sm:text-[11px] text-[#ef233c]" *ngIf="submitted && f['email'].errors">
+            <span *ngIf="f['email'].errors['required']">Required</span>
+            <span *ngIf="f['email'].errors['email']">Invalid email</span>
+          </div>
         </div>
-      </div>
 
-      <div class="mb-4 flex flex-col">
-        <label for="confirmPassword" class="mb-[6px] text-[14px] font-medium text-[#333]">Confirm Password</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          formControlName="confirmPassword"
-          class="w-full rounded-sm border border-[#ddd] p-[10px_12px] text-[14px] outline-none transition-all focus:border-[#667eea]"
-          placeholder="Confirm your password"
-        />
-        <div class="mt-1 text-[12px] text-color-error" *ngIf="submitted && f['confirmPassword'].errors">
-          <span *ngIf="f['confirmPassword'].errors['required']">
-            Please confirm your password
-          </span>
-          <span *ngIf="f['confirmPassword'].errors['passwordMismatch']">
-            Passwords do not match
-          </span>
+        <div class="flex flex-col animate-[slideUp_1.2s_ease]">
+          <label for="password" class="mb-1.5 text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-[14px] text-[#f2f2f2] placeholder-[#555555] outline-none transition-all duration-200 focus:border-[#ef233c] focus:ring-2 focus:ring-[#ef233c]/20 focus:scale-[1.02]"
+            placeholder="Min 6 characters"
+          />
+          <div class="mt-1 text-[10px] sm:text-[11px] text-[#ef233c]" *ngIf="submitted && f['password'].errors">
+            <span *ngIf="f['password'].errors['required']">Required</span>
+            <span *ngIf="f['password'].errors['minlength']">Min 6 characters</span>
+          </div>
         </div>
-      </div>
 
-      <div class="mb-5 rounded-sm border border-[#f5c6cb] bg-[#f8d7da] p-3 text-[#721c24]" *ngIf="error">
-        {{ error }}
+        <div class="flex flex-col animate-[slideUp_1.3s_ease]">
+          <label for="confirmPassword" class="mb-1.5 text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Confirm Password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-[14px] text-[#f2f2f2] placeholder-[#555555] outline-none transition-all duration-200 focus:border-[#ef233c] focus:ring-2 focus:ring-[#ef233c]/20 focus:scale-[1.02]"
+            placeholder="Confirm your password"
+          />
+          <div class="mt-1 text-[10px] sm:text-[11px] text-[#ef233c]" *ngIf="submitted && f['confirmPassword'].errors">
+            <span *ngIf="f['confirmPassword'].errors['required']">Required</span>
+            <span *ngIf="f['confirmPassword'].errors['passwordMismatch']">Passwords don't match</span>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-[#ef233c]/30 bg-[#ef233c]/10 p-3 text-[#ef233c] text-[12px] sm:text-[13px] animate-[slideUp_1.4s_ease]" *ngIf="error">
+          <div class="flex items-start gap-2">
+            <iconify-icon icon="lucide:alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5"></iconify-icon>
+            <span>{{ error }}</span>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full mt-4 sm:mt-6 bg-[#ef233c] hover:bg-[#d41f2f] text-white font-bold text-xs sm:text-[14px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 hover:shadow-[0_0_20px_rgba(239,35,60,0.4)] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 animate-[slideUp_1.4s_ease]"
+          [disabled]="loading"
+        >
+          <span *ngIf="loading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          <span>{{ loading ? 'Creating Account...' : 'Register' }}</span>
+        </button>
+      </form>
+
+      <div class="my-5 sm:my-6 flex items-center gap-3 animate-[slideUp_1.5s_ease]">
+        <div class="flex-1 h-px bg-white/10"></div>
+        <span class="text-[10px] sm:text-[12px] text-[#555555] uppercase tracking-wider">Have account?</span>
+        <div class="flex-1 h-px bg-white/10"></div>
       </div>
 
       <button
-        type="submit"
-        class="mt-[10px] flex w-full cursor-pointer items-center justify-center rounded-sm border-none bg-[#667eea] p-[10px] text-base font-semibold text-white transition-all hover:bg-[#556fd1] disabled:cursor-not-allowed disabled:opacity-60"
-        [disabled]="loading"
+        type="button"
+        (click)="navigateToLogin()"
+        class="w-full border border-white/10 hover:border-white/20 text-[#f2f2f2] hover:text-white hover:bg-white/5 font-semibold text-xs sm:text-[14px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 bg-transparent animate-[slideUp_1.6s_ease]"
       >
-        <span *ngIf="loading" class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-        <span>Register</span>
+        Sign In Instead
       </button>
-    </form>
+    </div>
 
-    <p class="mt-5 text-center text-[14px] text-[#666]">
-      Already have an account?
-      <a (click)="navigateToLogin()" class="cursor-pointer font-semibold text-[#667eea] no-underline hover:underline">Login here</a>
+    <p class="mt-4 sm:mt-6 text-center text-[10px] sm:text-[12px] text-[#555555] animate-[slideUp_1.7s_ease]">
+      By registering, you agree to our
+      <a href="#" class="text-[#ef233c] hover:text-[#ff3d4d] transition-colors duration-200">Terms of Service</a>
+      and
+      <a href="#" class="text-[#ef233c] hover:text-[#ff3d4d] transition-colors duration-200">Privacy Policy</a>
     </p>
   </div>
 </div>
+

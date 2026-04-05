@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login-modal.component.html',
   styleUrls: ['./login-modal.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginModalComponent {
   @Output() close = new EventEmitter<void>();
