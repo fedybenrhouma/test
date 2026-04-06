@@ -10,6 +10,9 @@ export interface User {
   firstName: string;
   lastName: string;
   isEmailVerified: boolean;
+  isPro?: boolean;
+  proExpiry?: string;
+  isProActive?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -63,6 +66,7 @@ export class AuthService {
           if (response.success && response.token) {
             this.setToken(response.token);
             this.currentUserSubject.next(response.user);
+            this.updateUser(response.user);
             this.isAuthenticatedSubject.next(true);
           }
         }),
@@ -83,6 +87,7 @@ export class AuthService {
             console.log('Token:', response.token);
             this.setToken(response.token);
             this.currentUserSubject.next(response.user);
+            this.updateUser(response.user);
             this.isAuthenticatedSubject.next(true);
           }
         }),
@@ -145,6 +150,26 @@ export class AuthService {
       return !!localStorage.getItem('auth_token');
     }
     return false;
+  }
+
+  refreshUser(): Observable<User> {
+    return new Observable((observer) => {
+      this.http
+        .get<{ success: boolean; user: User }>('http://localhost:3000/api/users/profile')
+        .subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.updateUser(response.user);
+              observer.next(response.user);
+              observer.complete();
+            }
+          },
+          error: (error) => {
+            console.error('Error refreshing user:', error);
+            observer.error(error);
+          },
+        });
+    });
   }
 
   private restoreUser(): void {

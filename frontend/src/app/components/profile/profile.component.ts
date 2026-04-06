@@ -9,13 +9,14 @@ import { AuthService, User } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { BinanceService } from '../../core/services/binance.service';
 import { BinanceStatus, TestResult } from '../../core/models/binance.model';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -48,12 +49,20 @@ export class ProfileComponent implements OnInit {
   showSecret = false;
   showDisconnectConfirm = false;
 
+  // Subscription properties
+  subscriptions: any[] = [];
+  isSubLoading = false;
+  isCancelling = false;
+  showCancelConfirm = false;
+
   constructor(
     private authService: AuthService,
     private userService: UserService,
     private binanceService: BinanceService,
     private formBuilder: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
+    private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -61,6 +70,13 @@ export class ProfileComponent implements OnInit {
     this.initializeForms();
     this.loadUserProfile();
     this.loadBinanceStatus();
+
+    // Check for tab query param
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.setActiveTab(params['tab']);
+      }
+    });
   }
 
   initializeForms(): void {
@@ -103,6 +119,8 @@ export class ProfileComponent implements OnInit {
     this.userService.getProfile().subscribe({
       next: (response) => {
         this.currentUser = response.user;
+        // Update auth service with latest user data (includes pro status)
+        this.authService.updateUser(response.user);
         this.profileForm.patchValue({
           firstName: response.user.firstName,
           lastName: response.user.lastName,
@@ -301,5 +319,57 @@ export class ProfileComponent implements OnInit {
     this.activeTab = tab;
     this.profileError = null;
     this.passwordError = null;
+    
+    if (tab === 'plans') {
+      this.loadSubscriptions();
+    }
+  }
+
+  loadSubscriptions(): void {
+    this.isSubLoading = true;
+    this.cdr.markForCheck();
+
+    this.http.get<any>('http://localhost:3000/api/payments/subscriptions').subscribe({
+      next: (response) => {
+        this.subscriptions = response.subscriptions;
+        this.isSubLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error loading subscriptions:', err);
+        this.isSubLoading = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  cancelSubscription(): void {
+    // Show modal instead of browser confirm
+    this.showCancelConfirm = true;
+  }
+
+  confirmCancelSubscription(): void {
+    this.isCancelling = true;
+    this.showCancelConfirm = false;
+    this.cdr.markForCheck();
+
+    this.http.post<any>('http://localhost:3000/api/payments/cancel-subscription', {}).subscribe({
+      next: (response) => {
+        this.isCancelling = false;
+        // Refresh profile and subscriptions
+        this.loadUserProfile();
+        this.loadSubscriptions();
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error cancelling subscription:', err);
+        this.isCancelling = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  closeCancelConfirm(): void {
+    this.showCancelConfirm = false;
   }
 }

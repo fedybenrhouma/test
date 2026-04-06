@@ -23,6 +23,7 @@ export const routes: Routes = [
   {
     path: 'products',
     component: ProductsComponent,
+    data: { title: 'Products' }
   },
   {
     path: 'watchlist',

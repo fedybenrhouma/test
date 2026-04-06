@@ -33,6 +33,16 @@
       >
         Security
       </button>
+      <button 
+        (click)="setActiveTab('plans')"
+        [class.bg-white]="activeTab === 'plans'"
+        [class.text-black]="activeTab === 'plans'"
+        [class.text-[#888888]]="activeTab !== 'plans'"
+        [class.hover:text-white]="activeTab !== 'plans'"
+        class="px-6 py-2 rounded-lg text-xs font-bold transition-all duration-200 border-none cursor-pointer"
+      >
+        My Plans
+      </button>
     </div>
 
     <!-- Personal Info Tab -->
@@ -141,7 +151,7 @@
     </div>
 
     <!-- Security Tab -->
-    <div *ngIf="activeTab === 'password'" class="animate-[fadeIn_0.3s_ease]">
+    <div *ngIf="activeTab === 'password'" class="animate-[fadeIn_0.3s_ease] space-y-8">
       <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
         <div class="p-8 border-b border-white/5 bg-white/[0.02]">
           <h2 class="text-xl font-bold text-white mb-1">Update Password</h2>
@@ -401,6 +411,152 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Plans Tab -->
+    <div *ngIf="activeTab === 'plans'" class="animate-[fadeIn_0.3s_ease] space-y-8">
+      <!-- Current Plan Status -->
+      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+        <div class="p-8 border-b border-white/5 bg-white/[0.02]">
+          <h2 class="text-xl font-bold text-white mb-1">Subscription Status</h2>
+          <p class="text-xs text-[#555555]">Manage your current active plans and billing.</p>
+        </div>
+
+        <div class="p-8">
+          <div *ngIf="currentUser?.isProActive" class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[#0a0a0a] border border-[#00d68f]/20 rounded-2xl p-8">
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-[#00d68f]/10 flex items-center justify-center text-[#00d68f]">
+                  <iconify-icon icon="lucide:zap" class="text-2xl"></iconify-icon>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-white uppercase tracking-tight">Pro Plan Active</h3>
+                  <p class="text-[10px] text-[#555555] uppercase tracking-widest font-bold">Premium Features Unlocked</p>
+                </div>
+              </div>
+              
+              <div class="space-y-1">
+                <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest">Expires on</p>
+                <p class="text-sm text-[#f2f2f2] font-bold">{{ currentUser?.proExpiry | date:'longDate' }}</p>
+              </div>
+            </div>
+
+            <button 
+              (click)="cancelSubscription()"
+              [disabled]="isCancelling"
+              class="px-8 py-3 bg-white/5 hover:bg-[#ef233c]/10 text-[#888888] hover:text-[#ef233c] text-[10px] font-bold uppercase tracking-widest rounded-xl border border-white/10 hover:border-[#ef233c]/30 transition-all cursor-pointer disabled:opacity-50"
+            >
+              {{ isCancelling ? 'Processing...' : 'Cancel Subscription' }}
+            </button>
+
+            <!-- Cancel Confirmation Modal -->
+            <div *ngIf="showCancelConfirm" class="fixed inset-0 z-[1000] animate-[fadeIn_0.2s_ease]">
+              <!-- Backdrop -->
+              <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="closeCancelConfirm()"></div>
+              
+              <!-- Modal -->
+              <div class="relative fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] w-[90%] max-w-[420px] animate-[slideUp_0.3s_ease]">
+                <div class="rounded-2xl bg-[#111111] border border-white/7 shadow-[0_20px_60px_rgba(0,0,0,0.8)] p-8 space-y-6">
+                  <!-- Icon & Title -->
+                  <div class="flex flex-col items-center text-center space-y-3">
+                    <div class="w-12 h-12 rounded-full bg-[#ef233c]/10 flex items-center justify-center">
+                      <iconify-icon icon="lucide:alert-triangle" class="w-6 h-6 text-[#ef233c]"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Cancel Pro Plan?</h3>
+                  </div>
+
+                  <!-- Message -->
+                  <p class="text-sm text-[#888888] text-center leading-relaxed">
+                    Are you sure you want to cancel your Pro plan? You will immediately lose access to all premium features.
+                  </p>
+
+                  <!-- Action Buttons -->
+                  <div class="flex flex-col gap-3 pt-2">
+                    <button 
+                      (click)="confirmCancelSubscription()"
+                      [disabled]="isCancelling"
+                      class="w-full px-6 py-3 bg-[#ef233c] hover:bg-[#d91e34] text-white font-bold text-[12px] uppercase tracking-widest rounded-xl border-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <span *ngIf="isCancelling" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>{{ isCancelling ? 'Cancelling...' : 'Yes, Cancel Plan' }}</span>
+                    </button>
+                    <button 
+                      (click)="closeCancelConfirm()"
+                      [disabled]="isCancelling"
+                      class="w-full px-6 py-3 bg-white/5 hover:bg-white/10 text-[#888888] hover:text-white font-bold text-[12px] uppercase tracking-widest rounded-xl border border-white/10 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      Keep My Plan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!currentUser?.isProActive" class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[#0a0a0a] border border-white/5 rounded-2xl p-8">
+            <div class="space-y-2">
+              <h3 class="text-lg font-bold text-white uppercase tracking-tight">Free Plan</h3>
+              <p class="text-xs text-[#555555] max-w-sm">Upgrade to Pro to unlock advanced trading agents and unlimited price alerts.</p>
+            </div>
+            <button routerLink="/products" class="px-8 py-3 bg-[#ef233c] hover:bg-[#d91e34] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl border-none transition-all shadow-[0_4px_20px_rgba(239,35,60,0.3)] cursor-pointer">
+              Upgrade to Pro
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing History -->
+      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+        <div class="p-8 border-b border-white/5 bg-white/[0.02]">
+          <h2 class="text-xl font-bold text-white mb-1">Billing History</h2>
+          <p class="text-xs text-[#555555]">Your past payments and subscription logs.</p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <div *ngIf="isSubLoading" class="p-12 flex flex-col items-center justify-center gap-4">
+            <div class="w-8 h-8 border-2 border-[#ef233c] border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest">Loading records...</p>
+          </div>
+
+          <div *ngIf="!isSubLoading && subscriptions.length === 0" class="p-12 text-center">
+            <iconify-icon icon="lucide:receipt" class="text-4xl text-[#333] mb-4"></iconify-icon>
+            <p class="text-xs text-[#555]">No payment history found.</p>
+          </div>
+
+          <table *ngIf="!isSubLoading && subscriptions.length > 0" class="w-full text-left">
+            <thead>
+              <tr class="border-b border-white/5 bg-white/[0.01]">
+                <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">Plan</th>
+                <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">Date</th>
+                <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest text-right">Amount</th>
+                <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              <tr *ngFor="let sub of subscriptions" class="hover:bg-white/[0.01] transition-colors">
+                <td class="px-8 py-5">
+                  <p class="text-xs font-bold text-white">{{ sub.planName }}</p>
+                  <p class="text-[9px] text-[#555] font-mono mt-0.5">{{ sub.planId }}</p>
+                </td>
+                <td class="px-8 py-5 text-xs text-[#888]">
+                  {{ sub.startDate | date:'mediumDate' }}
+                </td>
+                <td class="px-8 py-5 text-xs font-bold text-white text-right">
+                  ${{ sub.amount }}
+                </td>
+                <td class="px-8 py-5 text-right">
+                  <span 
+                    [class]="sub.status === 'active' ? 'bg-[#00d68f]/10 text-[#00d68f]' : 'bg-white/5 text-[#555]'"
+                    class="px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider"
+                  >
+                    {{ sub.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -108,6 +108,7 @@
             class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 border border-white/20 text-sm font-bold text-[#f2f2f2] transition-all hover:bg-white/20"
           >
             <span class="text-[11px] uppercase font-bold">{{ currentUser?.firstName?.charAt(0) ?? 'U' }}</span>
+            
           </button>
 
           <div
@@ -120,11 +121,17 @@
                 <div class="flex h-9 w-9 items-center justify-center rounded-full bg-[#ef233c] text-[12px] font-bold text-white">
                   {{ currentUser?.firstName?.charAt(0) ?? 'U' }}
                 </div>
-                <div>
+                <div class="flex-1">
                   <div class="text-[12px] font-bold text-[#f2f2f2]">
                     {{ currentUser?.firstName }} {{ currentUser?.lastName }}
                   </div>
                   <div class="text-[10px] text-[#555555]">{{ currentUser?.email }}</div>
+                  <div 
+                    *ngIf="currentUser?.isProActive"
+                    class="mt-1 inline-block text-[9px] font-bold text-[#00d68f] uppercase tracking-wide"
+                  >
+                     Pro Plan
+                  </div>
                 </div>
               </div>
             </div>

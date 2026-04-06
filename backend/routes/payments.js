@@ -3,14 +3,13 @@ const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { verifyToken } = require('../middleware/auth');
 const User = require('../models/User');
+const Subscription = require('../models/Subscription');
 
 // POST /api/payments/create-checkout-session
-// This route will use the global express.json() parser from server.js
 router.post('/create-checkout-session', verifyToken, async (req, res) => {
   try {
     const { planId } = req.body;
     
-    // Define plans
     const plans = {
       'pro-1m': { name: 'Pro Plan - 1 Month', price: 2000, days: 30 },
       'pro-3m': { name: 'Pro Plan - 3 Months', price: 5000, days: 90 },
@@ -39,12 +38,14 @@ router.post('/create-checkout-session', verifyToken, async (req, res) => {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/dashboard?payment=success`,
+      success_url: `${process.env.FRONTEND_URL}/profile?tab=plans&payment=success`,
       cancel_url: `${process.env.FRONTEND_URL}/products?payment=cancelled`,
       metadata: {
         userId: req.user.id,
         planId: planId,
-        days: plan.days
+        planName: plan.name,
+        days: plan.days,
+        amount: (plan.price / 100).toString()
       }
     });
 
@@ -55,8 +56,50 @@ router.post('/create-checkout-session', verifyToken, async (req, res) => {
   }
 });
 
+// GET /api/payments/subscriptions - Fetch user's subscription history
+router.get('/subscriptions', verifyToken, async (req, res) => {
+  try {
+    const subscriptions = await Subscription.findAll({
+      where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']]
+    });
+    res.json({ success: true, subscriptions });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// POST /api/payments/cancel-subscription
+router.post('/cancel-subscription', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user || !user.isPro) {
+      return res.status(400).json({ success: false, message: 'No active pro plan found' });
+    }
+
+    // Update user status
+    await user.update({
+      isPro: false,
+      proExpiry: new Date() // Expire immediately for this demo
+    });
+
+    // Update the latest active subscription record if exists
+    const latestSub = await Subscription.findOne({
+      where: { userId: req.user.id, status: 'active' },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if (latestSub) {
+      await latestSub.update({ status: 'cancelled' });
+    }
+
+    res.json({ success: true, message: 'Subscription cancelled successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // GET /api/payments/test-upgrade?userId=...
-// TEMP: Only for testing without webhooks!
 router.get('/test-upgrade', async (req, res) => {
   try {
     const { userId } = req.query;
@@ -73,21 +116,31 @@ router.get('/test-upgrade', async (req, res) => {
       proExpiry: oneYear
     });
 
-    res.send(`Success! User ${user.email} is now PRO until ${oneYear.toLocaleDateString()}. Refresh your frontend.`);
+    // Also create a record in Subscription model
+    await Subscription.create({
+      userId: user.id,
+      planId: 'pro-1y',
+      planName: 'Pro Plan - 1 Year (Test)',
+      amount: 150.00,
+      status: 'active',
+      startDate: new Date(),
+      endDate: oneYear
+    });
+
+    res.send(`Success! User ${user.email} is now PRO until ${oneYear.toLocaleDateString()}. Record created in Subscriptions table.`);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
 // Stripe Webhook handler
-// Note: server.js already applies express.raw() to /api/payments/webhook
 router.post('/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(
-      req.body, // This is the raw buffer from express.raw()
+      req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
@@ -96,19 +149,19 @@ router.post('/webhook', async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     
-    // Fulfill the purchase
     const userId = session.metadata.userId;
     const days = parseInt(session.metadata.days);
+    const planId = session.metadata.planId;
+    const planName = session.metadata.planName;
+    const amount = parseFloat(session.metadata.amount);
     const stripeCustomerId = session.customer;
 
     try {
       const user = await User.findByPk(userId);
       if (user) {
-        // Calculate new expiry date
         const now = new Date();
         const currentExpiry = user.proExpiry && user.proExpiry > now ? new Date(user.proExpiry) : now;
         const newExpiry = new Date(currentExpiry.getTime() + days * 24 * 60 * 60 * 1000);
@@ -118,12 +171,23 @@ router.post('/webhook', async (req, res) => {
           proExpiry: newExpiry,
           stripeCustomerId: stripeCustomerId
         });
+
+        // Create Subscription Record
+        await Subscription.create({
+          userId,
+          stripeSessionId: session.id,
+          planId,
+          planName,
+          amount,
+          status: 'active',
+          startDate: now,
+          endDate: newExpiry
+        });
         
-        console.log(`User ${userId} upgraded to Pro until ${newExpiry}`);
+        console.log(`Subscription record created for user ${userId}`);
       }
     } catch (dbErr) {
       console.error('Database update failed during webhook:', dbErr);
-      // We return 500 so Stripe retries later
       return res.status(500).json({ received: false });
     }
   }

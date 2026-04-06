@@ -7,6 +7,7 @@ const User = require('./models/User');
 const Watchlist = require('./models/Watchlist');
 const Alert = require('./models/Alert');
 const UserExchangeKey = require('./models/UserExchangeKey');
+const Subscription = require('./models/Subscription');
 
 // Define relationships
 User.hasMany(Watchlist, { foreignKey: 'userId', as: 'watchlist' });
@@ -14,6 +15,9 @@ Watchlist.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 User.hasMany(Alert, { foreignKey: 'userId', as: 'alerts' });
 Alert.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+User.hasMany(Subscription, { foreignKey: 'userId', as: 'subscriptions' });
+Subscription.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 const app = express();
 
