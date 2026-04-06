@@ -1,8 +1,9 @@
 import { Component, AfterViewInit, ElementRef, ViewChild, Inject, PLATFORM_ID, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CryptoMarketService } from '../../services/crypto-market.service';
+import { AuthService } from '../../services/auth.service';
 
 declare global {
   interface Window {
@@ -13,7 +14,7 @@ declare global {
 @Component({
   selector: 'app-coin-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './coin-chart.html',
   styleUrl: './coin-chart.scss',
 })
@@ -21,7 +22,9 @@ export class CoinChart implements AfterViewInit, OnDestroy {
   @ViewChild('tvWidgetContainer', { static: false }) tvWidgetContainer?: ElementRef;
   coinId: string = '';
   symbol: string = '';
+  isAuthenticated: boolean = false;
   private paramSub?: Subscription;
+  private authSub?: Subscription;
 
   chartAvailable: boolean = true;
   loadingChart: boolean = true;
@@ -31,10 +34,16 @@ export class CoinChart implements AfterViewInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private cryptoService: CryptoMarketService,
+    private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngAfterViewInit() {
+    this.authSub = this.authService.isAuthenticated$.subscribe(auth => {
+      this.isAuthenticated = auth;
+      this.cdr.detectChanges();
+    });
+
     if (isPlatformBrowser(this.platformId)) {
       this.paramSub = this.route.params.subscribe(params => {
         if (params['name']) {
@@ -76,6 +85,9 @@ export class CoinChart implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.paramSub) {
       this.paramSub.unsubscribe();
+    }
+    if (this.authSub) {
+      this.authSub.unsubscribe();
     }
   }
 
@@ -166,7 +178,6 @@ export class CoinChart implements AfterViewInit, OnDestroy {
   }
 
   private initTradingViewWidget(tvSymbol: string) {
-    // Timeout to ensure DOM is updated and ViewChild is accessible
     setTimeout(() => {
       if (!window.TradingView || !this.tvWidgetContainer) {
         this.chartAvailable = false;
@@ -177,14 +188,11 @@ export class CoinChart implements AfterViewInit, OnDestroy {
 
       this.tvWidgetContainer.nativeElement.innerHTML = '';
       const containerId = 'tv_chart_container_' + Math.random().toString(36).substring(7);
-      
+
       const div = document.createElement('div');
       div.id = containerId;
       div.style.width = '100%';
       div.style.height = '100%';
-      div.style.flex = '1';
-      div.style.display = 'flex';
-      div.style.overflow = 'hidden';
       this.tvWidgetContainer.nativeElement.appendChild(div);
 
       new window.TradingView.widget({
@@ -200,10 +208,11 @@ export class CoinChart implements AfterViewInit, OnDestroy {
         "gridColor": "rgba(0, 0, 0, 0.06)",
         "hide_top_toolbar": false,
         "hide_legend": false,
+        "hide_side_toolbar": false,
+        "withdateranges": true,
         "save_image": false,
-        "container_id": containerId,
-        "support_host": "https://www.tradingview.com"
+        "container_id": containerId
       });
-    }, 0);
+    }, 100);
   }
 }

@@ -50,54 +50,5 @@
     <router-outlet></router-outlet>
   </main>
 
-  <!-- Footer -->
-  <footer class="relative z-10 border-t border-white/7 bg-black/40 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-6 py-16">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-        <div class="md:col-span-1">
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-5 h-5 bg-[#ef233c] rounded-sm"></div>
-            <span class="text-lg font-bold font-display tracking-tight">CryptoMAS</span>
-          </div>
-          <p class="text-[#888888] text-sm leading-relaxed">AI-powered trading debates and portfolio analysis.</p>
-        </div>
-        
-        <div>
-          <h4 class="text-xs font-bold text-[#ef233c] uppercase tracking-widest mb-4">Platform</h4>
-          <ul class="space-y-3 text-[#888888] text-sm">
-            <li><a routerLink="/markets" class="hover:text-white transition-colors">Markets</a></li>
-            <li *ngIf="isAuthenticated"><a routerLink="/portfolio" class="hover:text-white transition-colors">Portfolio</a></li>
-            <li *ngIf="isAuthenticated"><a routerLink="/dashboard" class="hover:text-white transition-colors">Dashboard</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-xs font-bold text-[#ef233c] uppercase tracking-widest mb-4">Support</h4>
-          <ul class="space-y-3 text-[#888888] text-sm">
-            <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Status</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-xs font-bold text-[#ef233c] uppercase tracking-widest mb-4">Legal</h4>
-          <ul class="space-y-3 text-[#888888] text-sm">
-            <li><a href="#" class="hover:text-white transition-colors">Privacy</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Terms</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Risk</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="border-t border-white/7 pt-8 flex flex-col md:flex-row items-center justify-between text-[#555555] text-[10px] uppercase tracking-widest">
-        <p>&copy; 2026 CryptoMAS. All rights reserved.</p>
-        <div class="flex gap-6 mt-4 md:mt-0">
-          <a href="#" class="hover:text-[#888888] transition-colors">Twitter</a>
-          <a href="#" class="hover:text-[#888888] transition-colors">Discord</a>
-          <a href="#" class="hover:text-[#888888] transition-colors">GitHub</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <app-footer></app-footer>
 </div>

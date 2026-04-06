@@ -305,17 +305,11 @@
   .right-4 {
     right: calc(var(--spacing) * 4);
   }
-  .right-\[-4px\] {
-    right: -4px;
-  }
   .right-\[-60px\] {
     right: -60px;
   }
   .bottom-1\/4 {
     bottom: calc(1 / 4 * 100%);
-  }
-  .bottom-\[-4px\] {
-    bottom: -4px;
   }
   .left-0 {
     left: calc(var(--spacing) * 0);
@@ -1425,9 +1419,6 @@
   .text-xs {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
-  }
-  .text-\[7px\] {
-    font-size: 7px;
   }
   .text-\[9px\] {
     font-size: 9px;
