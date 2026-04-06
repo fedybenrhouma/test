@@ -34,16 +34,16 @@ router.get('/profile', verifyToken, async (req, res) => {
 // Update user profile (protected route)
 router.put('/profile', verifyToken, async (req, res) => {
   try {
-    const { firstName, lastName, username } = req.body;
+    const { firstName, lastName, username, email } = req.body;
 
     console.log('Update profile request for user:', req.user.id);
-    console.log('Data:', { firstName, lastName, username });
+    console.log('Data:', { firstName, lastName, username, email });
 
     // Validate input
-    if (!firstName || !lastName || !username) {
+    if (!firstName || !lastName || !username || !email) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide firstName, lastName, and username',
+        message: 'Please provide firstName, lastName, username, and email',
       });
     }
 
@@ -71,11 +71,26 @@ router.put('/profile', verifyToken, async (req, res) => {
       }
     }
 
+    // Check if email is taken by another user (if changing email)
+    if (email !== user.email) {
+      const existingEmail = await User.findOne({
+        where: { email },
+      });
+
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email is already taken',
+        });
+      }
+    }
+
     // Update user fields
     await user.update({
       firstName,
       lastName,
       username,
+      email,
     });
 
     console.log('Profile updated successfully');

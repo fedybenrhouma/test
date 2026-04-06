@@ -1,0 +1,236 @@
+<div class="min-h-screen bg-[#0a0a0a] pt-24 pb-20 px-8">
+  <div class="max-w-[800px] mx-auto">
+    <!-- Page Header -->
+    <div class="mb-10 animate-[fadeIn_0.5s_ease]">
+      <p class="section-lbl mb-2 uppercase tracking-[0.2em] text-[#ef233c] text-[10px] font-bold">User Settings</p>
+      <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-[#f2f2f2] mb-4">
+        Profile
+      </h1>
+      <p class="text-[#888888] text-sm max-w-md leading-relaxed">
+        Manage your account information, update your personal details, and ensure your account remains secure.
+      </p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 p-1 bg-white/5 rounded-xl mb-8 w-fit border border-white/5">
+      <button 
+        (click)="setActiveTab('profile')"
+        [class.bg-white]="activeTab === 'profile'"
+        [class.text-black]="activeTab === 'profile'"
+        [class.text-[#888888]]="activeTab !== 'profile'"
+        [class.hover:text-white]="activeTab !== 'profile'"
+        class="px-6 py-2 rounded-lg text-xs font-bold transition-all duration-200 border-none cursor-pointer"
+      >
+        Personal Info
+      </button>
+      <button 
+        (click)="setActiveTab('password')"
+        [class.bg-white]="activeTab === 'password'"
+        [class.text-black]="activeTab === 'password'"
+        [class.text-[#888888]]="activeTab !== 'password'"
+        [class.hover:text-white]="activeTab !== 'password'"
+        class="px-6 py-2 rounded-lg text-xs font-bold transition-all duration-200 border-none cursor-pointer"
+      >
+        Security
+      </button>
+    </div>
+
+    <!-- Personal Info Tab -->
+    <div *ngIf="activeTab === 'profile'" class="animate-[fadeIn_0.3s_ease]">
+      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+        <div class="p-8 border-b border-white/5 bg-white/[0.02]">
+          <h2 class="text-xl font-bold text-white mb-1">Personal Details</h2>
+          <p class="text-xs text-[#555555]">These details will be used for your account identification.</p>
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()" class="p-8 space-y-6">
+          <!-- Alert Success -->
+          <div *ngIf="profileSuccess" class="p-4 bg-[#00d68f]/10 border border-[#00d68f]/20 rounded-xl flex items-center gap-3 text-[#00d68f] animate-[slideDown_0.2s_ease]">
+            <iconify-icon icon="lucide:check-circle" class="text-lg"></iconify-icon>
+            <p class="text-xs font-bold">Profile updated successfully!</p>
+          </div>
+
+          <!-- Alert Error -->
+          <div *ngIf="profileError" class="p-4 bg-[#ef233c]/10 border border-[#ef233c]/20 rounded-xl flex items-center gap-3 text-[#ef233c] animate-[slideDown_0.2s_ease]">
+            <iconify-icon icon="lucide:alert-circle" class="text-lg"></iconify-icon>
+            <p class="text-xs font-bold">{{ profileError }}</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- First Name -->
+            <div class="space-y-2">
+              <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">First Name</label>
+              <input 
+                type="text" 
+                formControlName="firstName"
+                placeholder="Enter first name"
+                [class.border-[#ef233c]/50]="profileSubmitted && pf['firstName'].errors"
+                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+              >
+              <div *ngIf="profileSubmitted && pf['firstName'].errors" class="text-[10px] text-[#ef233c] font-bold">
+                First name is required (min 2 chars).
+              </div>
+            </div>
+
+            <!-- Last Name -->
+            <div class="space-y-2">
+              <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">Last Name</label>
+              <input 
+                type="text" 
+                formControlName="lastName"
+                placeholder="Enter last name"
+                [class.border-[#ef233c]/50]="profileSubmitted && pf['lastName'].errors"
+                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+              >
+              <div *ngIf="profileSubmitted && pf['lastName'].errors" class="text-[10px] text-[#ef233c] font-bold">
+                Last name is required (min 2 chars).
+              </div>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="space-y-2">
+            <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">Username</label>
+            <div class="relative">
+              <iconify-icon icon="lucide:user" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#333]"></iconify-icon>
+              <input 
+                type="text" 
+                formControlName="username"
+                placeholder="Enter username"
+                [class.border-[#ef233c]/50]="profileSubmitted && pf['username'].errors"
+                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+              >
+            </div>
+            <div *ngIf="profileSubmitted && pf['username'].errors" class="text-[10px] text-[#ef233c] font-bold">
+              Username is required (3-30 chars).
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="space-y-2">
+            <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">Email Address</label>
+            <div class="relative">
+              <iconify-icon icon="lucide:mail" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#333]"></iconify-icon>
+              <input 
+                type="email" 
+                formControlName="email"
+                placeholder="Enter email"
+                [class.border-[#ef233c]/50]="profileSubmitted && pf['email'].errors"
+                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+              >
+            </div>
+            <div *ngIf="profileSubmitted && pf['email'].errors" class="text-[10px] text-[#ef233c] font-bold">
+              Please enter a valid email address.
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button 
+              type="submit" 
+              [disabled]="profileLoading"
+              class="group relative inline-flex items-center justify-center overflow-hidden rounded-xl bg-[#ef233c] px-8 py-3.5 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
+            >
+              <span class="relative z-10 flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider">
+                {{ profileLoading ? 'Saving...' : 'Save Changes' }}
+                <iconify-icon *ngIf="!profileLoading" icon="lucide:save" class="w-4 h-4"></iconify-icon>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Security Tab -->
+    <div *ngIf="activeTab === 'password'" class="animate-[fadeIn_0.3s_ease]">
+      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+        <div class="p-8 border-b border-white/5 bg-white/[0.02]">
+          <h2 class="text-xl font-bold text-white mb-1">Update Password</h2>
+          <p class="text-xs text-[#555555]">Ensure your account is using a long, random password to stay secure.</p>
+        </div>
+
+        <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="p-8 space-y-6">
+          <!-- Alert Success -->
+          <div *ngIf="passwordSuccess" class="p-4 bg-[#00d68f]/10 border border-[#00d68f]/20 rounded-xl flex items-center gap-3 text-[#00d68f] animate-[slideDown_0.2s_ease]">
+            <iconify-icon icon="lucide:check-circle" class="text-lg"></iconify-icon>
+            <p class="text-xs font-bold">Password updated successfully!</p>
+          </div>
+
+          <!-- Alert Error -->
+          <div *ngIf="passwordError" class="p-4 bg-[#ef233c]/10 border border-[#ef233c]/20 rounded-xl flex items-center gap-3 text-[#ef233c] animate-[slideDown_0.2s_ease]">
+            <iconify-icon icon="lucide:alert-circle" class="text-lg"></iconify-icon>
+            <p class="text-xs font-bold">{{ passwordError }}</p>
+          </div>
+
+          <!-- Current Password -->
+          <div class="space-y-2">
+            <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">Current Password</label>
+            <div class="relative">
+              <iconify-icon icon="lucide:lock" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#333]"></iconify-icon>
+              <input 
+                type="password" 
+                formControlName="currentPassword"
+                placeholder="••••••••"
+                [class.border-[#ef233c]/50]="passwordSubmitted && pwf['currentPassword'].errors"
+                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+              >
+            </div>
+            <div *ngIf="passwordSubmitted && pwf['currentPassword'].errors" class="text-[10px] text-[#ef233c] font-bold">
+              Current password is required.
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- New Password -->
+            <div class="space-y-2">
+              <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">New Password</label>
+              <div class="relative">
+                <iconify-icon icon="lucide:shield-check" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#333]"></iconify-icon>
+                <input 
+                  type="password" 
+                  formControlName="newPassword"
+                  placeholder="••••••••"
+                  [class.border-[#ef233c]/50]="passwordSubmitted && pwf['newPassword'].errors"
+                  class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                >
+              </div>
+              <div *ngIf="passwordSubmitted && pwf['newPassword'].errors" class="text-[10px] text-[#ef233c] font-bold">
+                Min 6 characters required.
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="space-y-2">
+              <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">Confirm New Password</label>
+              <div class="relative">
+                <iconify-icon icon="lucide:shield-check" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#333]"></iconify-icon>
+                <input 
+                  type="password" 
+                  formControlName="confirmPassword"
+                  placeholder="••••••••"
+                  [class.border-[#ef233c]/50]="passwordSubmitted && pwf['confirmPassword'].errors"
+                  class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                >
+              </div>
+              <div *ngIf="passwordSubmitted && pwf['confirmPassword'].errors" class="text-[10px] text-[#ef233c] font-bold">
+                Please confirm your new password.
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button 
+              type="submit" 
+              [disabled]="passwordLoading"
+              class="group relative inline-flex items-center justify-center overflow-hidden rounded-xl bg-white/[0.05] hover:bg-white/[0.1] px-8 py-3.5 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 cursor-pointer"
+            >
+              <span class="relative z-10 flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider">
+                {{ passwordLoading ? 'Updating...' : 'Update Password' }}
+                <iconify-icon *ngIf="!passwordLoading" icon="lucide:key-round" class="w-4 h-4"></iconify-icon>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

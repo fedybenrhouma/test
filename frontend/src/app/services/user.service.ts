@@ -7,6 +7,7 @@ export interface ProfileUpdateData {
   firstName: string;
   lastName: string;
   username: string;
+  email: string;
 }
 
 export interface ChangePasswordData {

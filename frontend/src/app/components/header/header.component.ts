@@ -211,13 +211,13 @@ export class HeaderComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
+  goToProfile(): void {
+    this.router.navigate(['/profile']);
     this.closeAccountMenu();
   }
 
   goToSettings(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/profile']);
     this.closeAccountMenu();
   }
 

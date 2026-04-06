@@ -99,6 +99,13 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
   }
 
+  updateUser(user: User): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('current_user', JSON.stringify(user));
+    }
+    this.currentUserSubject.next(user);
+  }
+
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }

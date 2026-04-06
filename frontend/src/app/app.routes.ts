@@ -6,6 +6,7 @@ import { CoinChart } from './components/coin-chart/coin-chart';
 import { Watchlist } from './components/watchlist/watchlist';
 import { CoinDetails } from './components/coin-details/coin-details';
 import { NotificationsComponent } from './components/notifications/notifications.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -21,6 +22,11 @@ export const routes: Routes = [
   {
     path: 'watchlist',
     component: Watchlist,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
     canActivate: [AuthGuard],
   },
   {
