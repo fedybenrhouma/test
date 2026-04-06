@@ -7,6 +7,7 @@ import { Watchlist } from './components/watchlist/watchlist';
 import { CoinDetails } from './components/coin-details/coin-details';
 import { NotificationsComponent } from './components/notifications/notifications.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { ProductsComponent } from './components/products/products.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -18,6 +19,10 @@ export const routes: Routes = [
   {
     path: 'markets',
     component: MarketsComponent,
+  },
+  {
+    path: 'products',
+    component: ProductsComponent,
   },
   {
     path: 'watchlist',

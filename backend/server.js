@@ -25,6 +25,12 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// IMPORTANT: Webhook route must come BEFORE express.json() 
+// because it needs the raw body for signature verification
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), require('./routes/payments'));
+
+// Global parsers for all other routes
 app.use(express.json());
 
 // Health check endpoint
@@ -38,6 +44,9 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/crypto', require('./routes/markets'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/binance', require('./routes/binance'));
+// Note: /api/payments/webhook is already handled above, 
+// but other payment routes (like create-checkout-session) need express.json()
+app.use('/api/payments', require('./routes/payments'));
 
 // 404 handler
 app.use((req, res) => {

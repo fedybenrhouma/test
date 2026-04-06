@@ -81,6 +81,18 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: null
+    },
+    isPro: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    proExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    stripeCustomerId: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   },
   {
@@ -113,7 +125,14 @@ User.prototype.getPublicProfile = function () {
   delete user.password;
   delete user.binanceApiKey;
   delete user.binanceApiSecret;
+  user.isProActive = this.isProActive();
   return user;
+};
+
+User.prototype.isProActive = function () {
+  if (!this.isPro) return false;
+  if (!this.proExpiry) return true; // Lifetime or unset
+  return new Date() < new Date(this.proExpiry);
 };
 
 User.prototype.hasBinanceConnected = function() {

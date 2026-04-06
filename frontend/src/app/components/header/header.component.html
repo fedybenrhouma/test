@@ -3,6 +3,14 @@
     <div class="w-64"></div>
 
     <div class="flex items-center gap-6">
+      <a
+        routerLink="/products"
+        routerLinkActive="text-white"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+      >
+        Pricing
+      </a>
       <div *ngIf="isAuthenticated" class="relative flex items-center gap-4">
         <a
           *ngIf="isAuthenticated"
