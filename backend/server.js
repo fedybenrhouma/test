@@ -6,6 +6,7 @@ const redis = require('./config/redis');
 const User = require('./models/User');
 const Watchlist = require('./models/Watchlist');
 const Alert = require('./models/Alert');
+const UserExchangeKey = require('./models/UserExchangeKey');
 
 // Define relationships
 User.hasMany(Watchlist, { foreignKey: 'userId', as: 'watchlist' });
@@ -36,6 +37,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/crypto', require('./routes/markets'));
 app.use('/api/alerts', require('./routes/alerts'));
+app.use('/api/binance', require('./routes/binance'));
 
 // 404 handler
 app.use((req, res) => {

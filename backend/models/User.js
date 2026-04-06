@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const sequelize = require('../config/database');
+const { decrypt } = require('../utils/crypto');
 
 const User = sequelize.define(
   'User',
@@ -66,6 +67,21 @@ const User = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    binanceApiKey: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
+    binanceApiSecret: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
+    binanceConnectedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null
+    }
   },
   {
     timestamps: true,
@@ -95,7 +111,29 @@ User.prototype.comparePassword = async function (candidatePassword) {
 User.prototype.getPublicProfile = function () {
   const user = this.toJSON();
   delete user.password;
+  delete user.binanceApiKey;
+  delete user.binanceApiSecret;
   return user;
 };
+
+User.prototype.hasBinanceConnected = function() {
+  return !!this.binanceApiKey
+}
+
+User.prototype.getMaskedApiKey = function() {
+  if (!this.binanceApiKey) return null
+  try {
+    const decrypted = decrypt(this.binanceApiKey);
+    return decrypted.substring(0, 8) + '••••••••••••••••';
+  } catch (error) {
+    console.error('Error decrypting API key:', error);
+    return 'Error decryption';
+  }
+}
+
+// Add association
+const UserExchangeKey = require('./UserExchangeKey');
+User.hasOne(UserExchangeKey, { foreignKey: 'userId' });
+UserExchangeKey.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = User;

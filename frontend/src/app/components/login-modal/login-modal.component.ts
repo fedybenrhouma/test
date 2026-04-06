@@ -144,4 +144,9 @@ export class LoginModalComponent {
   onBackdropClick(): void {
     this.closeModal();
   }
+
+  connectWithBinance(): void {
+    // Redirect to the backend Binance authentication endpoint
+    window.location.href = 'http://localhost:3000/api/binance/auth';
+  }
 }

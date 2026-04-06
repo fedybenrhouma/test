@@ -60,6 +60,17 @@
         <span *ngIf="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
         <span>{{ isLoading ? 'Signing In...' : 'Sign In' }}</span>
       </button>
+
+      <div class="mt-4 flex items-center gap-2 animate-[slideUp_0.8s_ease]">
+        <div class="flex-1 h-px bg-white/10"></div>
+        <span class="text-[10px] sm:text-[12px] text-[#555555] uppercase tracking-wider">or continue with</span>
+        <div class="flex-1 h-px bg-white/10"></div>
+      </div>
+
+      <button type="button" (click)="connectWithBinance()" class="w-full mt-4 bg-transparent border border-white/10 hover:border-[#f3ba2f]/50 hover:bg-[#f3ba2f]/5 text-[#f2f2f2] hover:text-[#f3ba2f] font-semibold text-xs sm:text-[14px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 animate-[slideUp_0.9s_ease]">
+        <iconify-icon icon="simple-icons:binance" class="w-5 h-5"></iconify-icon>
+        <span>Connect with Binance</span>
+      </button>
     </form>
 
     <!-- Sign Up Form -->
