@@ -77,23 +77,49 @@ router.post('/cancel-subscription', verifyToken, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No active pro plan found' });
     }
 
-    // Update user status
-    await user.update({
-      isPro: false,
-      proExpiry: new Date() // Expire immediately for this demo
-    });
-
-    // Update the latest active subscription record if exists
-    const latestSub = await Subscription.findOne({
+    // Find all active subscriptions for this user, ordered by endDate descending
+    const activeSubs = await Subscription.findAll({
       where: { userId: req.user.id, status: 'active' },
-      order: [['createdAt', 'DESC']]
+      order: [['endDate', 'DESC']]
     });
 
-    if (latestSub) {
-      await latestSub.update({ status: 'cancelled' });
+    if (activeSubs.length === 0) {
+      // Fallback if user isPro but no records found
+      await user.update({
+        isPro: false,
+        proExpiry: new Date()
+      });
+      return res.json({ success: true, message: 'No active subscription records found. Status reset.' });
     }
 
-    res.json({ success: true, message: 'Subscription cancelled successfully' });
+    // Mark the latest subscription as cancelled
+    const latestSub = activeSubs[0];
+    await latestSub.update({ status: 'cancelled' });
+
+    // Determine new expiry date
+    // If there's another active sub, use its endDate. Otherwise, expire now.
+    let newExpiry = new Date();
+    if (activeSubs.length > 1) {
+      newExpiry = activeSubs[1].endDate;
+    }
+
+    const now = new Date();
+    const stillPro = newExpiry > now;
+
+    // Update user status
+    await user.update({
+      isPro: stillPro,
+      proExpiry: newExpiry
+    });
+
+    res.json({ 
+      success: true, 
+      message: activeSubs.length > 1 
+        ? `Latest subscription cancelled. You are still PRO until ${newExpiry.toLocaleDateString()}.` 
+        : 'Subscription cancelled successfully.',
+      isPro: stillPro,
+      proExpiry: newExpiry
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -102,32 +128,40 @@ router.post('/cancel-subscription', verifyToken, async (req, res) => {
 // GET /api/payments/test-upgrade?userId=...
 router.get('/test-upgrade', async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId, planId = 'pro-1y' } = req.query;
     if (!userId) return res.status(400).send('Missing userId');
 
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).send('User not found');
 
-    const oneYear = new Date();
-    oneYear.setFullYear(oneYear.getFullYear() + 1);
+    const plans = {
+      'pro-1m': { name: 'Pro Plan - 1 Month', days: 30, amount: 20.00 },
+      'pro-1y': { name: 'Pro Plan - 1 Year', days: 365, amount: 150.00 },
+    };
+
+    const plan = plans[planId] || plans['pro-1y'];
+    
+    const now = new Date();
+    const currentExpiry = user.proExpiry && user.proExpiry > now ? new Date(user.proExpiry) : now;
+    const newExpiry = new Date(currentExpiry.getTime() + plan.days * 24 * 60 * 60 * 1000);
 
     await user.update({
       isPro: true,
-      proExpiry: oneYear
+      proExpiry: newExpiry
     });
 
     // Also create a record in Subscription model
     await Subscription.create({
       userId: user.id,
-      planId: 'pro-1y',
-      planName: 'Pro Plan - 1 Year (Test)',
-      amount: 150.00,
+      planId: planId,
+      planName: `${plan.name} (Test)`,
+      amount: plan.amount,
       status: 'active',
-      startDate: new Date(),
-      endDate: oneYear
+      startDate: now,
+      endDate: newExpiry
     });
 
-    res.send(`Success! User ${user.email} is now PRO until ${oneYear.toLocaleDateString()}. Record created in Subscriptions table.`);
+    res.send(`Success! User ${user.email} is now PRO until ${newExpiry.toLocaleDateString()}. Record created in Subscriptions table.`);
   } catch (error) {
     res.status(500).send(error.message);
   }

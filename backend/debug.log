@@ -1,0 +1,16 @@
+2026-04-07T16:37:13.210Z - Found 4 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T16:37:13.211Z - Cancelling latest sub: d0ad93d5-0d51-456d-8503-cb28482dc5b1, endDate: Sun Oct 03 2027 12:49:52 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:13.213Z - Next latest sub found: 2fd2bc09-733e-493e-9fb6-94f8fe6ec75a, endDate: Tue Apr 06 2027 14:58:39 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:13.213Z - Updating user: isPro=true, proExpiry=Tue Apr 06 2027 14:58:39 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:20.453Z - Found 3 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T16:37:20.453Z - Cancelling latest sub: 2fd2bc09-733e-493e-9fb6-94f8fe6ec75a, endDate: Tue Apr 06 2027 14:58:39 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:20.454Z - Next latest sub found: 2bafcfbb-69d4-48b2-ba0f-950c0a846eb6, endDate: Sun Oct 04 2026 17:37:05 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:20.454Z - Updating user: isPro=true, proExpiry=Sun Oct 04 2026 17:37:05 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:22.372Z - Found 2 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T16:37:22.373Z - Cancelling latest sub: 2bafcfbb-69d4-48b2-ba0f-950c0a846eb6, endDate: Sun Oct 04 2026 17:37:05 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:22.381Z - Next latest sub found: a8f522b7-868a-4058-8702-5a614da23570, endDate: Sat Oct 03 2026 12:49:52 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:22.381Z - Updating user: isPro=true, proExpiry=Sat Oct 03 2026 12:49:52 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:29.305Z - Found 1 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T16:37:29.305Z - Cancelling latest sub: a8f522b7-868a-4058-8702-5a614da23570, endDate: Sat Oct 03 2026 12:49:52 GMT+0100 (West Africa Standard Time)
+2026-04-07T16:37:29.315Z - No other active subscriptions found, setting expiry to now
+2026-04-07T16:37:29.315Z - Updating user: isPro=false, proExpiry=Tue Apr 07 2026 17:37:29 GMT+0100 (West Africa Standard Time)
