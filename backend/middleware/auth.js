@@ -4,12 +4,9 @@ const jwt = require('jsonwebtoken');
 const verifyToken = (req, res, next) => {
   // Get token from header
   const authHeader = req.headers.authorization;
-  console.log('Authorization header:', authHeader);
-
   const token = authHeader?.split(' ')[1];
 
   if (!token) {
-    console.log('No token provided');
     return res.status(401).json({
       success: false,
       message: 'No token provided. Authorization denied.',
@@ -17,13 +14,10 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    console.log('Verifying token...');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token verified successfully, user:', decoded);
     req.user = decoded;
     next();
   } catch (error) {
-    console.error('Token verification error:', error.message);
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
@@ -37,14 +31,40 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Admin check middleware
+const isAdmin = async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findByPk(req.user.id);
+    
+    if (user && user.role === 'admin') {
+      next();
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Access denied: Admin only',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error during authorization',
+      error: error.message
+    });
+  }
+};
+
 // Generate JWT Token
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '7d',
-  });
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE || '7d' }
+  );
 };
 
 module.exports = {
   verifyToken,
+  isAdmin,
   generateToken,
 };

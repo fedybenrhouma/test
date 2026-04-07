@@ -146,6 +146,16 @@
               </button>
 
               <button
+                *ngIf="currentUser?.role === 'admin'"
+                routerLink="/admin"
+                (click)="closeAccountMenu()"
+                class="flex w-full items-center gap-2.5 rounded-lg bg-transparent p-2 text-left text-[12px] font-medium text-[#888888] transition-colors hover:bg-white/5 hover:text-[#f2f2f2] border-none cursor-pointer"
+              >
+                <iconify-icon icon="lucide:shield-check" class="w-4 h-4 text-[#ef233c]"></iconify-icon>
+                Admin Panel
+              </button>
+
+              <button
                 (click)="logout()"
                 class="flex w-full items-center gap-2.5 rounded-lg bg-transparent p-2 text-left text-[12px] font-medium text-[#ef233c] transition-colors hover:bg-[#ef233c]/10 border-none cursor-pointer"
               >

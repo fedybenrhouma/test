@@ -48,6 +48,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/crypto', require('./routes/markets'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/binance', require('./routes/binance'));
+app.use('/api/admin', require('./routes/admin'));
 // Note: /api/payments/webhook is already handled above, 
 // but other payment routes (like create-checkout-session) need express.json()
 app.use('/api/payments', require('./routes/payments'));

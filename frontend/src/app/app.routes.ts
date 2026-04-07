@@ -8,7 +8,10 @@ import { CoinDetails } from './components/coin-details/coin-details';
 import { NotificationsComponent } from './components/notifications/notifications.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { ProductsComponent } from './components/products/products.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard';
+import { AdminBansComponent } from './components/admin-bans/admin-bans';
 import { AuthGuard } from './guards/auth.guard';
+import { AdminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -24,6 +27,16 @@ export const routes: Routes = [
     path: 'products',
     component: ProductsComponent,
     data: { title: 'Products' }
+  },
+  {
+    path: 'admin',
+    component: AdminDashboardComponent,
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
+    path: 'admin/bans',
+    component: AdminBansComponent,
+    canActivate: [AuthGuard, AdminGuard],
   },
   {
     path: 'watchlist',

@@ -13,6 +13,10 @@ export interface User {
   isPro?: boolean;
   proExpiry?: string;
   isProActive?: boolean;
+  role: 'user' | 'admin';
+  isBanned?: boolean;
+  banReason?: string;
+  banExpires?: string;
   createdAt: string;
   updatedAt: string;
 }

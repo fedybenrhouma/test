@@ -93,9 +93,24 @@ const User = sequelize.define(
     stripeCustomerId: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    role: {
+      type: DataTypes.ENUM('user', 'admin'),
+      defaultValue: 'user'
+    },
+    isBanned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    banReason: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    banExpires: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
-  },
-  {
+    },  {
     timestamps: true,
     hooks: {
       beforeCreate: async (user) => {

@@ -1,0 +1,124 @@
+<div class="min-h-screen bg-[#0a0a0a] pt-24 pb-20 px-8">
+  <div class="max-w-[1200px] mx-auto">
+    <!-- Page Header -->
+    <div class="mb-10 animate-[fadeIn_0.5s_ease] flex justify-between items-end">
+      <div>
+        <p class="section-lbl mb-2 uppercase tracking-[0.2em] text-[#ef233c] text-[10px] font-bold">Administration</p>
+        <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-[#f2f2f2] mb-4">
+          Banned Users
+        </h1>
+        <p class="text-[#888888] text-sm max-w-md leading-relaxed">
+          Manage system bans and unban users.
+        </p>
+      </div>
+      <a href="/admin" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg border border-white/10 transition-all flex items-center gap-2">
+        <iconify-icon icon="lucide:arrow-left"></iconify-icon>
+        Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="mb-8 p-4 bg-[#ef233c]/10 border border-[#ef233c]/20 rounded-xl flex items-center gap-3 text-[#ef233c]">
+      <iconify-icon icon="lucide:alert-circle" class="text-lg"></iconify-icon>
+      <p class="text-xs font-bold">{{ error }}</p>
+    </div>
+
+    <!-- Bans Table Card -->
+    <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+      <div class="p-8 border-b border-white/5 bg-white/[0.02] flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white mb-1">Active Bans</h2>
+          <p class="text-xs text-[#555555]">Users currently restricted from accessing the platform.</p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <!-- Search Input -->
+          <div class="relative group flex-1 md:flex-none">
+            <iconify-icon icon="lucide:search" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#555555] group-focus-within:text-[#ef233c] transition-colors pointer-events-none"></iconify-icon>
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm"
+              placeholder="Search by name, email, or reason..."
+              class="w-full md:w-80 bg-white/[0.03] border border-white/10 hover:border-white/20 rounded-lg pl-12 pr-10 py-2.5 text-xs text-white outline-none focus:bg-white/[0.05] focus:border-[#ef233c]/50 focus:ring-2 focus:ring-[#ef233c]/20 transition-all placeholder-[#555555]/60"
+            >
+            <!-- Clear Button -->
+            <button 
+              *ngIf="searchTerm"
+              (click)="searchTerm = ''"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#555555] hover:text-white transition-colors rounded hover:bg-white/5"
+              title="Clear search"
+            >
+              <iconify-icon icon="lucide:x" class="text-base"></iconify-icon>
+            </button>
+          </div>
+
+          <!-- Results Count -->
+          <span *ngIf="searchTerm" class="text-[10px] font-bold text-[#888] whitespace-nowrap px-2 py-1.5 bg-white/[0.02] rounded-lg border border-white/5">
+            {{ filteredBans.length }}/{{ bans.length }}
+          </span>
+
+          <button 
+            (click)="loadBans()" 
+            [disabled]="loading"
+            class="p-2.5 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 rounded-lg transition-all text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Refresh bans"
+          >
+            <iconify-icon icon="lucide:refresh-cw" [class.animate-spin]="loading"></iconify-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <div *ngIf="loading" class="p-12 flex flex-col items-center justify-center gap-4">
+          <div class="w-8 h-8 border-2 border-[#ef233c] border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest">Loading bans...</p>
+        </div>
+
+        <table *ngIf="!loading && bans.length > 0" class="w-full text-left">
+          <thead>
+            <tr class="border-b border-white/5 bg-white/[0.01]">
+              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">User</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">Reason</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">Expires</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr *ngFor="let ban of filteredBans" class="hover:bg-white/[0.01] transition-colors">
+              <td class="px-8 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold text-white border border-white/10">
+                    {{ ban.firstName[0] }}{{ ban.lastName[0] }}
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-white">{{ ban.firstName }} {{ ban.lastName }}</p>
+                    <p class="text-[9px] text-[#555] font-mono mt-0.5">&#64;{{ ban.username }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-8 py-5 text-xs text-[#888]">
+                {{ ban.banReason }}
+              </td>
+              <td class="px-8 py-5 text-xs text-[#555]">
+                {{ ban.banExpires ? (ban.banExpires | date:'medium') : 'Permanent' }}
+              </td>
+              <td class="px-8 py-5 text-right">
+                <button 
+                  (click)="unbanUser(ban)"
+                  class="px-3 py-1.5 bg-[#00d68f]/10 hover:bg-[#00d68f]/20 text-[#00d68f] text-[10px] font-bold uppercase tracking-widest rounded-lg border border-[#00d68f]/20 transition-all cursor-pointer"
+                >
+                  Unban
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div *ngIf="!loading && filteredBans.length === 0" class="p-20 text-center" style="padding-top: 4vh;">
+          <iconify-icon icon="lucide:shield-off" class="text-4xl text-white/5 mb-4"></iconify-icon>
+          <p class="text-sm text-[#555]">No banned users found.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
