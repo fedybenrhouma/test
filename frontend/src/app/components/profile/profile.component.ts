@@ -54,6 +54,7 @@ export class ProfileComponent implements OnInit {
   isSubLoading = false;
   isCancelling = false;
   showCancelConfirm = false;
+  subIdToCancel: string | null = null;
 
   constructor(
     private authService: AuthService,
@@ -343,19 +344,23 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  cancelSubscription(): void {
+  cancelSubscription(id: string | null = null): void {
     // Show modal instead of browser confirm
+    this.subIdToCancel = id;
     this.showCancelConfirm = true;
   }
 
   confirmCancelSubscription(): void {
     this.isCancelling = true;
-    this.showCancelConfirm = false;
     this.cdr.markForCheck();
 
-    this.http.post<any>('http://localhost:3000/api/payments/cancel-subscription', {}).subscribe({
+    this.http.post<any>('http://localhost:3000/api/payments/cancel-subscription', {
+      subscriptionId: this.subIdToCancel
+    }).subscribe({
       next: (response) => {
         this.isCancelling = false;
+        this.showCancelConfirm = false;
+        this.subIdToCancel = null;
         // Refresh profile and subscriptions
         this.loadUserProfile();
         this.loadSubscriptions();
@@ -364,6 +369,8 @@ export class ProfileComponent implements OnInit {
       error: (err) => {
         console.error('Error cancelling subscription:', err);
         this.isCancelling = false;
+        this.showCancelConfirm = false;
+        this.subIdToCancel = null;
         this.cdr.markForCheck();
       }
     });

@@ -14,3 +14,23 @@
 2026-04-07T16:37:29.305Z - Cancelling latest sub: a8f522b7-868a-4058-8702-5a614da23570, endDate: Sat Oct 03 2026 12:49:52 GMT+0100 (West Africa Standard Time)
 2026-04-07T16:37:29.315Z - No other active subscriptions found, setting expiry to now
 2026-04-07T16:37:29.315Z - Updating user: isPro=false, proExpiry=Tue Apr 07 2026 17:37:29 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:17:34.630Z - Found 1 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T17:17:34.631Z - Cancelling latest sub: d09d2ca7-b793-4430-aa48-29dc79114f96, endDate: Wed Apr 07 2027 18:00:38 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:17:34.640Z - No other active subscriptions found, setting expiry to now
+2026-04-07T17:17:34.641Z - Updating user: isPro=false, proExpiry=Tue Apr 07 2026 18:17:34 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:19:51.338Z - Found 2 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T17:19:51.338Z - Cancelling latest sub: 29639e49-b45a-47be-a9c7-420175270b39, endDate: Thu Apr 06 2028 18:18:02 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:19:51.340Z - Next latest sub found: 1dd158e5-c3ad-48c1-a835-755b4bdc7026, endDate: Wed Apr 07 2027 18:18:02 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:19:51.340Z - Updating user: isPro=true, proExpiry=Wed Apr 07 2027 18:18:02 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:19:59.205Z - Found 1 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T17:19:59.205Z - Cancelling latest sub: 1dd158e5-c3ad-48c1-a835-755b4bdc7026, endDate: Wed Apr 07 2027 18:18:02 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:19:59.206Z - No other active subscriptions found, setting expiry to now
+2026-04-07T17:19:59.207Z - Updating user: isPro=false, proExpiry=Tue Apr 07 2026 18:19:59 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:20:36.746Z - Found 2 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T17:20:36.747Z - Cancelling latest sub: 4a2063df-afdd-4740-b2e6-047b5834f2a8, endDate: Thu Apr 06 2028 18:20:12 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:20:36.748Z - Next latest sub found: c9442a47-553a-4eac-bc9b-92d70f597f91, endDate: Wed Apr 07 2027 18:20:12 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:20:36.749Z - Updating user: isPro=true, proExpiry=Wed Apr 07 2027 18:20:12 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:20:39.241Z - Found 1 active subscriptions for user f55fff47-5f00-4c0c-b340-8c1be54687c7
+2026-04-07T17:20:39.241Z - Cancelling latest sub: c9442a47-553a-4eac-bc9b-92d70f597f91, endDate: Wed Apr 07 2027 18:20:12 GMT+0100 (West Africa Standard Time)
+2026-04-07T17:20:39.250Z - No other active subscriptions found, setting expiry to now
+2026-04-07T17:20:39.250Z - Updating user: isPro=false, proExpiry=Tue Apr 07 2026 18:20:39 GMT+0100 (West Africa Standard Time)

@@ -72,53 +72,66 @@ router.get('/subscriptions', verifyToken, async (req, res) => {
 // POST /api/payments/cancel-subscription
 router.post('/cancel-subscription', verifyToken, async (req, res) => {
   try {
+    const { subscriptionId } = req.body;
     const user = await User.findByPk(req.user.id);
     if (!user || !user.isPro) {
       return res.status(400).json({ success: false, message: 'No active pro plan found' });
     }
 
-    // Find all active subscriptions for this user, ordered by endDate descending
-    const activeSubs = await Subscription.findAll({
-      where: { userId: req.user.id, status: 'active' },
-      order: [['endDate', 'DESC']]
-    });
-
-    if (activeSubs.length === 0) {
-      // Fallback if user isPro but no records found
-      await user.update({
-        isPro: false,
-        proExpiry: new Date()
+    let subToCancel;
+    if (subscriptionId) {
+      subToCancel = await Subscription.findOne({
+        where: { id: subscriptionId, userId: req.user.id, status: 'active' }
       });
+      if (!subToCancel) {
+        return res.status(404).json({ success: false, message: 'Active subscription record not found' });
+      }
+    } else {
+      // Fallback: Cancel the latest one if no ID provided
+      subToCancel = await Subscription.findOne({
+        where: { userId: req.user.id, status: 'active' },
+        order: [['endDate', 'DESC']]
+      });
+    }
+
+    if (!subToCancel) {
+      // Fallback if user isPro but no records found
+      await user.update({ isPro: false, proExpiry: new Date() });
       return res.json({ success: true, message: 'No active subscription records found. Status reset.' });
     }
 
-    // Mark the latest subscription as cancelled
-    const latestSub = activeSubs[0];
-    await latestSub.update({ status: 'cancelled' });
+    // Mark the subscription as cancelled
+    await subToCancel.update({ status: 'cancelled' });
 
-    // Determine new expiry date
-    // If there's another active sub, use its endDate. Otherwise, expire now.
-    let newExpiry = new Date();
-    if (activeSubs.length > 1) {
-      newExpiry = activeSubs[1].endDate;
-    }
+    // RECALCULATE PRO EXPIRY
+    // Sum up durationDays of all REMAINING active subscriptions
+    const remainingActiveSubs = await Subscription.findAll({
+      where: { userId: req.user.id, status: 'active' }
+    });
+
+    let totalRemainingDays = 0;
+    remainingActiveSubs.forEach(s => {
+      totalRemainingDays += (s.durationDays || 30);
+    });
 
     const now = new Date();
-    const stillPro = newExpiry > now;
+    const newExpiry = new Date(now.getTime() + totalRemainingDays * 24 * 60 * 60 * 1000);
+    const stillPro = totalRemainingDays > 0;
 
     // Update user status
     await user.update({
       isPro: stillPro,
-      proExpiry: newExpiry
+      proExpiry: stillPro ? newExpiry : now
     });
 
     res.json({ 
       success: true, 
-      message: activeSubs.length > 1 
-        ? `Latest subscription cancelled. You are still PRO until ${newExpiry.toLocaleDateString()}.` 
-        : 'Subscription cancelled successfully.',
+      message: stillPro 
+        ? `Subscription cancelled. You are still PRO for ${totalRemainingDays} more days (until ${newExpiry.toLocaleDateString()}).` 
+        : 'Subscription cancelled successfully. You are no longer PRO.',
       isPro: stillPro,
-      proExpiry: newExpiry
+      proExpiry: newExpiry,
+      totalRemainingDays
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -156,12 +169,13 @@ router.get('/test-upgrade', async (req, res) => {
       planId: planId,
       planName: `${plan.name} (Test)`,
       amount: plan.amount,
+      durationDays: plan.days,
       status: 'active',
       startDate: now,
       endDate: newExpiry
     });
 
-    res.send(`Success! User ${user.email} is now PRO until ${newExpiry.toLocaleDateString()}. Record created in Subscriptions table.`);
+    res.send(`Success! User ${user.email} is now PRO until ${newExpiry.toLocaleDateString()}. Record created with ${plan.days} days duration.`);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -213,6 +227,7 @@ router.post('/webhook', async (req, res) => {
           planId,
           planName,
           amount,
+          durationDays: days,
           status: 'active',
           startDate: now,
           endDate: newExpiry

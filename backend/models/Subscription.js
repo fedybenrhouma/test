@@ -35,6 +35,11 @@ const Subscription = sequelize.define('Subscription', {
     type: DataTypes.ENUM('active', 'expired', 'cancelled'),
     defaultValue: 'active'
   },
+  durationDays: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 30
+  },
   startDate: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
