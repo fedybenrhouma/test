@@ -58,6 +58,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
+      if (error.status === 403 && error.error?.isBanned) {
+        const authService = injector.get(AuthService);
+        authService.triggerBanModal(error.error.banReason, error.error.banExpires);
+      }
+
       return throwError(() => error);
     })
   );

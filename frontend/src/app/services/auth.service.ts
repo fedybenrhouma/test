@@ -42,6 +42,12 @@ export class AuthService {
   private triggerLoginModalSubject = new Subject<void>();
   public triggerLoginModal$ = this.triggerLoginModalSubject.asObservable();
 
+  private banDataSubject = new BehaviorSubject<{reason: string, expires: string | null} | null>(null);
+  public banData$ = this.banDataSubject.asObservable();
+
+  private isBannedSubject = new BehaviorSubject<boolean>(false);
+  public isBanned$ = this.isBannedSubject.asObservable();
+
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -54,6 +60,11 @@ export class AuthService {
 
   triggerLoginModal(): void {
     this.triggerLoginModalSubject.next();
+  }
+
+  triggerBanModal(reason: string, expires: string | null): void {
+    this.banDataSubject.next({ reason, expires });
+    this.isBannedSubject.next(true);
   }
 
   register(data: {

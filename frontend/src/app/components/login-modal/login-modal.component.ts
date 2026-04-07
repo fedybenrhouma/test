@@ -94,6 +94,13 @@ export class LoginModalComponent {
       error: (error) => {
         console.error('Login error:', error);
         this.isLoading = false;
+        
+        if (error.status === 403 && error.error?.isBanned) {
+          this.closeModal();
+          this.authService.triggerBanModal(error.error.banReason, error.error.banExpires);
+          return;
+        }
+
         this.error = error.error?.message || 'Login failed. Try again.';
         this.cdr.markForCheck();
       },

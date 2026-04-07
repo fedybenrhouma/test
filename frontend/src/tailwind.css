@@ -39,6 +39,21 @@
 @keyframes glow-pulse { 0%,100%{box-shadow:0 0 12px rgba(239,35,60,0.4)} 50%{box-shadow:0 0 30px rgba(239,35,60,0.4)} }
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 @keyframes borderSpin { from{--ga:0deg} to{--ga:360deg} }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 @property --ga { syntax:"<angle>"; initial-value:0deg; inherits:false; }
 
 .fade-up { animation: fadeUp 0.5s ease both; }

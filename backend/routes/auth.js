@@ -92,6 +92,24 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Check if user is banned
+    if (user.isBanned) {
+      // Check if ban has expired
+      if (user.banExpires && new Date() > user.banExpires) {
+        // Automatically unban
+        await user.update({ isBanned: false, banReason: null, banExpires: null });
+      } else {
+        return res.status(403).json({
+          success: false,
+          isBanned: true,
+          message: 'Your account has been restricted',
+          banReason: user.banReason,
+          banExpires: user.banExpires,
+          user: user.getPublicProfile() // Still return user info for the UI
+        });
+      }
+    }
+
     // Generate token
     const token = generateToken(user);
 

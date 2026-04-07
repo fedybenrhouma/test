@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 // Verify JWT Token
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   // Get token from header
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
@@ -16,6 +16,34 @@ const verifyToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    
+    // Check if user is banned
+    const User = require('../models/User');
+    const user = await User.findByPk(req.user.id);
+    
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User no longer exists',
+      });
+    }
+
+    if (user.isBanned) {
+      // Check if ban has expired
+      if (user.banExpires && new Date() > user.banExpires) {
+        // Automatically unban
+        await user.update({ isBanned: false, banReason: null, banExpires: null });
+      } else {
+        return res.status(403).json({
+          success: false,
+          isBanned: true,
+          message: 'Your account has been restricted',
+          banReason: user.banReason,
+          banExpires: user.banExpires
+        });
+      }
+    }
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

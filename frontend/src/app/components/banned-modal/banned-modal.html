@@ -1,0 +1,46 @@
+<div *ngIf="show" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+  <!-- Dark backdrop -->
+  <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(12px);"></div>
+  
+  <!-- Modal Content -->
+  <div style="position: relative; width: 100%; max-w: 448px; background-color: #111111; border: 1px solid rgba(239, 35, 60, 0.3); border-radius: 1rem; padding: 2rem; box-shadow: 0 0 50px rgba(239, 35, 60, 0.2); animation: fadeIn 0.3s ease;">
+    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background-color: rgba(239, 35, 60, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; border: 1px solid rgba(239, 35, 60, 0.2);">
+        <iconify-icon icon="lucide:shield-off" style="font-size: 30px; color: #ef233c;"></iconify-icon>
+      </div>
+      
+      <h2 style="font-size: 1.5rem; font-weight: 900; color: white; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.025em;">Access Restricted</h2>
+      <p style="color: #888888; font-size: 0.875rem; margin-bottom: 2rem;">Your account has been suspended for violating our terms of service.</p>
+      
+      <div style="width: 100%; background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 2rem; text-align: left;">
+        <div style="margin-bottom: 1rem;">
+          <p style="font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem;">Reason</p>
+          <p style="font-size: 0.875rem; color: white; font-weight: 500;">{{ banData?.reason || 'Violation of terms' }}</p>
+        </div>
+        
+        <div *ngIf="banData?.expires">
+          <p style="font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem;">Status</p>
+          <p style="font-size: 0.875rem; color: #ef233c; font-bold;">Suspended until {{ banData?.expires | date:'medium' }}</p>
+        </div>
+        
+        <div *ngIf="!banData?.expires">
+          <p style="font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem;">Status</p>
+          <p style="font-size: 0.875rem; color: #ef233c; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Permanent Suspension</p>
+        </div>
+      </div>
+      
+      <div style="width: 100%;">
+        <button 
+          (click)="logout()"
+          style="width: 100%; padding: 1rem; background-color: #ef233c; color: white; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 1rem;"
+        >
+          Logout and Disconnect
+        </button>
+        
+        <p style="font-size: 10px; color: #555555; font-family: monospace;">
+          Auto-logout in {{ countdown }} seconds...
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

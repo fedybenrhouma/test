@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const redis = require('../config/redis');
+const { verifyToken } = require('../middleware/auth');
 
 // Retry helper with exponential backoff
 async function fetchWithRetry(url, config, maxRetries = 5) {
@@ -29,7 +30,7 @@ async function fetchWithRetry(url, config, maxRetries = 5) {
 }
 
 // Get all top 250 cryptocurrency markets (cached, no pagination)
-router.get('/markets', async (req, res) => {
+router.get('/markets', verifyToken, async (req, res) => {
   try {
     const cacheKey = 'markets_all_250';
 
@@ -105,7 +106,7 @@ router.get('/markets', async (req, res) => {
 });
 
 // Get specific coin details
-router.get('/markets/:coinId', async (req, res) => {
+router.get('/markets/:coinId', verifyToken, async (req, res) => {
   try {
     const { coinId } = req.params;
     const cacheKey = `coin_${coinId}`;
