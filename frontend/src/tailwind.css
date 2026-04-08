@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-@source "./app/**/*.html";
-@source "./app/**/*.ts";
+@source "./src/**/*.html";
+@source "./src/**/*.ts";
 
 @theme {
   --color-red: #ef233c;
