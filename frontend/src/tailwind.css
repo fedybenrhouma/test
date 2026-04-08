@@ -4,17 +4,146 @@
 @source "./src/**/*.ts";
 
 @theme {
-  --color-red: #ef233c;
-  --color-red-dim: rgba(239,35,60,0.12);
-  --color-surface: #0a0a0a;
-  --color-surface-2: #111111;
-  --color-surface-3: #161616;
-  --color-green: #00d68f;
-  --color-text-1: #f2f2f2;
-  --color-text-2: #888888;
-  --color-text-3: #555555;
-  --color-border: rgba(255,255,255,0.07);
+  --color-red: var(--red);
+  --color-red-dim: var(--red-dim);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-green: var(--green);
+  --color-text-1: var(--text-1);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-border: var(--border);
   --font-display: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+:root {
+  --red: #ef233c;
+  --red-dim: rgba(239, 35, 60, 0.12);
+  --surface: #0a0a0a;
+  --surface-2: #111111;
+  --surface-3: #161616;
+  --green: #00d68f;
+  --text-1: #f2f2f2;
+  --text-2: #888888;
+  --text-3: #555555;
+  --border: rgba(255, 255, 255, 0.07);
+}
+
+/* Theme Definitions */
+.theme-light {
+  --surface: #ffffff;
+  --surface-2: #f8f8f8;
+  --surface-3: #f0f0f0;
+  --text-1: #1a1a1a;
+  --text-2: #666666;
+  --text-3: #999999;
+  --border: rgba(0, 0, 0, 0.08);
+}
+
+.theme-dark {
+  --surface: #121212;
+  --surface-2: #1e1e1e;
+  --surface-3: #2a2a2a;
+  --text-1: #ffffff;
+  --text-2: #a0a0a0;
+  --text-3: #707070;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+.theme-mono {
+  --surface: #000000;
+  --surface-2: #111111;
+  --surface-3: #222222;
+  --text-1: #ffffff;
+  --text-2: #888888;
+  --text-3: #444444;
+  --border: #333333;
+  --red: #ffffff;
+  --green: #888888;
+}
+
+.theme-abyss {
+  --surface: #00040a;
+  --surface-2: #000814;
+  --surface-3: #001d3d;
+  --text-1: #ffffff;
+  --text-2: #a9d6e5;
+  --text-3: #468faf;
+  --border: rgba(0, 53, 102, 0.3);
+  --red: #ff4d6d;
+}
+
+.theme-midnight {
+  --surface: #0b090a;
+  --surface-2: #161a1d;
+  --surface-3: #660708;
+  --text-1: #f5f3f4;
+  --text-2: #b1a7a6;
+  --text-3: #660708;
+  --border: rgba(186, 24, 27, 0.2);
+}
+
+.theme-ocean {
+  --surface: #001219;
+  --surface-2: #001822;
+  --surface-3: #005f73;
+  --text-1: #e9d8a6;
+  --text-2: #94d2bd;
+  --text-3: #0a9396;
+  --border: rgba(10, 147, 150, 0.2);
+  --red: #ae2012;
+}
+
+.theme-slate {
+  --surface: #0f172a;
+  --surface-2: #1e293b;
+  --surface-3: #334155;
+  --text-1: #f8fafc;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --border: rgba(148, 163, 184, 0.1);
+}
+
+.theme-charcoal {
+  --surface: #171717;
+  --surface-2: #262626;
+  --surface-3: #404040;
+  --text-1: #fafafa;
+  --text-2: #a3a3a3;
+  --text-3: #525252;
+  --border: rgba(255, 255, 255, 0.05);
+}
+
+.theme-onyx {
+  --surface: #050505;
+  --surface-2: #0f0f0f;
+  --surface-3: #1a1a1a;
+  --text-1: #d4d4d4;
+  --text-2: #737373;
+  --text-3: #404040;
+  --border: rgba(255, 255, 255, 0.03);
+}
+
+.theme-obsidian {
+  --surface: #0b090a;
+  --surface-2: #161a1d;
+  --surface-3: #303030;
+  --text-1: #e5e5e5;
+  --text-2: #a3a3a3;
+  --text-3: #525252;
+  --border: rgba(255, 255, 255, 0.06);
+}
+
+.theme-forest {
+  --surface: #061005;
+  --surface-2: #121a11;
+  --surface-3: #2d3a2a;
+  --text-1: #ecf3ec;
+  --text-2: #97ab96;
+  --text-3: #5d705c;
+  --border: rgba(45, 58, 42, 0.3);
+  --green: #4ade80;
 }
 
 @layer base {
@@ -26,14 +155,15 @@
 
   html, body {
     height: 100%;
-    background-color: #0a0a0a;
-    color: #f2f2f2;
+    background-color: var(--surface);
+    color: var(--text-1);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #333; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb { background: var(--text-3); border-radius: 99px; }
 }
 
 @keyframes glow-pulse { 0%,100%{box-shadow:0 0 12px rgba(239,35,60,0.4)} 50%{box-shadow:0 0 30px rgba(239,35,60,0.4)} }
@@ -61,53 +191,55 @@
 .fade-up-2 { animation-delay: 0.2s; }
 .fade-up-3 { animation-delay: 0.3s; }
 
-.card { @apply bg-[#111111] border border-white/7 rounded-xl; }
-.card-hover:hover { @apply border-white/14 bg-[#161616]; }
+.card { background-color: var(--surface-2); border: 1px solid var(--border); border-radius: 0.75rem; }
+.card-hover:hover { border-color: rgba(255, 255, 255, 0.14); background-color: var(--surface-3); }
 
-.sidebar { @apply fixed left-0 top-0 bottom-0 w-[220px] bg-[#111111] border-r border-white/7 flex flex-col z-100; }
-.nav-item { @apply flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium text-[#888888] cursor-pointer transition-all; }
-.nav-item:hover { @apply text-[#f2f2f2] bg-white/4; }
-.nav-item.active { @apply text-[#ef233c] bg-[#ef233c]/12; }
+.sidebar { @apply fixed left-0 top-0 bottom-0 w-[220px] flex flex-col z-100; background-color: var(--surface-2); border-right: 1px solid var(--border); }
+.nav-item { @apply flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all; color: var(--text-2); }
+.nav-item:hover { color: var(--text-1); background-color: rgba(255, 255, 255, 0.04); }
+.nav-item.active { color: var(--red); background-color: var(--red-dim); }
 
 .chip { @apply px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wider inline-block; }
-.chip-bull { @apply bg-[#00d68f]/12 text-[#00d68f] border border-[#00d68f]/25; }
-.chip-bear { @apply bg-[#ef233c]/12 text-[#ef233c] border border-[#ef233c]/25; }
-.chip-neut { @apply bg-white/6 text-[#888888] border border-white/10; }
+.chip-bull { color: var(--green); background-color: color-mix(in srgb, var(--green) 12%, transparent); border: 1px solid color-mix(in srgb, var(--green) 25%, transparent); }
+.chip-bear { color: var(--red); background-color: var(--red-dim); border: 1px solid color-mix(in srgb, var(--red) 25%, transparent); }
+.chip-neut { color: var(--text-2); background-color: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); }
 
-.conf-bar { @apply h-1 rounded-full bg-white/6 overflow-hidden; }
+.conf-bar { @apply h-1 rounded-full overflow-hidden; background-color: rgba(255, 255, 255, 0.06); }
 .conf-fill { @apply h-full rounded-full transition-all duration-600; }
 
 .spin-btn {
-  @apply relative box-border bg-[#0a0a0a] rounded-full cursor-pointer font-display font-bold text-xs tracking-widest text-[#f2f2f2] px-5.5 py-2.5 transition-transform;
+  @apply relative box-border rounded-full cursor-pointer font-display font-bold text-xs tracking-widest px-5.5 py-2.5 transition-transform;
+  background-color: var(--surface);
+  color: var(--text-1);
   border: 1.5px solid transparent;
-  background-image: linear-gradient(#0a0a0a, #0a0a0a), conic-gradient(from var(--ga), transparent 0%, #ef233c 5%, #ef233c 20%, transparent 35%, transparent 100%);
+  background-image: linear-gradient(var(--surface), var(--surface)), conic-gradient(from var(--ga), transparent 0%, var(--red) 5%, var(--red) 20%, transparent 35%, transparent 100%);
   background-origin: border-box;
   background-clip: padding-box, border-box;
   animation: borderSpin 2s linear infinite;
 }
 .spin-btn:hover { @apply scale-102; }
 
-.stat-val { @apply font-display font-black text-2xl; }
-.stat-lbl { @apply text-xs text-[#555555] tracking-widest uppercase; }
-.section-label { @apply text-xs font-bold tracking-widest uppercase text-[#ef233c] mb-3; }
+.stat-val { @apply font-display font-black text-2xl; color: var(--text-1); }
+.stat-lbl { @apply text-xs tracking-widest uppercase; color: var(--text-3); }
+.section-label { @apply text-xs font-bold tracking-widest uppercase mb-3; color: var(--red); }
 
-.pnl-pos { @apply text-[#00d68f]; }
-.pnl-neg { @apply text-[#ef233c]; }
+.pnl-pos { color: var(--green); }
+.pnl-neg { color: var(--red); }
 
-.btn-approve { @apply bg-[#00d68f]/12 border border-[#00d68f]/30 text-[#00d68f] rounded-lg px-4.5 py-2 text-xs font-bold tracking-wide transition-all; }
-.btn-approve:hover { @apply bg-[#00d68f]/22; }
-.btn-reject { @apply bg-[#ef233c]/10 border border-[#ef233c]/25 text-[#ef233c] rounded-lg px-4.5 py-2 text-xs font-bold tracking-wide transition-all; }
-.btn-reject:hover { @apply bg-[#ef233c]/20; }
+.btn-approve { border: 1px solid color-mix(in srgb, var(--green) 30%, transparent); color: var(--green); background-color: color-mix(in srgb, var(--green) 12%, transparent); @apply rounded-lg px-4.5 py-2 text-xs font-bold tracking-wide transition-all; }
+.btn-approve:hover { background-color: color-mix(in srgb, var(--green) 22%, transparent); }
+.btn-reject { border: 1px solid color-mix(in srgb, var(--red) 25%, transparent); color: var(--red); background-color: var(--red-dim); @apply rounded-lg px-4.5 py-2 text-xs font-bold tracking-wide transition-all; }
+.btn-reject:hover { background-color: color-mix(in srgb, var(--red) 20%, transparent); }
 
 .main { @apply ml-[220px] min-h-screen; }
 .agent-feed { @apply max-h-[340px] overflow-y-auto flex flex-col gap-3; }
-.token-tag { @apply bg-white/5 border border-white/7 rounded px-2 py-0.5 text-xs font-mono text-[#888888]; }
-.grid-bg { background-image: linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size: 32px 32px; }
-.live-dot { @apply rounded-full bg-[#ef233c] inline-block; animation: glow-pulse 1.5s ease infinite; }
+.token-tag { border: 1px solid var(--border); background-color: rgba(255, 255, 255, 0.05); color: var(--text-2); @apply rounded px-2 py-0.5 text-xs font-mono; }
+.grid-bg { background-image: linear-gradient(var(--border) 1px,transparent 1px), linear-gradient(90deg,var(--border) 1px,transparent 1px); background-size: 32px 32px; }
+.live-dot { @apply rounded-full inline-block; background-color: var(--red); animation: glow-pulse 1.5s ease infinite; }
 
 @layer utilities {
   .selection-red::selection {
-    background: #ef233c;
+    background: var(--red);
     color: white;
   }
 
@@ -137,7 +269,7 @@
     border-radius: 9999px;
     padding: 1rem 2.5rem;
     background: linear-gradient(#000000, #000000) padding-box,
-    conic-gradient(from var(--gradient-angle), transparent 0%, #ef233c 5%, #ef233c 15%, #ef233c 30%, transparent 40%, transparent 100%) border-box;
+    conic-gradient(from var(--gradient-angle), transparent 0%, var(--red) 5%, var(--red) 15%, var(--red) 30%, transparent 40%, transparent 100%) border-box;
     border: 2px solid transparent;
     cursor: pointer;
     isolation: isolate;

@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-[#0a0a0a] pt-24 pb-20 px-8">
+<div class="min-h-screen bg-surface pt-24 pb-20 px-8">
   <div class="max-w-[800px] mx-auto">
     <!-- Page Header -->
     <div class="mb-10 animate-[fadeIn_0.5s_ease]">
       <p class="section-lbl mb-2 uppercase tracking-[0.2em] text-[#ef233c] text-[10px] font-bold">User Settings</p>
-      <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-[#f2f2f2] mb-4">
+      <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-text-1 mb-4">
         Profile
       </h1>
       <p class="text-[#888888] text-sm max-w-md leading-relaxed">
@@ -47,7 +47,7 @@
 
     <!-- Personal Info Tab -->
     <div *ngIf="activeTab === 'profile'" class="animate-[fadeIn_0.3s_ease]">
-      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+      <div class="bg-surface-2 border border-white/5 rounded-2xl overflow-hidden">
         <div class="p-8 border-b border-white/5 bg-white/[0.02]">
           <h2 class="text-xl font-bold text-white mb-1">Personal Details</h2>
           <p class="text-xs text-[#555555]">These details will be used for your account identification.</p>
@@ -75,7 +75,7 @@
                 formControlName="firstName"
                 placeholder="Enter first name"
                 [class.border-[#ef233c]/50]="profileSubmitted && pf['firstName'].errors"
-                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                class="w-full bg-surface border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
               >
               <div *ngIf="profileSubmitted && pf['firstName'].errors" class="text-[10px] text-[#ef233c] font-bold">
                 First name is required (min 2 chars).
@@ -90,7 +90,7 @@
                 formControlName="lastName"
                 placeholder="Enter last name"
                 [class.border-[#ef233c]/50]="profileSubmitted && pf['lastName'].errors"
-                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                class="w-full bg-surface border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
               >
               <div *ngIf="profileSubmitted && pf['lastName'].errors" class="text-[10px] text-[#ef233c] font-bold">
                 Last name is required (min 2 chars).
@@ -108,7 +108,7 @@
                 formControlName="username"
                 placeholder="Enter username"
                 [class.border-[#ef233c]/50]="profileSubmitted && pf['username'].errors"
-                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                class="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
               >
             </div>
             <div *ngIf="profileSubmitted && pf['username'].errors" class="text-[10px] text-[#ef233c] font-bold">
@@ -126,7 +126,7 @@
                 formControlName="email"
                 placeholder="Enter email"
                 [class.border-[#ef233c]/50]="profileSubmitted && pf['email'].errors"
-                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                class="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
               >
             </div>
             <div *ngIf="profileSubmitted && pf['email'].errors" class="text-[10px] text-[#ef233c] font-bold">
@@ -152,7 +152,7 @@
 
     <!-- Security Tab -->
     <div *ngIf="activeTab === 'password'" class="animate-[fadeIn_0.3s_ease] space-y-8">
-      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+      <div class="bg-surface-2 border border-white/5 rounded-2xl overflow-hidden">
         <div class="p-8 border-b border-white/5 bg-white/[0.02]">
           <h2 class="text-xl font-bold text-white mb-1">Update Password</h2>
           <p class="text-xs text-[#555555]">Ensure your account is using a long, random password to stay secure.</p>
@@ -181,7 +181,7 @@
                 formControlName="currentPassword"
                 placeholder="••••••••"
                 [class.border-[#ef233c]/50]="passwordSubmitted && pwf['currentPassword'].errors"
-                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                class="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
               >
             </div>
             <div *ngIf="passwordSubmitted && pwf['currentPassword'].errors" class="text-[10px] text-[#ef233c] font-bold">
@@ -200,7 +200,7 @@
                   formControlName="newPassword"
                   placeholder="••••••••"
                   [class.border-[#ef233c]/50]="passwordSubmitted && pwf['newPassword'].errors"
-                  class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                  class="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
                 >
               </div>
               <div *ngIf="passwordSubmitted && pwf['newPassword'].errors" class="text-[10px] text-[#ef233c] font-bold">
@@ -218,7 +218,7 @@
                   formControlName="confirmPassword"
                   placeholder="••••••••"
                   [class.border-[#ef233c]/50]="passwordSubmitted && pwf['confirmPassword'].errors"
-                  class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                  class="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
                 >
               </div>
               <div *ngIf="passwordSubmitted && pwf['confirmPassword'].errors" class="text-[10px] text-[#ef233c] font-bold">
@@ -243,7 +243,7 @@
       </div>
 
       <!-- Binance Connection Section -->
-      <div class="mt-8 bg-[#111111] border border-white/5 rounded-2xl overflow-hidden animate-[fadeIn_0.5s_ease]">
+      <div class="mt-8 bg-surface-2 border border-white/5 rounded-2xl overflow-hidden animate-[fadeIn_0.5s_ease]">
         <div class="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
           <div>
             <h2 class="text-xl font-bold text-white mb-1">Exchange Connection</h2>
@@ -263,7 +263,7 @@
 
         <!-- Connected View -->
         <div *ngIf="!statusLoading && binanceStatus?.connected && !showForm" class="p-8 space-y-6">
-          <div class="bg-[#0a0a0a] border border-white/5 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="bg-surface border border-white/5 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="space-y-4">
               <div class="flex items-center gap-3">
                 <iconify-icon icon="simple-icons:binance" class="text-3xl text-[#f3ba2f]"></iconify-icon>
@@ -341,7 +341,7 @@
                   type="text" 
                   formControlName="apiKey"
                   placeholder="Enter your Binance API Key"
-                  class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white font-mono outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                  class="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white font-mono outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
                 >
               </div>
             </div>
@@ -354,7 +354,7 @@
                   [type]="showSecret ? 'text' : 'password'" 
                   formControlName="apiSecret"
                   placeholder="Enter your API Secret"
-                  class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-12 pr-12 py-3 text-sm text-white font-mono outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
+                  class="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-12 py-3 text-sm text-white font-mono outline-none focus:border-white/30 transition-all placeholder:text-[#333]"
                 >
                 <button 
                   type="button" 
@@ -418,14 +418,14 @@
     <!-- My Plans Tab -->
     <div *ngIf="activeTab === 'plans'" class="animate-[fadeIn_0.3s_ease] space-y-8">
       <!-- Current Plan Status -->
-      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+      <div class="bg-surface-2 border border-white/5 rounded-2xl overflow-hidden">
         <div class="p-8 border-b border-white/5 bg-white/[0.02]">
           <h2 class="text-xl font-bold text-white mb-1">Subscription Status</h2>
           <p class="text-xs text-[#555555]">Manage your current active plans and billing.</p>
         </div>
 
         <div class="p-8">
-          <div *ngIf="currentUser?.isProActive" class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[#0a0a0a] border border-[#00d68f]/20 rounded-2xl p-8">
+          <div *ngIf="currentUser?.isProActive" class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-surface border border-[#00d68f]/20 rounded-2xl p-8">
             <div class="space-y-4">
               <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-2xl bg-[#00d68f]/10 flex items-center justify-center text-[#00d68f]">
@@ -439,7 +439,7 @@
               
               <div class="space-y-1">
                 <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest">Expires on</p>
-                <p class="text-sm text-[#f2f2f2] font-bold">{{ currentUser?.proExpiry | date:'longDate' }}</p>
+                <p class="text-sm text-text-1 font-bold">{{ currentUser?.proExpiry | date:'longDate' }}</p>
               </div>
             </div>
 
@@ -458,7 +458,7 @@
               
               <!-- Modal -->
               <div class="relative fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] w-[90%] max-w-[420px] animate-[slideUp_0.3s_ease]">
-                <div class="rounded-2xl bg-[#111111] border border-white/7 shadow-[0_20px_60px_rgba(0,0,0,0.8)] p-8 space-y-6">
+                <div class="rounded-2xl bg-surface-2 border border-white/7 shadow-[0_20px_60px_rgba(0,0,0,0.8)] p-8 space-y-6">
                   <!-- Icon & Title -->
                   <div class="flex flex-col items-center text-center space-y-3">
                     <div class="w-12 h-12 rounded-full bg-[#ef233c]/10 flex items-center justify-center">
@@ -498,7 +498,7 @@
             </div>
           </div>
 
-          <div *ngIf="!currentUser?.isProActive" class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[#0a0a0a] border border-white/5 rounded-2xl p-8">
+          <div *ngIf="!currentUser?.isProActive" class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-surface border border-white/5 rounded-2xl p-8">
             <div class="space-y-2">
               <h3 class="text-lg font-bold text-white uppercase tracking-tight">Free Plan</h3>
               <p class="text-xs text-[#555555] max-w-sm">Upgrade to Pro to unlock advanced trading agents and unlimited price alerts.</p>
@@ -511,7 +511,7 @@
       </div>
 
       <!-- Billing History -->
-      <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+      <div class="bg-surface-2 border border-white/5 rounded-2xl overflow-hidden">
         <div class="p-8 border-b border-white/5 bg-white/[0.02]">
           <h2 class="text-xl font-bold text-white mb-1">Billing History</h2>
           <p class="text-xs text-[#555555]">Your past payments and subscription logs.</p>

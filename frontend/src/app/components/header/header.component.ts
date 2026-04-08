@@ -7,6 +7,7 @@ import { AlertService, Alert } from '../../services/alert.service';
 import { CryptoMarketService, CryptoMarket } from '../../services/crypto-market.service';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
+import { ThemeService, Theme } from '../../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -24,6 +25,24 @@ export class HeaderComponent implements OnInit {
   showAccountMenu = false;
   showLoginModal = false;
   
+  // Theme State
+  showThemeMenu = false;
+  currentTheme: Theme = 'default';
+  themes: { name: Theme, label: string, color: string }[] = [
+    { name: 'default', label: 'Default', color: '#0a0a0a' },
+    { name: 'light', label: 'Light', color: '#ffffff' },
+    { name: 'dark', label: 'Dark', color: '#121212' },
+    { name: 'mono', label: 'Mono', color: '#000000' },
+    { name: 'abyss', label: 'Abyss', color: '#00040a' },
+    { name: 'midnight', label: 'Midnight', color: '#0b090a' },
+    { name: 'ocean', label: 'Ocean', color: '#001219' },
+    { name: 'slate', label: 'Slate', color: '#0f172a' },
+    { name: 'charcoal', label: 'Charcoal', color: '#171717' },
+    { name: 'onyx', label: 'Onyx', color: '#050505' },
+    { name: 'obsidian', label: 'Obsidian', color: '#0b090a' },
+    { name: 'forest', label: 'Forest', color: '#061005' },
+  ];
+
   // Notifications State
   unreadCount = 0;
   showNotificationsMenu = false;
@@ -44,6 +63,7 @@ export class HeaderComponent implements OnInit {
     private authService: AuthService,
     private alertService: AlertService,
     private cryptoService: CryptoMarketService,
+    private themeService: ThemeService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -69,6 +89,11 @@ export class HeaderComponent implements OnInit {
     });
 
     if (isPlatformBrowser(this.platformId)) {
+      this.themeService.currentTheme$.subscribe(theme => {
+        this.currentTheme = theme;
+        this.cdr.markForCheck();
+      });
+
       this.alertService.unreadCount$.subscribe(count => {
         this.unreadCount = count;
         this.cdr.markForCheck();
@@ -92,10 +117,30 @@ export class HeaderComponent implements OnInit {
     }
   }
 
+  toggleThemeMenu(): void {
+    this.showThemeMenu = !this.showThemeMenu;
+    if (this.showThemeMenu) {
+      this.showNotificationsMenu = false;
+      this.showAccountMenu = false;
+    }
+    this.cdr.markForCheck();
+  }
+
+  closeThemeMenu(): void {
+    this.showThemeMenu = false;
+    this.cdr.markForCheck();
+  }
+
+  setTheme(theme: Theme): void {
+    this.themeService.setTheme(theme);
+    this.closeThemeMenu();
+  }
+
   toggleNotificationsMenu(): void {
     this.showNotificationsMenu = !this.showNotificationsMenu;
     if (this.showNotificationsMenu) {
       this.showAccountMenu = false;
+      this.showThemeMenu = false;
       if (this.unreadCount > 0) {
         this.alertService.markAllAsRead();
       }
@@ -202,6 +247,7 @@ export class HeaderComponent implements OnInit {
     this.showAccountMenu = !this.showAccountMenu;
     if (this.showAccountMenu) {
       this.showNotificationsMenu = false;
+      this.showThemeMenu = false;
     }
     this.cdr.markForCheck();
   }

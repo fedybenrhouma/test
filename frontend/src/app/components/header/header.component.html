@@ -1,13 +1,13 @@
-<header class="fixed top-0 left-[220px] right-0 z-40 border-b border-white/7 bg-[#0a0a0a]/80 backdrop-blur-md">
+<header class="fixed top-0 left-[220px] right-0 z-40 border-b border-border bg-surface/80 backdrop-blur-md">
   <div class="px-8 py-4 flex items-center justify-between">
     <div class="w-64"></div>
 
     <div class="flex items-center gap-6" style="padding-right: 20vh;">
       <a
         routerLink="/products"
-        routerLinkActive="text-white"
+        routerLinkActive="text-text-1"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+        class="text-sm font-medium text-text-2 hover:text-text-1 transition-colors"
       >
         Pricing
       </a>
@@ -15,18 +15,18 @@
         <a
           *ngIf="isAuthenticated"
           routerLink="/watchlist"
-          routerLinkActive="text-white"
+          routerLinkActive="text-text-1"
           [routerLinkActiveOptions]="{ exact: true }"
-          class="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+          class="text-sm font-medium text-text-2 hover:text-text-1 transition-colors"
         >
           Watchlist
         </a>
         <a
           *ngIf="isAuthenticated"
           routerLink="/portfolio"
-          routerLinkActive="text-white"
+          routerLinkActive="text-text-1"
           [routerLinkActiveOptions]="{ exact: true }"
-          class="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+          class="text-sm font-medium text-text-2 hover:text-text-1 transition-colors"
         >
           Portfolio
         </a>
@@ -37,7 +37,7 @@
       <div *ngIf="!isAuthenticated" class="flex items-center gap-4">
         <button
           (click)="openLoginModal()"
-          class="hidden md:block text-sm font-medium text-zinc-300 hover:text-white cursor-pointer bg-transparent border-none"
+          class="hidden md:block text-sm font-medium text-text-2 hover:text-text-1 cursor-pointer bg-transparent border-none"
         >
           Log In
         </button>
@@ -45,10 +45,10 @@
           routerLink="/register"
           class="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white/5 px-6 py-2 transition-transform active:scale-95 cursor-pointer border-none"
         >
-          <span class="absolute inset-0 border border-white/10 rounded-full"></span>
+          <span class="absolute inset-0 border border-border rounded-full"></span>
           <span class="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,transparent_75%,#ef233c_100%)] opacity-0 group-hover:opacity-100 transition-opacity"></span>
-          <span class="absolute inset-[1px] rounded-full bg-black"></span>
-          <span class="relative z-10 flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider">
+          <span class="absolute inset-[1px] rounded-full bg-surface"></span>
+          <span class="relative z-10 flex items-center gap-2 text-xs font-bold text-text-1 uppercase tracking-wider">
             Sign Up <iconify-icon icon="lucide:arrow-right" class="w-3 h-3 group-hover:translate-x-0.5 transition-transform"></iconify-icon>
           </span>
         </button>
@@ -56,9 +56,33 @@
 
       <div *ngIf="isAuthenticated" class="relative flex items-center gap-5">
         
+        <!-- Theme Switcher -->
+        <div class="relative">
+          <button (click)="toggleThemeMenu()" class="relative cursor-pointer text-text-2 hover:text-text-1 transition-colors bg-transparent border-none outline-none p-0 flex items-center group" title="Change Theme">
+            <iconify-icon icon="lucide:palette" class="w-5 h-5 group-hover:scale-110 transition-transform"></iconify-icon>
+          </button>
+
+          <!-- Theme Dropdown Menu -->
+          <div *ngIf="showThemeMenu" class="absolute top-[calc(100%+20px)] right-0 w-[200px] origin-top animate-[slideDown_0.2s_ease] overflow-hidden rounded-2xl bg-surface-2 border border-border shadow-[0_20px_60px_rgba(0,0,0,0.5)] z-[100]" (clickOutside)="closeThemeMenu()">
+            <div class="p-3 border-b border-border bg-white/[0.02]">
+              <h3 class="m-0 text-[11px] font-bold text-text-1 uppercase tracking-widest">Select Theme</h3>
+            </div>
+            
+            <div class="max-h-[300px] overflow-y-auto p-1.5 bg-surface">
+              <button *ngFor="let theme of themes" (click)="setTheme(theme.name)" 
+                class="flex w-full items-center gap-3 rounded-lg bg-transparent p-2.5 text-left text-[11px] font-medium transition-all border-none cursor-pointer group"
+                [ngClass]="currentTheme === theme.name ? 'text-text-1 bg-white/10' : 'text-text-2 hover:bg-white/5 hover:text-text-1'">
+                <div class="w-4 h-4 rounded-full border border-border shrink-0 shadow-sm" [style.background-color]="theme.color"></div>
+                <span class="flex-1 capitalize">{{ theme.label }}</span>
+                <iconify-icon *ngIf="currentTheme === theme.name" icon="lucide:check" class="text-[#ef233c] w-3.5 h-3.5"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Notifications Dropdown Trigger -->
         <div class="relative">
-          <button (click)="toggleNotificationsMenu()" class="relative cursor-pointer text-zinc-400 hover:text-white transition-colors bg-transparent border-none outline-none p-0 flex items-center group" title="Notifications">
+          <button (click)="toggleNotificationsMenu()" class="relative cursor-pointer text-text-2 hover:text-text-1 transition-colors bg-transparent border-none outline-none p-0 flex items-center group" title="Notifications">
             <iconify-icon icon="lucide:bell" class="w-5 h-5 group-hover:scale-110 transition-transform"></iconify-icon>
             <span *ngIf="unreadCount > 0" class="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#ef233c] text-[9px] font-bold text-white shadow-[0_0_10px_rgba(239,35,60,0.5)] border border-black">
               {{ unreadCount > 9 ? '9+' : unreadCount }}
@@ -66,34 +90,34 @@
           </button>
 
           <!-- Notifications Dropdown Menu -->
-          <div *ngIf="showNotificationsMenu" class="absolute top-[calc(100%+20px)] right-[-60px] w-[350px] origin-top animate-[slideDown_0.2s_ease] overflow-hidden rounded-2xl bg-zinc-900 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)] sm:right-[-50px] sm:w-[320px]" (clickOutside)="closeNotificationsMenu()">
-            <div class="relative z-10 flex items-center justify-between p-4 border-b border-white/5 bg-zinc-900/50 backdrop-blur-md">
-              <h3 class="m-0 text-[14px] font-bold text-white">Notifications</h3>
+          <div *ngIf="showNotificationsMenu" class="absolute top-[calc(100%+20px)] right-[-60px] w-[350px] origin-top animate-[slideDown_0.2s_ease] overflow-hidden rounded-2xl bg-surface-2 border border-border shadow-[0_20px_60px_rgba(0,0,0,0.5)] sm:right-[-50px] sm:w-[320px]" (clickOutside)="closeNotificationsMenu()">
+            <div class="relative z-10 flex items-center justify-between p-4 border-b border-border bg-surface/50 backdrop-blur-md">
+              <h3 class="m-0 text-[14px] font-bold text-text-1">Notifications</h3>
               <button (click)="openManageAlertsModal()" class="text-[12px] text-[#ef233c] hover:text-red-400 font-bold tracking-wider uppercase bg-transparent border-none cursor-pointer p-0 transition-colors">
                 Manage Alerts
               </button>
             </div>
             
-            <div class="max-h-[350px] overflow-y-auto bg-black">
-              <div *ngIf="notifications.length === 0" class="p-8 text-center text-zinc-500 flex flex-col items-center justify-center min-h-[150px]">
+            <div class="max-h-[350px] overflow-y-auto bg-surface">
+              <div *ngIf="notifications.length === 0" class="p-8 text-center text-text-2 flex flex-col items-center justify-center min-h-[150px]">
                 <iconify-icon icon="lucide:bell-off" class="w-8 h-8 mb-3 opacity-50"></iconify-icon>
-                <h4 class="text-[14px] font-medium m-0 mb-1 text-zinc-400">All caught up!</h4>
+                <h4 class="text-[14px] font-medium m-0 mb-1 text-text-2">All caught up!</h4>
                 <p class="text-[12px] m-0">No new notifications.</p>
               </div>
               
-              <div *ngFor="let notif of notifications" class="p-4 border-b border-white/5 last:border-none flex items-start gap-4 hover:bg-white/[0.02] transition-colors cursor-pointer text-left group" (click)="goToCoin(notif.coinId)">
+              <div *ngFor="let notif of notifications" class="p-4 border-b border-border last:border-none flex items-start gap-4 hover:bg-white/[0.02] transition-colors cursor-pointer text-left group" (click)="goToCoin(notif.coinId)">
                 <div class="w-9 h-9 rounded-full bg-[#ef233c]/10 text-[#ef233c] flex items-center justify-center shrink-0 border border-[#ef233c]/20">
                   <iconify-icon icon="lucide:zap" class="w-4 h-4"></iconify-icon>
                 </div>
                 <div class="flex-1 mt-0.5">
-                  <h4 class="m-0 font-medium text-white text-[13px] mb-1 leading-snug">
+                  <h4 class="m-0 font-medium text-text-1 text-[13px] mb-1 leading-snug">
                     <span class="text-[#ef233c] font-bold">{{ notif.symbol }}</span> crossed {{ notif.condition }} <span class="font-mono bg-white/10 px-1 rounded">${{ notif.targetPrice }}</span>
                   </h4>
-                  <span class="text-[10px] text-zinc-500 flex items-center gap-1.5 mt-2 font-mono">
+                  <span class="text-[10px] text-text-2 flex items-center gap-1.5 mt-2 font-mono">
                     <iconify-icon icon="lucide:clock" class="w-3 h-3"></iconify-icon> {{ formatDate(notif.triggeredAt) }}
                   </span>
                 </div>
-                <button (click)="deleteAlert(notif.id); $event.stopPropagation()" class="text-zinc-600 hover:text-[#ef233c] w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity shrink-0" title="Delete notification">
+                <button (click)="deleteAlert(notif.id); $event.stopPropagation()" class="text-text-3 hover:text-[#ef233c] w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity shrink-0" title="Delete notification">
                   <iconify-icon icon="lucide:x" class="w-4 h-4"></iconify-icon>
                 </button>
               </div>
@@ -105,7 +129,7 @@
         <div class="relative">
           <button
             (click)="toggleAccountMenu()"
-            class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 border border-white/20 text-sm font-bold text-[#f2f2f2] transition-all hover:bg-white/20"
+            class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 border border-border text-sm font-bold text-text-1 transition-all hover:bg-white/20"
           >
             <span class="text-[11px] uppercase font-bold">{{ currentUser?.firstName?.charAt(0) ?? 'U' }}</span>
             
@@ -113,19 +137,19 @@
 
           <div
             *ngIf="showAccountMenu"
-            class="absolute top-full right-0 mt-2 w-[220px] origin-top overflow-hidden rounded-xl bg-[#111111] border border-white/7 shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
+            class="absolute top-full right-0 mt-2 w-[220px] origin-top overflow-hidden rounded-xl bg-surface-2 border border-border shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
             (clickOutside)="closeAccountMenu()"
           >
-            <div class="bg-[#0a0a0a] p-4 border-b border-white/7">
+            <div class="bg-surface p-4 border-b border-border">
               <div class="flex items-center gap-3">
                 <div class="flex h-9 w-9 items-center justify-center rounded-full bg-[#ef233c] text-[12px] font-bold text-white">
                   {{ currentUser?.firstName?.charAt(0) ?? 'U' }}
                 </div>
                 <div class="flex-1">
-                  <div class="text-[12px] font-bold text-[#f2f2f2]">
+                  <div class="text-[12px] font-bold text-text-1">
                     {{ currentUser?.firstName }} {{ currentUser?.lastName }}
                   </div>
-                  <div class="text-[10px] text-[#555555]">{{ currentUser?.email }}</div>
+                  <div class="text-[10px] text-text-3">{{ currentUser?.email }}</div>
                   <div 
                     *ngIf="currentUser?.isProActive"
                     class="mt-1 inline-block text-[9px] font-bold text-[#00d68f] uppercase tracking-wide"
@@ -136,10 +160,10 @@
               </div>
             </div>
 
-            <div class="p-1.5 bg-[#0a0a0a]">
+            <div class="p-1.5 bg-surface">
               <button
                 (click)="goToProfile()"
-                class="flex w-full items-center gap-2.5 rounded-lg bg-transparent p-2 text-left text-[12px] font-medium text-[#888888] transition-colors hover:bg-white/5 hover:text-[#f2f2f2] border-none cursor-pointer"
+                class="flex w-full items-center gap-2.5 rounded-lg bg-transparent p-2 text-left text-[12px] font-medium text-text-2 transition-colors hover:bg-white/5 hover:text-text-1 border-none cursor-pointer"
               >
                 <iconify-icon icon="lucide:user" class="w-4 h-4"></iconify-icon>
                 Profile
@@ -149,7 +173,7 @@
                 *ngIf="currentUser?.role === 'admin'"
                 routerLink="/admin"
                 (click)="closeAccountMenu()"
-                class="flex w-full items-center gap-2.5 rounded-lg bg-transparent p-2 text-left text-[12px] font-medium text-[#888888] transition-colors hover:bg-white/5 hover:text-[#f2f2f2] border-none cursor-pointer"
+                class="flex w-full items-center gap-2.5 rounded-lg bg-transparent p-2 text-left text-[12px] font-medium text-text-2 transition-colors hover:bg-white/5 hover:text-text-1 border-none cursor-pointer"
               >
                 <iconify-icon icon="lucide:shield-check" class="w-4 h-4 text-[#ef233c]"></iconify-icon>
                 Admin Panel
@@ -175,66 +199,66 @@
 <div *ngIf="showManageModal" class="fixed inset-0 z-[1000] flex items-center justify-center px-4 sm:p-0">
   <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity animate-[fadeIn_0.2s_ease]" (click)="closeManageModal()"></div>
   
-  <div class="relative bg-[#111111] rounded-xl shadow-[0_0_50px_rgba(239,35,60,0.15)] w-full max-w-[550px] max-h-[90vh] flex flex-col animate-[slideUp_0.3s_ease] overflow-hidden border border-white/7">
+  <div class="relative bg-surface-2 rounded-xl shadow-[0_0_50px_rgba(239,35,60,0.15)] w-full max-w-[550px] max-h-[90vh] flex flex-col animate-[slideUp_0.3s_ease] overflow-hidden border border-border">
     
     <!-- Modal Header -->
-    <div class="flex items-center justify-between p-5 border-b border-white/7 bg-[#0a0a0a] z-10">
+    <div class="flex items-center justify-between p-5 border-b border-border bg-surface z-10">
       <div>
-        <h2 class="m-0 text-sm font-bold text-[#f2f2f2] font-display uppercase tracking-wider">Manage Alerts</h2>
-        <p class="m-0 text-[10px] text-[#555555] mt-0.5">Get notified on price triggers</p>
+        <h2 class="m-0 text-sm font-bold text-text-1 font-display uppercase tracking-wider">Manage Alerts</h2>
+        <p class="m-0 text-[10px] text-text-3 mt-0.5">Get notified on price triggers</p>
       </div>
-      <button (click)="closeManageModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-[#555555] hover:text-[#f2f2f2] hover:bg-white/10 bg-transparent border-none cursor-pointer transition-all">
+      <button (click)="closeManageModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-text-3 hover:text-text-1 hover:bg-white/10 bg-transparent border-none cursor-pointer transition-all">
         <iconify-icon icon="lucide:x" class="w-4 h-4"></iconify-icon>
       </button>
     </div>
 
-    <div class="p-5 overflow-y-auto flex-1 bg-[#0a0a0a]">
+    <div class="p-5 overflow-y-auto flex-1 bg-surface">
       
       <!-- Create Alert Form -->
-      <div class="bg-[#111111] rounded-lg border border-white/7 p-4 mb-6">
-        <h3 class="m-0 mb-3 text-[11px] font-bold text-[#f2f2f2] uppercase tracking-wider flex items-center gap-2">
+      <div class="bg-surface-2 rounded-lg border border-border p-4 mb-6">
+        <h3 class="m-0 mb-3 text-[11px] font-bold text-text-1 uppercase tracking-wider flex items-center gap-2">
           <iconify-icon icon="lucide:plus-circle" class="text-[#ef233c]"></iconify-icon> New Alert
         </h3>
         
         <div class="flex flex-col gap-3">
           <div class="relative">
-            <label class="block text-[10px] font-bold text-[#555555] mb-1.5 uppercase tracking-widest">Coin</label>
+            <label class="block text-[10px] font-bold text-text-3 mb-1.5 uppercase tracking-widest">Coin</label>
             
-            <div *ngIf="selectedCoin" class="flex items-center justify-between bg-[#0a0a0a] border border-[#ef233c]/30 p-2 rounded-lg">
+            <div *ngIf="selectedCoin" class="flex items-center justify-between bg-surface border border-[#ef233c]/30 p-2 rounded-lg">
               <div class="flex items-center gap-2">
                 <img [src]="selectedCoin.image" class="w-5 h-5 rounded-full">
-                <span class="font-bold text-[#f2f2f2] text-[11px]">{{ selectedCoin.name }}</span>
+                <span class="font-bold text-text-1 text-[11px]">{{ selectedCoin.name }}</span>
               </div>
-              <button (click)="selectedCoin = null" class="w-5 h-5 rounded-full flex items-center justify-center text-[#555555] hover:text-[#f2f2f2] hover:bg-white/10 bg-transparent border-none cursor-pointer">
+              <button (click)="selectedCoin = null" class="w-5 h-5 rounded-full flex items-center justify-center text-text-3 hover:text-text-1 hover:bg-white/10 bg-transparent border-none cursor-pointer">
                 <iconify-icon icon="lucide:x" class="w-3 h-3"></iconify-icon>
               </button>
             </div>
             
             <div *ngIf="!selectedCoin" class="relative">
-              <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-[#555555] w-3.5 h-3.5"></iconify-icon>
-              <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" placeholder="Search..." class="w-full bg-[#0a0a0a] border border-white/7 rounded-lg p-2 pl-9 text-[11px] outline-none focus:border-[#ef233c]/50 transition-all text-[#f2f2f2] placeholder:text-[#555555]">
+              <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-text-3 w-3.5 h-3.5"></iconify-icon>
+              <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" placeholder="Search..." class="w-full bg-surface border border-border rounded-lg p-2 pl-9 text-[11px] outline-none focus:border-[#ef233c]/50 transition-all text-text-1 placeholder:text-text-3">
             </div>
             
-            <div *ngIf="!selectedCoin && searchResults.length > 0" class="absolute top-full left-0 right-0 mt-1 bg-[#111111] border border-white/7 rounded-lg shadow-xl z-20 overflow-hidden">
-              <div *ngFor="let coin of searchResults" (click)="selectCoin(coin)" class="flex items-center gap-2 p-2.5 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/7 last:border-none text-[11px]">
+            <div *ngIf="!selectedCoin && searchResults.length > 0" class="absolute top-full left-0 right-0 mt-1 bg-surface-2 border border-border rounded-lg shadow-xl z-20 overflow-hidden">
+              <div *ngFor="let coin of searchResults" (click)="selectCoin(coin)" class="flex items-center gap-2 p-2.5 hover:bg-white/5 cursor-pointer transition-colors border-b border-border last:border-none text-[11px]">
                 <img [src]="coin.image" class="w-4 h-4 rounded-full">
-                <span class="font-bold text-[#f2f2f2]">{{ coin.name }}</span>
-                <span class="text-[9px] text-[#555555]">{{ coin.symbol }}</span>
+                <span class="font-bold text-text-1">{{ coin.name }}</span>
+                <span class="text-[9px] text-text-3">{{ coin.symbol }}</span>
               </div>
             </div>
           </div>
 
           <div *ngIf="selectedCoin" class="grid grid-cols-2 gap-2 animate-[fadeIn_0.3s_ease]">
             <div>
-              <label class="block text-[10px] font-bold text-[#555555] mb-1 uppercase">Price</label>
+              <label class="block text-[10px] font-bold text-text-3 mb-1 uppercase">Price</label>
               <div class="relative">
-                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#555555] text-xs">$</span>
-                <input type="number" [(ngModel)]="targetPrice" class="w-full bg-[#0a0a0a] border border-white/7 rounded p-2 pl-6 text-[11px] font-mono outline-none focus:border-[#ef233c]/50 text-[#f2f2f2]">
+                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-3 text-xs">$</span>
+                <input type="number" [(ngModel)]="targetPrice" class="w-full bg-surface border border-border rounded p-2 pl-6 text-[11px] font-mono outline-none focus:border-[#ef233c]/50 text-text-1">
               </div>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-[#555555] mb-1 uppercase">When</label>
-              <select [(ngModel)]="condition" class="w-full bg-[#0a0a0a] border border-white/7 rounded p-2 text-[11px] outline-none focus:border-[#ef233c]/50 text-[#f2f2f2] cursor-pointer">
+              <label class="block text-[10px] font-bold text-text-3 mb-1 uppercase">When</label>
+              <select [(ngModel)]="condition" class="w-full bg-surface border border-border rounded p-2 text-[11px] outline-none focus:border-[#ef233c]/50 text-text-1 cursor-pointer">
                 <option value="above">Goes Above ↑</option>
                 <option value="below">Goes Below ↓</option>
               </select>
@@ -248,29 +272,29 @@
       </div>
 
       <div class="flex items-center justify-between mb-3">
-        <h3 class="m-0 text-[10px] font-bold text-[#f2f2f2] uppercase tracking-wider">Active</h3>
-        <span class="bg-white/10 text-[#555555] text-[9px] font-bold px-2 py-1 rounded">{{ activeAlerts.length }}</span>
+        <h3 class="m-0 text-[10px] font-bold text-text-1 uppercase tracking-wider">Active</h3>
+        <span class="bg-white/10 text-text-3 text-[9px] font-bold px-2 py-1 rounded">{{ activeAlerts.length }}</span>
       </div>
       
-      <div *ngIf="activeAlerts.length === 0" class="text-center p-5 bg-[#111111] border border-white/7 rounded-lg">
-        <iconify-icon icon="lucide:bell-off" class="w-5 h-5 text-[#555555] mb-2"></iconify-icon>
-        <p class="text-[10px] text-[#555555] m-0">No alerts</p>
+      <div *ngIf="activeAlerts.length === 0" class="text-center p-5 bg-surface-2 border border-border rounded-lg">
+        <iconify-icon icon="lucide:bell-off" class="w-5 h-5 text-text-3 mb-2"></iconify-icon>
+        <p class="text-[10px] text-text-3 m-0">No alerts</p>
       </div>
       
       <div class="flex flex-col gap-1.5">
-        <div *ngFor="let alert of activeAlerts" class="flex items-center justify-between p-2.5 bg-[#111111] border border-white/7 rounded-lg hover:border-white/10 transition-colors group text-[10px]">
+        <div *ngFor="let alert of activeAlerts" class="flex items-center justify-between p-2.5 bg-surface-2 border border-border rounded-lg hover:border-white/10 transition-colors group text-[10px]">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-[#0a0a0a] flex items-center justify-center text-[#888888] font-bold border border-white/7 text-[9px]">
+            <div class="w-7 h-7 rounded-full bg-surface flex items-center justify-center text-text-2 font-bold border border-border text-[9px]">
               {{ alert.symbol }}
             </div>
             <div>
-              <span class="text-[#f2f2f2] font-bold block">{{ alert.coinId }}</span>
-              <span class="text-[#555555]" [ngClass]="alert.condition === 'above' ? 'text-[#00d68f]' : 'text-[#ef233c]'">
+              <span class="text-text-1 font-bold block">{{ alert.coinId }}</span>
+              <span class="text-text-3" [ngClass]="alert.condition === 'above' ? 'text-[#00d68f]' : 'text-[#ef233c]'">
                 {{ alert.condition === 'above' ? '↑' : '↓' }} ${{ alert.targetPrice }}
               </span>
             </div>
           </div>
-          <button (click)="deleteAlert(alert.id)" class="w-5 h-5 rounded flex items-center justify-center text-[#555555] group-hover:text-[#ef233c] hover:bg-[#ef233c]/10 bg-transparent border-none cursor-pointer transition-all">
+          <button (click)="deleteAlert(alert.id)" class="w-5 h-5 rounded flex items-center justify-center text-text-3 group-hover:text-[#ef233c] hover:bg-[#ef233c]/10 bg-transparent border-none cursor-pointer transition-all">
             <iconify-icon icon="lucide:trash-2" class="w-3 h-3"></iconify-icon>
           </button>
         </div>

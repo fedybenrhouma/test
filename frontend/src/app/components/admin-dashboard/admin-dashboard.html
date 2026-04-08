@@ -1,13 +1,13 @@
-<div class="min-h-screen bg-[#0a0a0a] pt-24 pb-20 px-8">
+<div class="min-h-screen bg-surface pt-24 pb-20 px-8">
   <div class="max-w-[1200px] mx-auto">
     <!-- Page Header -->
     <div class="mb-10 animate-[fadeIn_0.5s_ease] flex justify-between items-end">
       <div>
         <p class="section-lbl mb-2 uppercase tracking-[0.2em] text-[#ef233c] text-[10px] font-bold">Administration</p>
-        <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-[#f2f2f2] mb-4">
+        <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-text-1 mb-4">
           Admin Dashboard
         </h1>
-        <p class="text-[#888888] text-sm max-w-md leading-relaxed">
+        <p class="text-text-2 text-sm max-w-md leading-relaxed">
           User account management, Pro privilege attribution, and system monitoring.
         </p>
       </div>
@@ -24,28 +24,28 @@
     </div>
 
     <!-- Users Table Card -->
-    <div class="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-      <div class="p-8 border-b border-white/5 bg-white/[0.02] flex flex-col md:flex-row justify-between md:items-center gap-4">
+    <div class="bg-surface-2 border border-border rounded-2xl overflow-hidden shadow-2xl">
+      <div class="p-8 border-b border-border bg-white/[0.02] flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <h2 class="text-xl font-bold text-white mb-1">Users</h2>
-          <p class="text-xs text-[#555555]">Complete list of registered accounts on the platform.</p>
+          <h2 class="text-xl font-bold text-text-1 mb-1">Users</h2>
+          <p class="text-xs text-text-3">Complete list of registered accounts on the platform.</p>
         </div>
         
         <div class="flex items-center gap-3">
           <!-- Search Input -->
           <div class="relative group flex-1 md:flex-none">
-            <iconify-icon icon="lucide:search" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#555555] group-focus-within:text-[#ef233c] transition-colors pointer-events-none"></iconify-icon>
+            <iconify-icon icon="lucide:search" class="absolute left-4 top-1/2 -translate-y-1/2 text-text-3 group-focus-within:text-[#ef233c] transition-colors pointer-events-none"></iconify-icon>
             <input 
               type="text" 
               [(ngModel)]="searchTerm"
               placeholder="Search by name, email, or username..."
-              class="w-full md:w-80 bg-white/[0.03] border border-white/10 hover:border-white/20 rounded-lg pl-12 pr-10 py-2.5 text-xs text-white outline-none focus:bg-white/[0.05] focus:border-[#ef233c]/50 focus:ring-2 focus:ring-[#ef233c]/20 transition-all placeholder-[#555555]/60"
+              class="w-full md:w-80 bg-white/[0.03] border border-border hover:border-white/20 rounded-lg pl-12 pr-10 py-2.5 text-xs text-text-1 outline-none focus:bg-white/[0.05] focus:border-[#ef233c]/50 focus:ring-2 focus:ring-[#ef233c]/20 transition-all placeholder-text-3/60"
             >
             <!-- Clear Button -->
             <button 
               *ngIf="searchTerm"
               (click)="searchTerm = ''"
-              class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#555555] hover:text-white transition-colors rounded hover:bg-white/5"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-3 hover:text-text-1 transition-colors rounded hover:bg-white/5"
               title="Clear search"
             >
               <iconify-icon icon="lucide:x" class="text-base"></iconify-icon>
@@ -53,14 +53,14 @@
           </div>
 
           <!-- Results Count -->
-          <span *ngIf="searchTerm" class="text-[10px] font-bold text-[#888] whitespace-nowrap px-2 py-1.5 bg-white/[0.02] rounded-lg border border-white/5">
+          <span *ngIf="searchTerm" class="text-[10px] font-bold text-text-2 whitespace-nowrap px-2 py-1.5 bg-white/[0.02] rounded-lg border border-border">
             {{ filteredUsers.length }}/{{ users.length }}
           </span>
 
           <button 
             (click)="loadUsers()" 
             [disabled]="loading"
-            class="p-2.5 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 rounded-lg transition-all text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            class="p-2.5 bg-white/[0.03] hover:bg-white/[0.08] border border-border hover:border-white/20 rounded-lg transition-all text-text-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             title="Refresh users"
           >
             <iconify-icon icon="lucide:refresh-cw" [class.animate-spin]="loading"></iconify-icon>
@@ -71,38 +71,38 @@
       <div class="overflow-x-auto">
         <div *ngIf="loading" class="p-12 flex flex-col items-center justify-center gap-4">
           <div class="w-8 h-8 border-2 border-[#ef233c] border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest">Loading users...</p>
+          <p class="text-[10px] font-bold text-text-3 uppercase tracking-widest">Loading users...</p>
         </div>
 
         <table *ngIf="!loading && users.length > 0" class="w-full text-left">
           <thead>
-            <tr class="border-b border-white/5 bg-white/[0.01]">
-              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">User</th>
-              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">Email</th>
-              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">Status</th>
-              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest">Joined on</th>
-              <th class="px-8 py-4 text-[10px] font-bold text-[#555] uppercase tracking-widest text-right">Actions</th>
+            <tr class="border-b border-border bg-white/[0.01]">
+              <th class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest">User</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest">Email</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest">Status</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest">Joined on</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white/5">
+          <tbody class="divide-y divide-border">
             <tr *ngFor="let user of filteredUsers" class="hover:bg-white/[0.01] transition-colors">
               <td class="px-8 py-5">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold text-white border border-white/10">
+                  <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold text-text-1 border border-border">
                     {{ user.firstName[0] }}{{ user.lastName[0] }}
                   </div>
                   <div>
-                    <p class="text-xs font-bold text-white">{{ user.firstName }} {{ user.lastName }}</p>
-                    <p class="text-[9px] text-[#555] font-mono mt-0.5">&#64;{{ user.username }}</p>
+                    <p class="text-xs font-bold text-text-1">{{ user.firstName }} {{ user.lastName }}</p>
+                    <p class="text-[9px] text-text-3 font-mono mt-0.5">&#64;{{ user.username }}</p>
                   </div>
                 </div>
               </td>
-              <td class="px-8 py-5 text-xs text-[#888]">
+              <td class="px-8 py-5 text-xs text-text-2">
                 {{ user.email }}
               </td>
               <td class="px-8 py-5">
                 <div class="flex flex-col gap-1">
-                  <span [class]="user.role === 'admin' ? 'bg-[#ef233c]/10 text-[#ef233c]' : 'bg-white/5 text-[#888]'" class="px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider w-fit">
+                  <span [class]="user.role === 'admin' ? 'bg-[#ef233c]/10 text-[#ef233c]' : 'bg-white/5 text-text-2'" class="px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider w-fit">
                     {{ user.role }}
                   </span>
                   <span *ngIf="user.isProActive" class="bg-[#00d68f]/10 text-[#00d68f] px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider w-fit">
@@ -113,21 +113,21 @@
                   </span>
                 </div>
               </td>
-              <td class="px-8 py-5 text-xs text-[#555]">
+              <td class="px-8 py-5 text-xs text-text-3">
                 {{ user.createdAt | date:'mediumDate' }}
               </td>
               <td class="px-8 py-5 text-right">
                 <div class="flex justify-end gap-2">
                   <button 
                     (click)="toggleAdmin(user)"
-                    class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white text-[10px] font-bold uppercase tracking-widest rounded-lg border border-white/10 transition-all cursor-pointer"
+                    class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-text-1 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-border transition-all cursor-pointer"
                   >
                     {{ user.role === 'admin' ? 'Remove Admin' : 'Make Admin' }}
                   </button>
                   <button 
                     *ngIf="!user.isBanned && user.role !== 'admin'"
                     (click)="openBanModal(user)"
-                    class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white text-[10px] font-bold uppercase tracking-widest rounded-lg border border-white/10 transition-all cursor-pointer"
+                    class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-text-1 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-border transition-all cursor-pointer"
                   >
                     Ban
                   </button>
@@ -152,7 +152,7 @@
         
         <div *ngIf="!loading && filteredUsers.length === 0" class="p-20 text-center">
           <iconify-icon icon="lucide:users" class="text-4xl text-white/5 mb-4"></iconify-icon>
-          <p class="text-sm text-[#555]">No users found matching your search.</p>
+          <p class="text-sm text-text-3">No users found matching your search.</p>
         </div>
       </div>
     </div>
@@ -163,23 +163,23 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" (click)="closeProModal()"></div>
     
     <div class="!fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 !z-[100000] w-[90%] max-w-[420px] animate-[slideUp_0.3s_ease]">
-      <div class="rounded-2xl bg-gradient-to-b from-[#111111] to-[#0a0a0a] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
+      <div class="rounded-2xl bg-gradient-to-b from-surface-2 to-surface border border-border shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
         <!-- Header -->
-        <div class="bg-white/[0.02] border-b border-white/5 p-6">
-          <h3 class="text-lg font-bold text-white mb-1">Assign Pro Access</h3>
-          <p class="text-xs text-[#888]">Grant premium features to this user</p>
+        <div class="bg-white/[0.02] border-b border-border p-6">
+          <h3 class="text-lg font-bold text-text-1 mb-1">Assign Pro Access</h3>
+          <p class="text-xs text-text-2">Grant premium features to this user</p>
         </div>
 
         <!-- User Info Card -->
-        <div class="p-6 border-b border-white/5 bg-white/[0.01]">
-          <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest mb-3">User</p>
-          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-white/5">
+        <div class="p-6 border-b border-border bg-white/[0.01]">
+          <p class="text-[10px] font-bold text-text-3 uppercase tracking-widest mb-3">User</p>
+          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-border">
             <div class="w-10 h-10 rounded-full bg-[#ef233c] flex items-center justify-center text-xs font-bold text-white shrink-0">
               {{ selectedUser?.firstName?.[0] }}{{ selectedUser?.lastName?.[0] }}
             </div>
             <div class="min-w-0">
-              <p class="text-xs font-bold text-white truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
-              <p class="text-[10px] text-[#888] truncate">{{ selectedUser?.email }}</p>
+              <p class="text-xs font-bold text-text-1 truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
+              <p class="text-[10px] text-text-2 truncate">{{ selectedUser?.email }}</p>
             </div>
           </div>
         </div>
@@ -189,8 +189,8 @@
           <!-- Days Input -->
           <div class="space-y-2">
             <label class="flex items-center justify-between">
-              <span class="text-[10px] font-bold text-[#555555] uppercase tracking-widest">Duration</span>
-              <span class="text-[10px] text-[#888] font-mono">{{ proDays }} day<span *ngIf="proDays !== 1">s</span></span>
+              <span class="text-[10px] font-bold text-text-3 uppercase tracking-widest">Duration</span>
+              <span class="text-[10px] text-text-2 font-mono">{{ proDays }} day<span *ngIf="proDays !== 1">s</span></span>
             </label>
             <div class="flex gap-2">
               <input 
@@ -205,34 +205,34 @@
                 min="1"
                 max="365"
                 [(ngModel)]="proDays"
-                class="w-16 bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all"
+                class="w-16 bg-surface border border-border rounded-lg px-3 py-2 text-xs text-text-1 outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all"
               >
             </div>
-            <p class="text-[9px] text-[#555] mt-1">Valid from today until {{ getProEndDate() | date:'MMM dd, yyyy' }}</p>
+            <p class="text-[9px] text-text-3 mt-1">Valid from today until {{ getProEndDate() | date:'MMM dd, yyyy' }}</p>
           </div>
 
           <!-- Plan Name Input -->
           <div class="space-y-2">
-            <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">Plan Name (Optional)</label>
+            <label class="block text-[10px] font-bold text-text-3 uppercase tracking-widest">Plan Name (Optional)</label>
             <input 
               type="text" 
               [(ngModel)]="proPlanName"
               placeholder="e.g., Admin Gift, Promotion, etc..."
-              class="w-full bg-[#0a0a0a] border border-white/10 hover:border-white/20 rounded-lg px-4 py-2.5 text-xs text-white outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all placeholder-[#555555]/40"
+              class="w-full bg-surface border border-border hover:border-white/20 rounded-lg px-4 py-2.5 text-xs text-text-1 outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all placeholder-text-3/40"
             >
-            <p class="text-[9px] text-[#555]">Reference name for tracking purposes</p>
+            <p class="text-[9px] text-text-3">Reference name for tracking purposes</p>
           </div>
 
           <!-- Summary Box -->
           <div class="p-3 bg-[#ef233c]/5 border border-[#ef233c]/20 rounded-lg space-y-1">
-            <p class="text-[9px] font-bold text-[#888] uppercase tracking-wider">Summary</p>
-            <p class="text-xs text-white font-medium">{{ selectedUser?.username }} will receive {{ proDays }} day<span *ngIf="proDays !== 1">s</span> of Pro access</p>
-            <p class="text-[10px] text-[#888]">Valid until: <span class="text-[#ef233c] font-bold">{{ getProEndDate() | date:'short' }}</span></p>
+            <p class="text-[9px] font-bold text-text-2 uppercase tracking-wider">Summary</p>
+            <p class="text-xs text-text-1 font-medium">{{ selectedUser?.username }} will receive {{ proDays }} day<span *ngIf="proDays !== 1">s</span> of Pro access</p>
+            <p class="text-[10px] text-text-2">Valid until: <span class="text-[#ef233c] font-bold">{{ getProEndDate() | date:'short' }}</span></p>
           </div>
         </div>
 
         <!-- Footer Actions -->
-        <div class="p-6 border-t border-white/5 bg-white/[0.01] flex gap-3">
+        <div class="p-6 border-t border-border bg-white/[0.01] flex gap-3">
           <button 
             (click)="confirmGivePro()"
             [disabled]="givingPro || !selectedUser"
@@ -244,7 +244,7 @@
           <button 
             (click)="closeProModal()"
             [disabled]="givingPro"
-            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-widest rounded-lg border border-white/10 transition-all cursor-pointer disabled:cursor-not-allowed"
+            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-text-1 font-bold text-[10px] uppercase tracking-widest rounded-lg border border-border transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             Cancel
           </button>
@@ -258,23 +258,23 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" (click)="closeBanModal()"></div>
     
     <div class="!fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 !z-[100000] w-[90%] max-w-[420px] animate-[slideUp_0.3s_ease]">
-      <div class="rounded-2xl bg-gradient-to-b from-[#111111] to-[#0a0a0a] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
+      <div class="rounded-2xl bg-gradient-to-b from-surface-2 to-surface border border-border shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
         <!-- Header -->
-        <div class="bg-white/[0.02] border-b border-white/5 p-6">
-          <h3 class="text-lg font-bold text-white mb-1">Restrict User Access</h3>
-          <p class="text-xs text-[#888]">Temporarily or permanently ban this user from the platform</p>
+        <div class="bg-white/[0.02] border-b border-border p-6">
+          <h3 class="text-lg font-bold text-text-1 mb-1">Restrict User Access</h3>
+          <p class="text-xs text-text-2">Temporarily or permanently ban this user from the platform</p>
         </div>
 
         <!-- User Info Card -->
-        <div class="p-6 border-b border-white/5 bg-white/[0.01]">
-          <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest mb-3">User</p>
-          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-white/5">
+        <div class="p-6 border-b border-border bg-white/[0.01]">
+          <p class="text-[10px] font-bold text-text-3 uppercase tracking-widest mb-3">User</p>
+          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-border">
             <div class="w-10 h-10 rounded-full bg-[#ef233c] flex items-center justify-center text-xs font-bold text-white shrink-0">
               {{ selectedUser?.firstName?.[0] }}{{ selectedUser?.lastName?.[0] }}
             </div>
             <div class="min-w-0">
-              <p class="text-xs font-bold text-white truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
-              <p class="text-[10px] text-[#888] truncate">{{ selectedUser?.email }}</p>
+              <p class="text-xs font-bold text-text-1 truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
+              <p class="text-[10px] text-text-2 truncate">{{ selectedUser?.email }}</p>
             </div>
           </div>
         </div>
@@ -284,8 +284,8 @@
           <!-- Duration Input -->
           <div class="space-y-2">
             <label class="flex items-center justify-between">
-              <span class="text-[10px] font-bold text-[#555555] uppercase tracking-widest">Duration</span>
-              <span class="text-[10px] text-[#888] font-mono">{{ banDays === 0 ? 'Permanent' : banDays + ' day' + (banDays !== 1 ? 's' : '') }}</span>
+              <span class="text-[10px] font-bold text-text-3 uppercase tracking-widest">Duration</span>
+              <span class="text-[10px] text-text-2 font-mono">{{ banDays === 0 ? 'Permanent' : banDays + ' day' + (banDays !== 1 ? 's' : '') }}</span>
             </label>
             <div class="flex gap-2">
               <input 
@@ -300,29 +300,29 @@
                 min="0"
                 max="365"
                 [(ngModel)]="banDays"
-                class="w-16 bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all"
+                class="w-16 bg-surface border border-border rounded-lg px-3 py-2 text-xs text-text-1 outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all"
               >
             </div>
-            <p class="text-[9px] text-[#555] mt-1">{{ banDays === 0 ? 'Ban will be permanent' : 'Valid until ' + (getBanEndDate() | date:'MMM dd, yyyy') }}</p>
+            <p class="text-[9px] text-text-3 mt-1">{{ banDays === 0 ? 'Ban will be permanent' : 'Valid until ' + (getBanEndDate() | date:'MMM dd, yyyy') }}</p>
           </div>
 
           <!-- Reason Input -->
           <div class="space-y-2">
-            <label class="block text-[10px] font-bold text-[#555555] uppercase tracking-widest">Reason</label>
+            <label class="block text-[10px] font-bold text-text-3 uppercase tracking-widest">Reason</label>
             <textarea 
               [(ngModel)]="banReason"
               placeholder="Brief explanation for the ban..."
               rows="3"
-              class="w-full bg-[#0a0a0a] border border-white/10 hover:border-white/20 rounded-lg px-4 py-2.5 text-xs text-white outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all resize-none placeholder-[#555555]/40"
+              class="w-full bg-surface border border-border hover:border-white/20 rounded-lg px-4 py-2.5 text-xs text-text-1 outline-none focus:border-[#ef233c]/50 focus:ring-1 focus:ring-[#ef233c]/20 transition-all resize-none placeholder-text-3/40"
             ></textarea>
-            <p class="text-[9px] text-[#555]">This will be visible in the user's account logs</p>
+            <p class="text-[9px] text-text-3">This will be visible in the user's account logs</p>
           </div>
 
           <!-- Summary Box -->
           <div class="p-3 bg-[#ef233c]/5 border border-[#ef233c]/20 rounded-lg space-y-1">
-            <p class="text-[9px] font-bold text-[#888] uppercase tracking-wider">Summary</p>
-            <p class="text-xs text-white font-medium">{{ selectedUser?.username }} will be {{ banDays === 0 ? 'permanently' : 'temporarily' }} banned</p>
-            <p class="text-[10px] text-[#888]">
+            <p class="text-[9px] font-bold text-text-2 uppercase tracking-wider">Summary</p>
+            <p class="text-xs text-text-1 font-medium">{{ selectedUser?.username }} will be {{ banDays === 0 ? 'permanently' : 'temporarily' }} banned</p>
+            <p class="text-[10px] text-text-2">
               <span *ngIf="banDays === 0">Permanent ban</span>
               <span *ngIf="banDays > 0">Ban expires: <span class="text-[#ef233c] font-bold">{{ getBanEndDate() | date:'short' }}</span></span>
             </p>
@@ -330,7 +330,7 @@
         </div>
 
         <!-- Footer Actions -->
-        <div class="p-6 border-t border-white/5 bg-white/[0.01] flex gap-3">
+        <div class="p-6 border-t border-border bg-white/[0.01] flex gap-3">
           <button 
             (click)="confirmBan()"
             [disabled]="banningUser || !selectedUser"
@@ -342,7 +342,7 @@
           <button 
             (click)="closeBanModal()"
             [disabled]="banningUser"
-            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-widest rounded-lg border border-white/10 transition-all cursor-pointer disabled:cursor-not-allowed"
+            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-text-1 font-bold text-[10px] uppercase tracking-widest rounded-lg border border-border transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             Cancel
           </button>
@@ -356,23 +356,23 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" (click)="closeUnbanModal()"></div>
     
     <div class="!fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 !z-[100000] w-[90%] max-w-[420px] animate-[slideUp_0.3s_ease]">
-      <div class="rounded-2xl bg-gradient-to-b from-[#111111] to-[#0a0a0a] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
+      <div class="rounded-2xl bg-gradient-to-b from-surface-2 to-surface border border-border shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
         <!-- Header -->
-        <div class="bg-white/[0.02] border-b border-white/5 p-6">
-          <h3 class="text-lg font-bold text-white mb-1">Remove Ban</h3>
-          <p class="text-xs text-[#888]">Restore user access to the platform</p>
+        <div class="bg-white/[0.02] border-b border-border p-6">
+          <h3 class="text-lg font-bold text-text-1 mb-1">Remove Ban</h3>
+          <p class="text-xs text-text-2">Restore user access to the platform</p>
         </div>
 
         <!-- User Info Card -->
-        <div class="p-6 border-b border-white/5 bg-white/[0.01]">
-          <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest mb-3">User</p>
-          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-white/5">
+        <div class="p-6 border-b border-border bg-white/[0.01]">
+          <p class="text-[10px] font-bold text-text-3 uppercase tracking-widest mb-3">User</p>
+          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-border">
             <div class="w-10 h-10 rounded-full bg-[#00d68f] flex items-center justify-center text-xs font-bold text-white shrink-0">
               {{ selectedUser?.firstName?.[0] }}{{ selectedUser?.lastName?.[0] }}
             </div>
             <div class="min-w-0">
-              <p class="text-xs font-bold text-white truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
-              <p class="text-[10px] text-[#888] truncate">{{ selectedUser?.email }}</p>
+              <p class="text-xs font-bold text-text-1 truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
+              <p class="text-[10px] text-text-2 truncate">{{ selectedUser?.email }}</p>
             </div>
           </div>
         </div>
@@ -380,14 +380,14 @@
         <!-- Info Section -->
         <div class="p-6 space-y-4">
           <div class="p-3 bg-[#00d68f]/5 border border-[#00d68f]/20 rounded-lg space-y-1">
-            <p class="text-[9px] font-bold text-[#888] uppercase tracking-wider">Confirmation</p>
-            <p class="text-xs text-white font-medium">{{ selectedUser?.username }} will be able to access the platform again</p>
-            <p class="text-[10px] text-[#888]">This action can be reversed by banning the user again if needed</p>
+            <p class="text-[9px] font-bold text-text-2 uppercase tracking-wider">Confirmation</p>
+            <p class="text-xs text-text-1 font-medium">{{ selectedUser?.username }} will be able to access the platform again</p>
+            <p class="text-[10px] text-text-2">This action can be reversed by banning the user again if needed</p>
           </div>
         </div>
 
         <!-- Footer Actions -->
-        <div class="p-6 border-t border-white/5 bg-white/[0.01] flex gap-3">
+        <div class="p-6 border-t border-border bg-white/[0.01] flex gap-3">
           <button 
             (click)="confirmUnban()"
             [disabled]="unbanningUser || !selectedUser"
@@ -399,7 +399,7 @@
           <button 
             (click)="closeUnbanModal()"
             [disabled]="unbanningUser"
-            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-widest rounded-lg border border-white/10 transition-all cursor-pointer disabled:cursor-not-allowed"
+            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-text-1 font-bold text-[10px] uppercase tracking-widest rounded-lg border border-border transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             Cancel
           </button>
@@ -413,42 +413,42 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" (click)="closeAdminModal()"></div>
     
     <div class="!fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 !z-[100000] w-[90%] max-w-[420px] animate-[slideUp_0.3s_ease]">
-      <div class="rounded-2xl bg-gradient-to-b from-[#111111] to-[#0a0a0a] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
+      <div class="rounded-2xl bg-gradient-to-b from-surface-2 to-surface border border-border shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden">
         <!-- Header -->
-        <div class="bg-white/[0.02] border-b border-white/5 p-6">
-          <h3 class="text-lg font-bold text-white mb-1">
+        <div class="bg-white/[0.02] border-b border-border p-6">
+          <h3 class="text-lg font-bold text-text-1 mb-1">
             <span *ngIf="adminAction === 'make'">Promote to Admin</span>
             <span *ngIf="adminAction === 'remove'">Remove Admin Rights</span>
           </h3>
-          <p class="text-xs text-[#888]">
+          <p class="text-xs text-text-2">
             <span *ngIf="adminAction === 'make'">Grant administrative privileges to this user</span>
             <span *ngIf="adminAction === 'remove'">Revoke administrative privileges from this user</span>
           </p>
         </div>
 
         <!-- User Info Card -->
-        <div class="p-6 border-b border-white/5 bg-white/[0.01]">
-          <p class="text-[10px] font-bold text-[#555555] uppercase tracking-widest mb-3">User</p>
-          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-white/5">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" [ngClass]="adminAction === 'make' ? 'bg-[#ef233c]' : 'bg-[#555555]'">
+        <div class="p-6 border-b border-border bg-white/[0.01]">
+          <p class="text-[10px] font-bold text-text-3 uppercase tracking-widest mb-3">User</p>
+          <div class="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg border border-border">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" [ngClass]="adminAction === 'make' ? 'bg-[#ef233c]' : 'bg-text-3'">
               {{ selectedUser?.firstName?.[0] }}{{ selectedUser?.lastName?.[0] }}
             </div>
             <div class="min-w-0">
-              <p class="text-xs font-bold text-white truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
-              <p class="text-[10px] text-[#888] truncate">{{ selectedUser?.email }}</p>
+              <p class="text-xs font-bold text-text-1 truncate">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</p>
+              <p class="text-[10px] text-text-2 truncate">{{ selectedUser?.email }}</p>
             </div>
           </div>
         </div>
 
         <!-- Confirmation Section -->
         <div class="p-6 space-y-4">
-          <div class="p-3 rounded-lg space-y-1" [ngClass]="adminAction === 'make' ? 'bg-[#ef233c]/5 border border-[#ef233c]/20' : 'bg-[#555555]/5 border border-[#555555]/20'">
-            <p class="text-[9px] font-bold text-[#888] uppercase tracking-wider">Confirmation</p>
-            <p class="text-xs text-white font-medium">
+          <div class="p-3 rounded-lg space-y-1" [ngClass]="adminAction === 'make' ? 'bg-[#ef233c]/5 border border-[#ef233c]/20' : 'bg-text-3/5 border border-text-3/20'">
+            <p class="text-[9px] font-bold text-text-2 uppercase tracking-wider">Confirmation</p>
+            <p class="text-xs text-text-1 font-medium">
               <span *ngIf="adminAction === 'make'">{{ selectedUser?.username }} will gain full administrative access</span>
               <span *ngIf="adminAction === 'remove'">{{ selectedUser?.username }} will lose administrative privileges</span>
             </p>
-            <p class="text-[10px] text-[#888]">
+            <p class="text-[10px] text-text-2">
               <span *ngIf="adminAction === 'make'">They will be able to manage users, bans, and system settings</span>
               <span *ngIf="adminAction === 'remove'">They will no longer have access to admin functions</span>
             </p>
@@ -456,13 +456,13 @@
         </div>
 
         <!-- Footer Actions -->
-        <div class="p-6 border-t border-white/5 bg-white/[0.01] flex gap-3">
+        <div class="p-6 border-t border-border bg-white/[0.01] flex gap-3">
           <button 
             (click)="confirmToggleAdmin()"
             [disabled]="togglingAdmin || !selectedUser"
             [ngClass]="adminAction === 'make' 
               ? 'bg-[#ef233c] hover:bg-[#d91e34] disabled:bg-[#ef233c]/50 shadow-lg shadow-[#ef233c]/20' 
-              : 'bg-[#555555] hover:bg-[#666666] disabled:bg-[#555555]/50 shadow-lg shadow-[#555555]/20'"
+              : 'bg-text-3 hover:bg-text-2 disabled:bg-text-3/50 shadow-lg shadow-text-3/20'"
             class="flex-1 px-4 py-3 text-white font-bold text-[10px] uppercase tracking-widest rounded-lg border-none transition-all cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <iconify-icon *ngIf="togglingAdmin" icon="lucide:loader-2" class="animate-spin"></iconify-icon>
@@ -474,7 +474,7 @@
           <button 
             (click)="closeAdminModal()"
             [disabled]="togglingAdmin"
-            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-widest rounded-lg border border-white/10 transition-all cursor-pointer disabled:cursor-not-allowed"
+            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-text-1 font-bold text-[10px] uppercase tracking-widest rounded-lg border border-border transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             Cancel
           </button>
