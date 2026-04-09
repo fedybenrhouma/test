@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CryptoMarketService } from '../../services/crypto-market.service';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService, Theme } from '../../services/theme.service';
 
 declare global {
   interface Window {
@@ -23,8 +24,11 @@ export class CoinChart implements AfterViewInit, OnDestroy {
   coinId: string = '';
   symbol: string = '';
   isAuthenticated: boolean = false;
+  currentTheme: Theme = 'default';
   private paramSub?: Subscription;
   private authSub?: Subscription;
+  private themeSub?: Subscription;
+  private lastTvSymbol?: string;
 
   chartAvailable: boolean = true;
   loadingChart: boolean = true;
@@ -35,6 +39,7 @@ export class CoinChart implements AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private cryptoService: CryptoMarketService,
     private authService: AuthService,
+    private themeService: ThemeService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -45,6 +50,14 @@ export class CoinChart implements AfterViewInit, OnDestroy {
     });
 
     if (isPlatformBrowser(this.platformId)) {
+      this.themeSub = this.themeService.currentTheme$.subscribe(theme => {
+        const changed = this.currentTheme !== theme;
+        this.currentTheme = theme;
+        if (changed && this.lastTvSymbol) {
+          this.initTradingViewWidget(this.lastTvSymbol);
+        }
+      });
+
       this.paramSub = this.route.params.subscribe(params => {
         if (params['name']) {
           this.coinId = params['name'];
@@ -89,6 +102,9 @@ export class CoinChart implements AfterViewInit, OnDestroy {
     if (this.authSub) {
       this.authSub.unsubscribe();
     }
+    if (this.themeSub) {
+      this.themeSub.unsubscribe();
+    }
   }
 
   goBack() {
@@ -104,6 +120,7 @@ export class CoinChart implements AfterViewInit, OnDestroy {
       const validSymbol = await this.findValidSymbol(this.symbol);
       if (validSymbol) {
          this.loadingChart = false;
+         this.lastTvSymbol = validSymbol;
          this.cdr.detectChanges(); // Force Angular to render the ViewChild container
          this.loadTradingViewScript(validSymbol);
       } else {
@@ -178,6 +195,8 @@ export class CoinChart implements AfterViewInit, OnDestroy {
   }
 
   private initTradingViewWidget(tvSymbol: string) {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     setTimeout(() => {
       if (!window.TradingView || !this.tvWidgetContainer) {
         this.chartAvailable = false;
@@ -195,23 +214,52 @@ export class CoinChart implements AfterViewInit, OnDestroy {
       div.style.height = '100%';
       this.tvWidgetContainer.nativeElement.appendChild(div);
 
+      // Map our theme to TradingView's light/dark
+      const isLight = this.currentTheme === 'light';
+      const tvTheme = isLight ? 'light' : 'dark';
+      
+      // Manual mapping of theme surfaces to Hex for TradingView (which prefers Hex)
+      const themeColors: Record<string, { surface: string, border: string, text: string, red: string, green: string }> = {
+        'default': { surface: '#0a0a0a', border: '#1a1a1a', text: '#888888', red: '#ef233c', green: '#00d68f' },
+        'light': { surface: '#ffffff', border: '#f0f0f0', text: '#666666', red: '#ef233c', green: '#00d68f' },
+        'dark': { surface: '#121212', border: '#2a2a2a', text: '#a0a0a0', red: '#ef233c', green: '#00d68f' },
+        'mono': { surface: '#000000', border: '#333333', text: '#888888', red: '#ffffff', green: '#888888' },
+        'abyss': { surface: '#00040a', border: '#001d3d', text: '#a9d6e5', red: '#ff4d6d', green: '#00d68f' },
+        'midnight': { surface: '#0b090a', border: '#660708', text: '#b1a7a6', red: '#ba181b', green: '#00d68f' },
+        'ocean': { surface: '#001219', border: '#005f73', text: '#94d2bd', red: '#ae2012', green: '#00d68f' },
+        'slate': { surface: '#0f172a', border: '#334155', text: '#94a3b8', red: '#ef233c', green: '#00d68f' },
+        'charcoal': { surface: '#171717', border: '#404040', text: '#a3a3a3', red: '#ef233c', green: '#00d68f' },
+        'onyx': { surface: '#050505', border: '#1a1a1a', text: '#737373', red: '#ef233c', green: '#00d68f' },
+        'obsidian': { surface: '#0b090a', border: '#303030', text: '#a3a3a3', red: '#ef233c', green: '#00d68f' },
+        'forest': { surface: '#061005', border: '#2d3a2a', text: '#97ab96', red: '#ef233c', green: '#4ade80' },
+      };
+
+      const colors = themeColors[this.currentTheme] || themeColors['default'];
+
       new window.TradingView.widget({
         "autosize": true,
         "symbol": tvSymbol,
         "interval": "D",
         "timezone": "Etc/UTC",
-        "theme": "light",
+        "theme": tvTheme,
         "style": "1",
         "locale": "en",
+        "toolbar_bg": colors.surface,
         "enable_publishing": false,
-        "backgroundColor": "rgba(255, 255, 255, 1)",
-        "gridColor": "rgba(0, 0, 0, 0.06)",
+        "backgroundColor": colors.surface,
+        "gridColor": colors.border,
         "hide_top_toolbar": false,
         "hide_legend": false,
         "hide_side_toolbar": false,
         "withdateranges": true,
         "save_image": false,
-        "container_id": containerId
+        "container_id": containerId,
+        "upColor": colors.green,
+        "downColor": colors.red,
+        "borderUpColor": colors.green,
+        "borderDownColor": colors.red,
+        "wickUpColor": colors.green,
+        "wickDownColor": colors.red
       });
     }, 100);
   }
