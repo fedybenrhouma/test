@@ -44,6 +44,14 @@ const Alert = sequelize.define('Alert', {
   isRead: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  type: {
+    type: DataTypes.STRING,
+    defaultValue: 'price',
+  },
+  message: {
+    type: DataTypes.TEXT,
+    allowNull: true,
   }
 }, {
   timestamps: true,

@@ -27,11 +27,14 @@
     <a routerLink="/markets" routerLinkActive="active" class="nav-item">
       <span class="icon">⬡</span> Markets
     </a>
-    <a routerLink="/dashboard" *ngIf="isAuthenticated" routerLinkActive="active" class="nav-item">
+    <a routerLink="/dashboard" *ngIf="isAuthenticated" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
       <span class="icon">◎</span> Dashboard
     </a>
-    <a routerLink="/portfolio" *ngIf="isAuthenticated" routerLinkActive="active" class="nav-item">
-      <span class="icon">↕</span> Portfolio
+    <a routerLink="/dashboard/debates" *ngIf="isAuthenticated" routerLinkActive="active" class="nav-item">
+      <span class="icon">⬡</span> Debates
+    </a>
+    <a routerLink="/dashboard/trades" *ngIf="isAuthenticated" routerLinkActive="active" class="nav-item">
+      <span class="icon">↕</span> Trades
     </a>
     <a href="#" class="nav-item">
       <span class="icon">∿</span> Performance

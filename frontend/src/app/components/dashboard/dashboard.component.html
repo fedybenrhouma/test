@@ -1,4 +1,41 @@
-<div class="min-h-screen bg-surface pt-6 pb-20 px-8" style="margin-top: 7vh;">
+<!-- DEBUG BANNER -->
+<div class="bg-red-600 text-white text-center py-1 font-bold text-[10px] fixed top-0 left-[220px] right-0 z-[10000]">AGENT SYSTEM ACTIVE</div>
+
+<!-- Floating Agent Trigger Modal - FORCED TO TOP OF DOM -->
+<div style="position: fixed !important; bottom: 40px !important; left: calc(50% + 110px) !important; transform: translateX(-50%) !important; z-index: 999999 !important; width: 95%; max-width: 600px;">
+  <div class="card p-5 shadow-[0_0_60px_rgba(239,35,60,0.5)] border-2 border-[#ef233c] bg-[#0a0a0a] flex items-center gap-5 rounded-2xl">
+    <div class="flex-1">
+      <label class="text-[11px] font-black text-[#ef233c] uppercase tracking-tighter mb-1.5 block">Target Asset</label>
+      <select [(ngModel)]="selectedAsset" class="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white outline-none">
+        <option value="BTC/USDT">Bitcoin (BTC/USDT)</option>
+        <option value="ETH/USDT">Ethereum (ETH/USDT)</option>
+        <option value="SOL/USDT">Solana (SOL/USDT)</option>
+        <option value="BNB/USDT">Binance Coin (BNB/USDT)</option>
+        <option value="XRP/USDT">Ripple (XRP/USDT)</option>
+      </select>
+    </div>
+    <div class="flex-1">
+      <label class="text-[11px] font-black text-[#ef233c] uppercase tracking-tighter mb-1.5 block">Timeframe</label>
+      <select [(ngModel)]="selectedTimeframe" class="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white outline-none">
+        <option value="15m">15 Minutes</option>
+        <option value="1h">1 Hour</option>
+        <option value="4h">4 Hours</option>
+        <option value="1d">1 Day</option>
+      </select>
+    </div>
+    <div class="pt-5">
+      <button 
+        (click)="triggerAgents()" 
+        [disabled]="isStartingAgents"
+        class="spin-btn whitespace-nowrap px-8 py-3 flex items-center justify-center gap-3 bg-[#ef233c] text-white rounded-full font-black uppercase tracking-tighter">
+        <span *ngIf="isStartingAgents" class="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full"></span>
+        {{ isStartingAgents ? 'Analyzing...' : 'Trigger MAS' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="min-h-screen bg-surface pt-12 pb-20 px-8" style="margin-top: 7vh;">
   <div class="max-w-[1200px] mx-auto">
     <!-- Page Header -->
     <div class="mb-7 fade-up">
@@ -9,239 +46,158 @@
       <div class="flex gap-2.5 mt-4">
         <div class="token-tag">BTC/USDT</div>
         <div class="token-tag">ETH/USDT</div>
-        <button class="spin-btn">+ Trigger Debate</button>
+        <button class="spin-btn" (click)="triggerAgents()">+ Trigger Debate</button>
       </div>
     </div>
 
-    <!-- Stats Row -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5">
-      <!-- P&L Today -->
-      <div class="card p-5 fade-up fade-up-1">
-        <div class="stat-lbl">P&L Today</div>
-        <div class="stat-val pnl-pos mt-1">+$842.50</div>
-        <div class="text-xs text-[#00d68f] mt-1">↑ 3.2% vs yesterday</div>
-      </div>
-
-      <!-- Win Rate -->
-      <div class="card p-5 fade-up fade-up-2">
-        <div class="stat-lbl">Win Rate</div>
-        <div class="stat-val text-text-1 mt-1">68.4%</div>
-        <div class="conf-bar mt-2.5">
-          <div class="conf-fill" style="width: 68%; background: #ef233c;"></div>
-        </div>
-      </div>
-
-      <!-- Open Positions -->
-      <div class="card p-5 fade-up fade-up-3">
-        <div class="stat-lbl">Open Positions</div>
-        <div class="stat-val text-text-1 mt-1">3</div>
-        <div class="text-xs text-text-3 mt-1">2 long · 1 short</div>
-      </div>
-
-      <!-- Active Debates -->
-      <div class="card p-5 fade-up fade-up-3 border border-[#ef233c]/30">
-        <div class="flex items-center gap-1.5 mb-1">
-          <span class="live-dot w-1.5 h-1.5"></span>
-          <span class="stat-lbl mb-0">Live Debate</span>
-        </div>
-        <div class="stat-val text-[#ef233c] mt-1">ETH/USDT</div>
-        <div class="text-xs text-text-3 mt-1">Round 2 · 4H timeframe</div>
-      </div>
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ef233c]"></div>
+      <p class="mt-4 text-text-3 font-medium">Synchronizing agent hive-mind...</p>
     </div>
 
-    <!-- Main Content Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-3.5 mb-5">
-      <!-- Live Debate Feed -->
-      <div class="card p-5">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <p class="section-label mb-0">Live Debate Feed</p>
-            <span class="text-xs text-text-3">ETH/USDT · 4H · Round 2/3</span>
+    <ng-container *ngIf="!isLoading && dashboardData">
+      <!-- Stats Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5">
+        <!-- P&L Today -->
+        <div class="card p-5 fade-up fade-up-1">
+          <div class="stat-lbl">P&L Today</div>
+          <div class="stat-val mt-1" [ngClass]="dashboardData.stats.pnlToday >= 0 ? 'pnl-pos' : 'pnl-neg'">
+            {{ dashboardData.stats.pnlToday >= 0 ? '+' : '' }}${{ dashboardData.stats.pnlToday | number:'1.2-2' }}
           </div>
-          <div class="flex gap-2">
-            <button class="btn-approve">✓ Approve</button>
-            <button class="btn-reject">✕ Reject</button>
-          </div>
-        </div>
-
-        <!-- Agent Messages -->
-        <div class="agent-feed">
-          <!-- Technical Analyst -->
-          <div class="flex gap-3">
-            <span class="agent-dot w-2 h-2 bg-[#ef233c] flex-shrink-0 mt-1.5"></span>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold text-text-1">Technical Analyst</span>
-                <span class="chip chip-bull">BULLISH</span>
-                <span class="text-[10px] text-text-3 ml-auto">12s ago</span>
-              </div>
-              <p class="text-xs text-text-2 leading-relaxed">
-                RSI divergence on 4H confirmed. Price holding above 20 EMA with a Bollinger squeeze forming. Historical pattern suggests 72% probability of breakout within 2 candles.
-              </p>
-              <div class="mt-1.5 flex items-center gap-2">
-                <span class="text-[10px] text-text-3">Confidence</span>
-                <div class="conf-bar flex-1">
-                  <div class="conf-fill" style="width: 72%; background: #ef233c;"></div>
-                </div>
-                <span class="font-mono text-[10px] text-text-2">72%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sentiment Analyst -->
-          <div class="flex gap-3">
-            <span class="agent-dot w-2 h-2 bg-blue-500 flex-shrink-0 mt-1.5"></span>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold text-text-1">Sentiment Analyst</span>
-                <span class="chip chip-bull">BULLISH</span>
-                <span class="text-[10px] text-text-3 ml-auto">28s ago</span>
-              </div>
-              <p class="text-xs text-text-2 leading-relaxed">
-                Fear & Greed index at 61 (Greed). CryptoPanic sentiment score: 0.74 positive. 3 similar sentiment events from RAG returned avg +4.2% next 24h outcome.
-              </p>
-              <div class="mt-1.5 flex items-center gap-2">
-                <span class="text-[10px] text-text-3">Confidence</span>
-                <div class="conf-bar flex-1">
-                  <div class="conf-fill" style="width: 65%; background: #3b82f6;"></div>
-                </div>
-                <span class="font-mono text-[10px] text-text-2">65%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Devil's Advocate -->
-          <div class="flex gap-3">
-            <span class="agent-dot w-2 h-2 bg-purple-500 flex-shrink-0 mt-1.5"></span>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold text-text-1">Devil's Advocate</span>
-                <span class="chip chip-bear">BEARISH</span>
-                <span class="text-[10px] text-text-3 ml-auto">41s ago</span>
-              </div>
-              <p class="text-xs text-text-2 leading-relaxed">
-                Challenging the bull case. On-chain data shows 12,400 ETH moved to exchanges in last 2h — historically bearish. Similar RSI setups in my RAG returned 3 losses in last 8 occurrences.
-              </p>
-              <div class="mt-1.5 flex items-center gap-2">
-                <span class="text-[10px] text-text-3">Confidence</span>
-                <div class="conf-bar flex-1">
-                  <div class="conf-fill" style="width: 58%; background: #8b5cf6;"></div>
-                </div>
-                <span class="font-mono text-[10px] text-text-2">58%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Risk Manager -->
-          <div class="flex gap-3">
-            <span class="agent-dot w-2 h-2 bg-amber-500 flex-shrink-0 mt-1.5"></span>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold text-text-1">Risk Manager</span>
-                <span class="chip chip-neut">NEUTRAL</span>
-                <span class="text-[10px] text-text-3 ml-auto">55s ago</span>
-              </div>
-              <p class="text-xs text-text-2 leading-relaxed">
-                Portfolio exposure at 23% USDT. Recommend max position: 2% of portfolio ($180). SL at $2,650 (3.2% risk). Leverage capped at 5x given current volatility regime.
-              </p>
-            </div>
+          <div class="text-xs mt-1" [ngClass]="dashboardData.stats.pnlToday >= 0 ? 'text-[#00d68f]' : 'text-[#ef233c]'">
+            {{ dashboardData.stats.pnlToday >= 0 ? '↑' : '↓' }} Current session
           </div>
         </div>
 
-        <!-- Coordinator Decision -->
-        <div class="mt-4 p-3.5 bg-[#ef233c]/12 border border-[#ef233c]/25 rounded-lg">
-          <div class="flex items-center gap-2 mb-1.5">
-            <span class="live-dot w-1.5 h-1.5"></span>
-            <span class="text-xs font-bold text-[#ef233c]">Coordinator — Awaiting Your Approval</span>
+        <!-- Win Rate -->
+        <div class="card p-5 fade-up fade-up-2">
+          <div class="stat-lbl">Win Rate</div>
+          <div class="stat-val text-text-1 mt-1">{{ dashboardData.stats.winRate | number:'1.1-1' }}%</div>
+          <div class="conf-bar mt-2.5">
+            <div class="conf-fill" [style.width.%]="dashboardData.stats.winRate" style="background: #ef233c;"></div>
           </div>
-          <p class="text-xs text-text-2">
-            Final recommendation: <span class="text-text-1 font-bold">LONG ETH/USDT</span> at $2,720 · Size: $180 · SL: $2,650 · TP: $2,840 · Leverage: 5x
-          </p>
         </div>
-      </div>
 
-      <!-- Right Panel -->
-      <div class="flex flex-col gap-3.5">
         <!-- Open Positions -->
-        <div class="card p-4.5">
-          <p class="section-label">Open Positions</p>
-          <div class="space-y-2">
-            <!-- BTC -->
-            <div class="p-3 bg-[#00d68f]/5 border border-[#00d68f]/15 rounded-lg">
-              <div class="flex justify-between items-center mb-1.5">
-                <span class="text-xs font-bold text-text-1">BTC/USDT</span>
-                <span class="chip chip-bull">LONG</span>
+        <div class="card p-5 fade-up fade-up-3">
+          <div class="stat-lbl">Open Positions</div>
+          <div class="stat-val text-text-1 mt-1">{{ dashboardData.stats.openPositionsCount }}</div>
+          <div class="text-xs text-text-3 mt-1">Live active trades</div>
+        </div>
+
+        <!-- Active Debates -->
+        <div class="card p-5 fade-up fade-up-3 border border-[#ef233c]/30">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="live-dot w-1.5 h-1.5"></span>
+            <span class="stat-lbl mb-0">Active Debates</span>
+          </div>
+          <div class="stat-val text-[#ef233c] mt-1">{{ dashboardData.stats.activeDebatesCount }}</div>
+          <div class="text-xs text-text-3 mt-1">Analyzing markets</div>
+        </div>
+      </div>
+
+      <!-- Main Content Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-3.5 mb-5">
+        <!-- Live Debate Feed -->
+        <div class="card p-5">
+          <div *ngIf="dashboardData.recentCycles && dashboardData.recentCycles.length > 0">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="section-label mb-0">Recent Debate: {{ dashboardData.recentCycles[0].asset }}</p>
+                <span class="text-xs text-text-3">{{ dashboardData.recentCycles[0].timeframe }} · Status: {{ dashboardData.recentCycles[0].status | uppercase }}</span>
               </div>
-              <div class="grid grid-cols-2 gap-1.5 text-[10px]">
-                <div class="text-text-3">Entry</div>
-                <div class="font-mono text-right text-text-1">$82,450</div>
-                <div class="text-text-3">Current</div>
-                <div class="font-mono pnl-pos text-right">$83,210</div>
-                <div class="text-text-3">P&L</div>
-                <div class="font-mono pnl-pos text-right">+$142.50</div>
+              <div class="flex gap-2" *ngIf="dashboardData.recentCycles[0].status === 'pending'">
+                <button class="btn-approve">✓ Approve</button>
+                <button class="btn-reject">✕ Reject</button>
               </div>
             </div>
 
-            <!-- SOL -->
-            <div class="p-3 bg-[#ef233c]/5 border border-[#ef233c]/15 rounded-lg">
-              <div class="flex justify-between items-center mb-1.5">
-                <span class="text-xs font-bold text-text-1">SOL/USDT</span>
-                <span class="chip chip-bear">SHORT</span>
-              </div>
-              <div class="grid grid-cols-2 gap-1.5 text-[10px]">
-                <div class="text-text-3">Entry</div>
-                <div class="font-mono text-right text-text-1">$148.20</div>
-                <div class="text-text-3">Current</div>
-                <div class="font-mono pnl-neg text-right">$151.40</div>
-                <div class="text-text-3">P&L</div>
-                <div class="font-mono pnl-neg text-right">-$64.00</div>
+            <!-- Agent Messages -->
+            <div class="agent-feed">
+              <div class="flex gap-3" *ngFor="let msg of dashboardData.recentCycles[0].messages">
+                <span class="agent-dot w-2 h-2 flex-shrink-0 mt-1.5" [style.background-color]="getAgentDotColor(msg.agent_name)"></span>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold text-text-1">{{ msg.agent_name | titlecase }}</span>
+                    <span class="chip" [ngClass]="getSignalClass(msg.signal)" *ngIf="msg.signal">{{ msg.signal | uppercase }}</span>
+                    <span class="text-[10px] text-text-3 ml-auto">{{ msg.created_at | date:'shortTime' }}</span>
+                  </div>
+                  <p class="text-xs text-text-2 leading-relaxed">
+                    {{ msg.content }}
+                  </p>
+                  <div class="mt-1.5 flex items-center gap-2" *ngIf="msg.confidence">
+                    <span class="text-[10px] text-text-3">Confidence</span>
+                    <div class="conf-bar flex-1">
+                      <div class="conf-fill" [style.width.%]="msg.confidence * 100" [style.background-color]="getAgentDotColor(msg.agent_name)"></div>
+                    </div>
+                    <span class="font-mono text-[10px] text-text-2">{{ msg.confidence * 100 | number:'1.0-0' }}%</span>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <!-- Coordinator Decision -->
+            <div class="mt-4 p-3.5 bg-[#ef233c]/12 border border-[#ef233c]/25 rounded-lg">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="live-dot w-1.5 h-1.5"></span>
+                <span class="text-xs font-bold text-[#ef233c]">Coordinator Verdict</span>
+              </div>
+              <p class="text-xs text-text-2">
+                {{ dashboardData.recentCycles[0].recommendation }}
+              </p>
+            </div>
+          </div>
+          <div *ngIf="!dashboardData.recentCycles || dashboardData.recentCycles.length === 0" class="py-10 text-center text-text-3">
+            No debates recorded yet.
           </div>
         </div>
 
-        <!-- Agent Votes -->
-        <div class="card p-4.5">
-          <p class="section-label">Agent Votes · ETH Debate</p>
-          <div class="space-y-2">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-text-2">Technical Analyst</span>
-              <span class="chip chip-bull">↑</span>
-            </div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-text-2">Sentiment Analyst</span>
-              <span class="chip chip-bull">↑</span>
-            </div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-text-2">On-chain Analyst</span>
-              <span class="chip chip-neut">–</span>
-            </div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-text-2">Signal Agent</span>
-              <span class="chip chip-bull">↑</span>
-            </div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-text-2">Risk Manager</span>
-              <span class="chip chip-neut">–</span>
-            </div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-text-2">Devil's Advocate</span>
-              <span class="chip chip-bear">↓</span>
-            </div>
-
-            <div class="pt-2.5 border-t border-border mt-2">
-              <div class="flex justify-between text-[10px] mb-1.5">
-                <span class="text-text-3">Consensus strength</span>
-                <span class="font-mono text-[#00d68f]">5 bull · 1 neut · 1 bear</span>
+        <!-- Right Panel -->
+        <div class="flex flex-col gap-3.5">
+          <!-- Open Positions -->
+          <div class="card p-4.5">
+            <p class="section-label">Open Positions</p>
+            <div class="space-y-2" *ngIf="dashboardData.openTrades && dashboardData.openTrades.length > 0">
+              <div class="p-3 bg-opacity-5 border rounded-lg" 
+                   [ngClass]="trade.direction === 'long' ? 'bg-[#00d68f] border-[#00d68f]/15' : 'bg-[#ef233c] border-[#ef233c]/15'"
+                   *ngFor="let trade of dashboardData.openTrades">
+                <div class="flex justify-between items-center mb-1.5">
+                  <span class="text-xs font-bold text-text-1">{{ trade.asset }}</span>
+                  <span class="chip" [ngClass]="trade.direction === 'long' ? 'chip-bull' : 'chip-bear'">{{ trade.direction | uppercase }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+                  <div class="text-text-3">Entry</div>
+                  <div class="font-mono text-right text-text-1">${{ trade.entry_price | number:'1.2-2' }}</div>
+                  <div class="text-text-3">Leverage</div>
+                  <div class="font-mono text-right text-text-1">{{ trade.leverage }}x</div>
+                  <div class="text-text-3">Status</div>
+                  <div class="font-mono text-right text-text-1">{{ trade.status | uppercase }}</div>
+                </div>
               </div>
-              <div class="conf-bar">
-                <div class="conf-fill" style="width: 71%; background: #00d68f;"></div>
+            </div>
+            <div *ngIf="!dashboardData.openTrades || dashboardData.openTrades.length === 0" class="text-xs text-text-3 text-center py-4">
+              No open positions.
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card p-4.5">
+            <p class="section-label">Recent Activity</p>
+            <div class="space-y-2">
+              <div class="flex flex-col gap-1 border-b border-border pb-2 last:border-0" *ngFor="let cycle of dashboardData.recentCycles | slice:1:4">
+                <div class="flex justify-between items-center">
+                  <span class="text-[11px] font-bold text-text-1">{{ cycle.asset }} ({{ cycle.timeframe }})</span>
+                  <span class="text-[10px] text-text-3">{{ cycle.created_at | date:'shortDate' }}</span>
+                </div>
+                <div class="text-[10px] text-text-2 truncate">
+                  {{ cycle.recommendation }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
 
     <!-- P&L Chart -->
     <div class="card p-5">

@@ -1,0 +1,30 @@
+/* Trades Component Styles */
+.card {
+    background: var(--surface-2);
+    border: 1px border-border;
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+}
+
+.chip {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.chip-bull {
+    background: rgba(0, 214, 143, 0.1);
+    color: #00d68f;
+}
+
+.chip-bear {
+    background: rgba(239, 35, 60, 0.1);
+    color: #ef233c;
+}

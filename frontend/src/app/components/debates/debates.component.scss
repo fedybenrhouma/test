@@ -1,0 +1,47 @@
+.card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.agent-dot {
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.section-label {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #ef233c;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.chip {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.chip-bull {
+    background: rgba(0, 214, 143, 0.1);
+    color: #00d68f;
+    border: 1px solid rgba(0, 214, 143, 0.2);
+}
+
+.chip-bear {
+    background: rgba(239, 35, 60, 0.1);
+    color: #ef233c;
+    border: 1px solid rgba(239, 35, 60, 0.2);
+}
+
+.chip-neut {
+    background: rgba(255, 255, 255, 0.05);
+    color: #888;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}

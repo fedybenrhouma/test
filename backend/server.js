@@ -8,6 +8,11 @@ const Watchlist = require('./models/Watchlist');
 const Alert = require('./models/Alert');
 const UserExchangeKey = require('./models/UserExchangeKey');
 const Subscription = require('./models/Subscription');
+const DebateCycle = require('./models/DebateCycle');
+const DebateMessage = require('./models/DebateMessage');
+const Trade = require('./models/Trade');
+const { spawn } = require('child_process');
+const path = require('path');
 
 // Define relationships
 User.hasMany(Watchlist, { foreignKey: 'userId', as: 'watchlist' });
@@ -18,6 +23,15 @@ Alert.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 User.hasMany(Subscription, { foreignKey: 'userId', as: 'subscriptions' });
 Subscription.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+User.hasMany(DebateCycle, { foreignKey: 'user_id', as: 'debateCycles' });
+DebateCycle.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+DebateCycle.hasMany(DebateMessage, { foreignKey: 'cycle_id', sourceKey: 'cycle_id', as: 'messages' });
+DebateMessage.belongsTo(DebateCycle, { foreignKey: 'cycle_id', targetKey: 'cycle_id', as: 'cycle' });
+
+User.hasMany(Trade, { foreignKey: 'user_id', as: 'trades' });
+Trade.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 const app = express();
 
@@ -49,6 +63,8 @@ app.use('/api/crypto', require('./routes/markets'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/binance', require('./routes/binance'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/agents', require('./routes/agents'));
 // Note: /api/payments/webhook is already handled above, 
 // but other payment routes (like create-checkout-session) need express.json()
 app.use('/api/payments', require('./routes/payments'));
@@ -85,6 +101,27 @@ sequelize
   })
   .then(() => {
     console.log('✓ Database models synced');
+
+    // Start Monitor Agent Daemon
+    const pythonPath = path.join(__dirname, '../agents/venv/Scripts/python.exe');
+    const scriptPath = path.join(__dirname, '../agents/agents_nodes/monitor_agent.py');
+    
+    console.log('🚀 Starting Background Monitor Agent...');
+    const monitorProcess = spawn(pythonPath, [scriptPath], {
+      env: {
+        ...process.env,
+        PYTHONPATH: path.join(__dirname, '../agents')
+      },
+      cwd: path.join(__dirname, '../agents')
+    });
+
+    monitorProcess.stdout.on('data', (data) => {
+      console.log(`[Monitor Agent]: ${data.toString().trim()}`);
+    });
+
+    monitorProcess.stderr.on('data', (data) => {
+      console.error(`[Monitor Agent Error]: ${data.toString().trim()}`);
+    });
   })
   .catch((error) => {
     console.error('✗ Database connection error:', error.message);

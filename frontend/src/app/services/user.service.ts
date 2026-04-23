@@ -20,8 +20,30 @@ export interface ChangePasswordData {
 })
 export class UserService {
   private apiUrl = 'http://localhost:3000/api/users';
+  private dashboardUrl = 'http://localhost:3000/api/dashboard';
+  private agentsUrl = 'http://localhost:3000/api/agents';
 
   constructor(private http: HttpClient) {}
+
+  startAgents(asset: string, timeframe: string = '1h'): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.agentsUrl}/start`, { asset, timeframe });
+  }
+
+  getDashboardSummary(): Observable<{ success: boolean; data: any }> {
+    return this.http.get<{ success: boolean; data: any }>(`${this.dashboardUrl}/summary`);
+  }
+
+  getDebates(): Observable<{ success: boolean; debates: any[] }> {
+    return this.http.get<{ success: boolean; debates: any[] }>(`${this.dashboardUrl}/debates`);
+  }
+
+  getTrades(): Observable<{ success: boolean; trades: any[] }> {
+    return this.http.get<{ success: boolean; trades: any[] }>(`${this.dashboardUrl}/trades`);
+  }
+
+  closeTrade(tradeId: number): Observable<{ success: boolean; message: string; trade: any }> {
+    return this.http.post<{ success: boolean; message: string; trade: any }>(`${this.dashboardUrl}/trades/${tradeId}/close`, {});
+  }
 
   getProfile(): Observable<{ success: boolean; user: User }> {
     return this.http.get<{ success: boolean; user: User }>(

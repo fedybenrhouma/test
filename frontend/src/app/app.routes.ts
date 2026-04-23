@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { TradesComponent } from './components/trades/trades.component';
+import { DebatesComponent } from './components/debates/debates.component';
 import { MarketsComponent } from './components/markets/markets.component';
 import { PortfolioComponent } from './components/portfolio/portfolio.component';
 import { CoinChart } from './components/coin-chart/coin-chart';
@@ -69,6 +71,16 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'dashboard/trades',
+    component: TradesComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'dashboard/debates',
+    component: DebatesComponent,
     canActivate: [AuthGuard],
   },
   {

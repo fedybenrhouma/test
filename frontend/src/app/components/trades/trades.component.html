@@ -1,0 +1,220 @@
+<div class="min-h-screen bg-surface pt-6 pb-20 px-8" style="margin-top: 7vh;">
+  <div class="max-w-[1200px] mx-auto">
+    <!-- Page Header -->
+    <div class="mb-7 fade-up flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      <div>
+        <p class="section-label">Portfolio Management</p>
+        <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-text-1">
+          Trades Tracking
+        </h1>
+        <p class="text-text-3 mt-2">Manage and monitor all your active agent-executed trades.</p>
+      </div>
+      <div class="flex gap-2">
+        <button (click)="setFilter('all')" [ngClass]="filter === 'all' ? 'bg-[#ef233c] text-white' : 'bg-surface-2 text-text-2 hover:bg-surface-3'" class="px-5 py-2 text-sm font-bold rounded-lg transition-colors border border-border">All</button>
+        <button (click)="setFilter('open')" [ngClass]="filter === 'open' ? 'bg-[#ef233c] text-white' : 'bg-surface-2 text-text-2 hover:bg-surface-3'" class="px-5 py-2 text-sm font-bold rounded-lg transition-colors border border-border">Open</button>
+        <button (click)="setFilter('closed')" [ngClass]="filter === 'closed' ? 'bg-[#ef233c] text-white' : 'bg-surface-2 text-text-2 hover:bg-surface-3'" class="px-5 py-2 text-sm font-bold rounded-lg transition-colors border border-border">Closed</button>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ef233c]"></div>
+      <p class="mt-4 text-text-3 font-medium">Loading your portfolio...</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="grid grid-cols-1 gap-4">
+      <div *ngIf="filteredTrades.length === 0" class="card p-10 text-center">
+        <p class="text-text-3">No {{ filter === 'all' ? '' : filter + ' ' }}trades found.</p>
+      </div>
+
+      <div *ngFor="let trade of filteredTrades" class="card overflow-hidden border-l-4" 
+           [ngClass]="trade.direction === 'long' ? 'border-l-[#00d68f]' : 'border-l-[#ef233c]'">
+        <div class="p-5 flex flex-col gap-5">
+          <!-- Top Row: Header & Actions -->
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-surface-2 flex items-center justify-center font-bold text-text-1">
+                {{ trade.asset.split('/')[0] }}
+              </div>
+              <div>
+                <div class="flex items-center gap-3">
+                  <h3 class="text-lg font-bold text-text-1">{{ trade.asset }}</h3>
+                  <div *ngIf="trade.status === 'open'" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#111] border border-white/5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[#00d68f] animate-pulse" *ngIf="getLivePrice(trade) !== null"></div>
+                    <span class="text-[13px] font-mono font-bold text-text-2">
+                      <ng-container *ngIf="getLivePrice(trade) !== null">${{ getLivePrice(trade) | number:'1.2-6' }}</ng-container>
+                      <ng-container *ngIf="getLivePrice(trade) === null">...</ng-container>
+                    </span>
+                  </div>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 mt-1">
+                  <span class="text-xs text-text-3"><span class="font-semibold text-text-2">Opened:</span> {{ trade.created_at | date:'MMM d, y, h:mm a' }}</span>
+                  <span *ngIf="trade.status === 'closed'" class="hidden md:inline text-text-3">•</span>
+                  <span *ngIf="trade.status === 'closed'" class="text-xs text-text-3"><span class="font-semibold text-text-2">Closed:</span> {{ trade.updated_at | date:'MMM d, y, h:mm a' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button class="px-4 py-2.5 text-xs font-bold bg-surface-3 text-text-2 border border-border rounded-lg hover:bg-surface-2 transition-colors">
+                View Cycle
+              </button>
+              <button *ngIf="trade.status === 'open'" (click)="openCloseModal(trade)" class="px-4 py-2.5 text-xs font-bold bg-[#ef233c] text-white rounded-lg hover:bg-[#d90429] transition-colors">
+                Close Trade
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Row: Metrics Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-5 bg-[#111] border border-white/5 p-4 rounded-xl">
+            <div class="flex flex-col gap-1.5">
+              <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Side</p>
+              <div>
+                <span class="chip" [ngClass]="trade.direction === 'long' ? 'chip-bull' : 'chip-bear'">
+                  {{ trade.direction | uppercase }} {{ trade.leverage }}x
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 cursor-pointer group" (click)="toggleAmountDisplay()" title="Click to toggle currency">
+              <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider group-hover:text-text-2 transition-colors flex items-center gap-1.5">
+                Amount <span class="text-[8px] bg-surface-3 px-1.5 py-0.5 rounded text-text-2 group-hover:bg-white/10">⇅</span>
+              </p>
+              <span *ngIf="showUsdAmount" class="text-sm font-mono font-bold text-text-1">${{ (trade.position_size * trade.entry_price) | number:'1.2-2' }}</span>
+              <span *ngIf="!showUsdAmount" class="text-sm font-mono font-bold text-text-1">{{ trade.position_size | number:'1.2-6' }} {{ trade.asset.split('/')[0] }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider" title="Your actual funds used (Amount / Leverage)">Margin</p>
+              <span class="text-sm font-mono text-text-1">${{ ((trade.position_size * trade.entry_price) / trade.leverage) | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Entry Price</p>
+              <span class="text-sm font-mono text-text-1">${{ trade.entry_price | number:'1.2-6' }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Stop Loss</p>
+              <span class="text-sm font-mono text-[#ef233c]">${{ trade.stop_loss | number:'1.2-6' }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Take Profit</p>
+              <span class="text-sm font-mono text-[#00d68f]">${{ trade.take_profit | number:'1.2-6' }}</span>
+            </div>
+            
+            <!-- Open Trade Specific Columns -->
+            <ng-container *ngIf="trade.status === 'open'">
+              <div class="flex flex-col gap-1.5">
+                <div class="text-[10px] font-bold text-text-3 uppercase tracking-wider flex items-center gap-1.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-[#00d68f] animate-pulse" *ngIf="getLivePrice(trade) !== null"></div>
+                  Live Price
+                </div>
+                <span class="text-sm font-mono text-text-2">
+                  <ng-container *ngIf="getLivePrice(trade) !== null">${{ getLivePrice(trade) | number:'1.2-6' }}</ng-container>
+                  <ng-container *ngIf="getLivePrice(trade) === null">...</ng-container>
+                </span>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Live PNL</p>
+                <span class="text-sm font-mono font-black" [ngClass]="(getLivePnl(trade) !== null && getLivePnl(trade)! >= 0) ? 'text-[#00d68f]' : 'text-[#ef233c]'">
+                  <ng-container *ngIf="getLivePnl(trade) !== null">
+                    {{ getLivePnl(trade)! >= 0 ? '+' : '' }}${{ getLivePnl(trade) | number:'1.2-2' }}
+                  </ng-container>
+                  <ng-container *ngIf="getLivePnl(trade) === null">...</ng-container>
+                </span>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Status</p>
+                <span class="text-sm font-black text-[#f59e0b]">{{ trade.status | uppercase }}</span>
+              </div>
+            </ng-container>
+
+            <!-- Closed Trade Specific Columns -->
+            <ng-container *ngIf="trade.status === 'closed'">
+              <div class="flex flex-col gap-1.5">
+                <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Close Price</p>
+                <span class="text-sm font-mono text-text-2">${{ trade.close_price | number:'1.2-6' }}</span>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">PNL</p>
+                <span class="text-sm font-mono font-black" [ngClass]="trade.pnl >= 0 ? 'text-[#00d68f]' : 'text-[#ef233c]'">
+                  {{ trade.pnl >= 0 ? '+' : '' }}${{ trade.pnl | number:'1.2-2' }}
+                </span>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Status</p>
+                <span class="text-sm font-black text-text-3">{{ trade.status | uppercase }}</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Close Trade Modal -->
+<ng-container *ngIf="showCloseModal">
+  <div class="fixed inset-0 z-[999] animate-[fadeIn_0.2s_ease] bg-black/50 backdrop-blur-sm" (click)="closeCloseModal()"></div>
+
+  <div class="fixed top-1/2 left-1/2 z-[1000] w-[85%] max-w-sm -translate-x-1/2 -translate-y-1/2 animate-[slideUp_0.3s_ease] sm:w-[90%] md:max-w-[380px]">
+    <div class="relative rounded-2xl bg-[#111111] border border-white/7 p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)]" (click)="$event.stopPropagation()">
+      <button class="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-[#888888] hover:text-[#f2f2f2] hover:bg-white/10 transition-all duration-200 border-none cursor-pointer" (click)="closeCloseModal()">
+        <iconify-icon icon="lucide:x" class="w-5 h-5"></iconify-icon>
+      </button>
+
+      <div class="mb-5 text-center animate-[slideUp_0.4s_ease]">
+        <h2 class="m-0 text-xl sm:text-2xl font-bold text-[#f2f2f2] font-display tracking-tight flex items-center justify-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-[#ef233c] text-lg"></i> Close Trade
+        </h2>
+      </div>
+
+      <div class="flex flex-col gap-5">
+        <div class="text-center animate-[slideUp_0.5s_ease]">
+          <p class="text-text-2 mb-2 text-[13px] sm:text-sm">You are about to manually close your <span class="font-bold text-white">{{ tradeToClose?.asset }}</span> trade.</p>
+          <p class="text-[11px] sm:text-xs text-text-3">This action will execute a market order immediately.</p>
+        </div>
+
+        <div class="bg-[#0a0a0a] border border-white/10 rounded-lg p-4 flex flex-col gap-3 animate-[slideUp_0.6s_ease]">
+          <div class="flex justify-between items-center">
+            <span class="text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Entry Price</span>
+            <span class="text-xs sm:text-sm font-mono text-text-1">${{ tradeToClose?.entry_price | number:'1.2-6' }}</span>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <div class="text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider flex items-center gap-1.5">
+              <div class="w-1.5 h-1.5 rounded-full bg-[#00d68f] animate-pulse" *ngIf="livePrice !== null"></div>
+              Live Price
+            </div>
+            <span class="text-xs sm:text-sm font-mono text-text-1">
+              <ng-container *ngIf="livePrice !== null">${{ livePrice | number:'1.2-6' }}</ng-container>
+              <ng-container *ngIf="livePrice === null">Connecting...</ng-container>
+            </span>
+          </div>
+
+          <div class="h-px w-full bg-white/10 my-1"></div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-[11px] sm:text-[12px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Live P&L</span>
+            <span class="text-base sm:text-lg font-mono font-black" [ngClass]="(livePnl !== null && livePnl >= 0) ? 'text-[#00d68f]' : 'text-[#ef233c]'">
+              <ng-container *ngIf="livePnl !== null">
+                {{ livePnl >= 0 ? '+' : '' }}${{ livePnl | number:'1.2-2' }}
+              </ng-container>
+              <ng-container *ngIf="livePnl === null">...</ng-container>
+            </span>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-2 animate-[slideUp_0.7s_ease]">
+          <button (click)="closeCloseModal()" class="flex-1 border border-white/10 hover:border-white/20 text-[#f2f2f2] hover:text-white hover:bg-white/5 font-semibold text-[11px] sm:text-[13px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 bg-transparent">
+            Cancel
+          </button>
+          <button (click)="confirmCloseTrade()" [disabled]="livePrice === null" class="flex-1 bg-[#ef233c] hover:bg-[#d41f2f] text-white font-bold text-[11px] sm:text-[13px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 hover:shadow-[0_0_20px_rgba(239,35,60,0.4)] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            Confirm Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

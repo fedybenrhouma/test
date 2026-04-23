@@ -24,12 +24,22 @@
           <i class="fa-solid fa-bell"></i>
         </div>
         <div class="flex-1">
-          <h4 class="m-0 font-bold text-[#333] text-[15px] mb-1">
-            {{ notif.symbol | uppercase }} crossed {{ notif.condition }} ${{ notif.targetPrice }}
-          </h4>
-          <p class="m-0 text-[#666] text-[13px] mb-2">
-            The price of {{ notif.coinId }} has triggered your alert condition.
-          </p>
+          <ng-container *ngIf="!notif.type || notif.type === 'price'">
+            <h4 class="m-0 font-bold text-[#333] text-[15px] mb-1">
+              {{ notif.symbol | uppercase }} crossed {{ notif.condition }} ${{ notif.targetPrice }}
+            </h4>
+            <p class="m-0 text-[#666] text-[13px] mb-2">
+              The price of {{ notif.coinId }} has triggered your alert condition.
+            </p>
+          </ng-container>
+          <ng-container *ngIf="notif.type === 'trade'">
+            <h4 class="m-0 font-bold text-[#333] text-[15px] mb-1">
+              Trade Closed: {{ notif.symbol | uppercase }}
+            </h4>
+            <p class="m-0 text-[#666] text-[13px] mb-2">
+              {{ notif.message }}
+            </p>
+          </ng-container>
           <span class="text-[11px] text-[#999] bg-[#f0f0f0] px-2 py-1 rounded-md font-medium">
             {{ formatDate(notif.triggeredAt) }}
           </span>

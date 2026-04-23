@@ -30,6 +30,33 @@
         >
           Portfolio
         </a>
+        <a
+          *ngIf="isAuthenticated"
+          routerLink="/dashboard"
+          routerLinkActive="text-text-1"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="text-sm font-medium text-text-2 hover:text-text-1 transition-colors"
+        >
+          Dashboard
+        </a>
+        <a
+          *ngIf="isAuthenticated"
+          routerLink="/dashboard/trades"
+          routerLinkActive="text-text-1"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="text-sm font-medium text-text-2 hover:text-text-1 transition-colors"
+        >
+          Trades
+        </a>
+        <a
+          *ngIf="isAuthenticated"
+          routerLink="/dashboard/debates"
+          routerLinkActive="text-text-1"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="text-sm font-medium text-text-2 hover:text-text-1 transition-colors"
+        >
+          Debates
+        </a>
       </div>
     </div>
 

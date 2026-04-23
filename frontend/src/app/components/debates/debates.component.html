@@ -1,0 +1,83 @@
+<div class="min-h-screen bg-surface pt-6 pb-20 px-8" style="margin-top: 7vh;">
+  <div class="max-w-[1200px] mx-auto">
+    <!-- Page Header -->
+    <div class="mb-7 fade-up">
+      <p class="section-label">History</p>
+      <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-text-1">
+        Debate History
+      </h1>
+      <p class="text-text-3 mt-2">Explore the full archive of agent deliberations and recommendations.</p>
+    </div>
+
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ef233c]"></div>
+      <p class="mt-4 text-text-3 font-medium">Retrieving deliberation records...</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="space-y-4">
+      <div *ngIf="debates.length === 0" class="card p-10 text-center">
+        <p class="text-text-3">No debates found yet. Trigger the MAS from the dashboard to start.</p>
+      </div>
+
+      <div *ngFor="let debate of debates" class="card overflow-hidden">
+        <!-- Debate Header (Summary Row) -->
+        <div class="p-5 flex items-center justify-between cursor-pointer hover:bg-white/[0.02] transition-colors" (click)="toggleExpand(debate.cycle_id)">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center font-bold text-[#ef233c] border border-[#ef233c]/20">
+              {{ debate.asset.split('/')[0].charAt(0) }}
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-text-1">{{ debate.asset }} ({{ debate.timeframe }})</h3>
+              <span class="text-[10px] text-text-3 uppercase tracking-wider">{{ debate.created_at | date:'medium' }}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-8">
+            <div class="text-right">
+              <p class="text-[10px] font-bold text-text-3 uppercase mb-0.5">Status</p>
+              <span class="text-xs font-bold" [style.color]="debate.status === 'completed' ? '#00d68f' : '#f59e0b'">
+                {{ debate.status | uppercase }}
+              </span>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-bold text-text-3 uppercase mb-0.5">Approved</p>
+              <span class="chip" [ngClass]="debate.approved ? 'chip-bull' : 'chip-bear'">
+                {{ debate.approved ? 'YES' : 'NO' }}
+              </span>
+            </div>
+            <div class="w-6 h-6 flex items-center justify-center text-text-3">
+              <iconify-icon [icon]="expandedDebateId === debate.cycle_id ? 'lucide:chevron-up' : 'lucide:chevron-down'"></iconify-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expanded Content (Agent Feed) -->
+        <div *ngIf="expandedDebateId === debate.cycle_id" class="border-t border-border p-6 bg-surface-2/30 animate-[fadeIn_0.3s_ease]">
+          <div class="mb-6">
+            <p class="section-label mb-2">Final Recommendation</p>
+            <div class="p-4 bg-[#ef233c]/10 border border-[#ef233c]/20 rounded-xl">
+              <p class="text-sm text-text-2 leading-relaxed">{{ debate.recommendation }}</p>
+            </div>
+          </div>
+
+          <p class="section-label mb-4">Agent Deliberations</p>
+          <div class="space-y-6">
+            <div class="flex gap-4" *ngFor="let msg of debate.messages">
+              <span class="agent-dot w-2.5 h-2.5 flex-shrink-0 mt-1.5" [style.background-color]="getAgentDotColor(msg.agent_name)"></span>
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-1.5">
+                  <span class="text-xs font-black text-text-1 uppercase tracking-tight">{{ msg.agent_name }}</span>
+                  <span class="chip" [ngClass]="getSignalClass(msg.signal)" *ngIf="msg.signal">{{ msg.signal | uppercase }}</span>
+                  <span class="text-[10px] font-mono text-text-3 ml-auto" *ngIf="msg.confidence">{{ msg.confidence * 100 | number:'1.0-0' }}% CONF</span>
+                </div>
+                <p class="text-xs text-text-2 leading-relaxed bg-surface-3/50 p-3 rounded-lg border border-border/50">
+                  {{ msg.content }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

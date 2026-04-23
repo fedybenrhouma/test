@@ -15,6 +15,8 @@ export interface Alert {
   triggeredAt: string | null;
   isRead: boolean;
   createdAt: string;
+  type?: string;
+  message?: string;
 }
 
 @Injectable({

@@ -1,0 +1,13 @@
+langgraph>=0.3
+langchain>=0.3
+langchain-groq
+langchain-postgres
+langsmith
+ccxt
+pandas
+ta
+cryptography
+psycopg[binary]
+python-dotenv
+pydantic
+httpx
