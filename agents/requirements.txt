@@ -11,3 +11,4 @@ psycopg[binary]
 python-dotenv
 pydantic
 httpx
+xgboost
