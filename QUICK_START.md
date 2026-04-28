@@ -1,34 +1,80 @@
 # Quick Start Guide
 
-## 1. Start MongoDB
+## Prerequisites
 
-Make sure MongoDB is running locally:
+Make sure you have Docker and Docker Compose installed:
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (includes Docker Compose)
+
+## 1. Start All Services with Docker
+
+From the project root directory, run:
+
 ```bash
-# Windows (if MongoDB is installed)
-# Start MongoDB service or run mongod
-mongod
+docker-compose up --build
 ```
 
-Or use MongoDB Cloud if you prefer (update `MONGODB_URI` in `.env`)
+This will automatically:
+- Build and start the **Backend** (Express.js) on `http://localhost:3000`
+- Build and start the **Frontend** (Angular 20) on `http://localhost:4200`
+- Start **PostgreSQL** database
+- Start **Redis** cache
+- Start **Python Agents**
 
-## 2. Start Backend Server
+You should see:
+```
+pfe_backend     | Server running on port 3000
+pfe_postgres    | database system is ready to accept connections
+pfe_redis       | Ready to accept connections
+pfe_frontend    | ✔ Compiled successfully
+```
+
+## 2. Access the Application
+
+- **Frontend**: `http://localhost:4200`
+- **Backend API**: `http://localhost:3000`
+
+## 3. Stop All Services
+
+Press `Ctrl+C` in the terminal, or run:
+```bash
+docker-compose down
+```
+
+## Without Docker (Manual Setup)
+
+If you prefer to run services manually:
+
+### 1. Start PostgreSQL
+
+Make sure PostgreSQL is running locally or configure `DB_HOST` in backend config.
+
+### 2. Start Redis
+
+```bash
+redis-server
+```
+
+### 3. Start Backend Server
 
 ```bash
 cd backend
+npm install
 npm run dev
 ```
 
 You should see:
 ```
 Server running on port 3000
-MongoDB connected successfully
+PostgreSQL connected successfully
+Redis connected
 ```
 
-## 3. Start Frontend Application
+### 4. Start Frontend Application
 
 In a new terminal:
 ```bash
 cd frontend
+npm install
 npm start
 ```
 
