@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
+import { TradeChatComponent } from '../trade-chat/trade-chat.component';
 
 @Component({
   selector: 'app-trades',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TradeChatComponent],
   templateUrl: './trades.component.html',
   styleUrls: ['./trades.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -26,6 +27,10 @@ export class TradesComponent implements OnInit, OnDestroy {
   livePrice: number | null = null;
   livePnl: number | null = null;
   ws: WebSocket | null = null;
+
+  // Chat State
+  showChatModal = false;
+  tradeToChat: any = null;
 
   constructor(
     private userService: UserService,
@@ -194,5 +199,17 @@ export class TradesComponent implements OnInit, OnDestroy {
         this.closeCloseModal();
       }
     });
+  }
+
+  openChatModal(trade: any): void {
+    this.tradeToChat = trade;
+    this.showChatModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeChatModal(): void {
+    this.showChatModal = false;
+    this.tradeToChat = null;
+    this.cdr.markForCheck();
   }
 }

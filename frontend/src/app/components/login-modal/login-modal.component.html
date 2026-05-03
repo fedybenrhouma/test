@@ -7,7 +7,10 @@
     </button>
 
     <div class="mb-5 text-center animate-[slideUp_0.4s_ease]">
-      <h2 class="m-0 text-xl sm:text-2xl font-bold text-[#f2f2f2] font-display tracking-tight">{{ isSignUp ? 'Create Account' : 'Welcome Back' }}</h2>
+      <h2 class="m-0 text-xl sm:text-2xl font-bold text-[#f2f2f2] font-display tracking-tight">
+        <ng-container *ngIf="isForgotPassword">Reset Password</ng-container>
+        <ng-container *ngIf="!isForgotPassword">{{ isSignUp ? 'Create Account' : 'Welcome Back' }}</ng-container>
+      </h2>
     </div>
 
     <div *ngIf="error" class="mb-4 rounded-lg border border-[#ef233c]/30 bg-[#ef233c]/10 p-3 text-[#ef233c] text-[12px] sm:text-[13px] flex items-start gap-2 animate-[slideUp_0.5s_ease]">
@@ -15,8 +18,15 @@
       <span>{{ error }}</span>
     </div>
 
+    <div *ngIf="forgotPasswordSent" class="mb-4 rounded-lg border border-[#00d68f]/30 bg-[#00d68f]/10 p-4 text-[#00d68f] text-[13px] text-center animate-[slideUp_0.5s_ease]">
+      <iconify-icon icon="lucide:check-circle" class="w-8 h-8 mx-auto mb-2"></iconify-icon>
+      <p class="font-bold mb-1 text-white">Reset Link Sent!</p>
+      <p class="text-[#888]">Please check your email for the password reset instructions.</p>
+      <button type="button" (click)="toggleForgotPassword(false)" class="mt-4 text-[#00d68f] hover:underline font-bold bg-transparent border-none cursor-pointer uppercase text-xs tracking-wider">Back to Login</button>
+    </div>
+
     <!-- Login Form -->
-    <form *ngIf="!isSignUp" [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
+    <form *ngIf="!isSignUp && !isForgotPassword" [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
       <div class="flex flex-col animate-[slideUp_0.5s_ease]">
         <label for="email" class="mb-1.5 text-xs sm:text-[13px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Email Address</label>
         <input
@@ -33,7 +43,10 @@
       </div>
 
       <div class="flex flex-col animate-[slideUp_0.6s_ease]">
-        <label for="password" class="mb-1.5 text-xs sm:text-[13px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Password</label>
+        <div class="flex justify-between items-center mb-1.5">
+          <label for="password" class="text-xs sm:text-[13px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Password</label>
+          <button type="button" (click)="toggleForgotPassword(true)" class="text-[10px] sm:text-[11px] font-bold text-[#ef233c] hover:underline bg-transparent border-none cursor-pointer uppercase tracking-wider">Forgot?</button>
+        </div>
         <div class="relative">
           <input
             id="password"
@@ -70,6 +83,35 @@
       <button type="button" (click)="connectWithBinance()" class="w-full mt-4 bg-transparent border border-white/10 hover:border-[#f3ba2f]/50 hover:bg-[#f3ba2f]/5 text-[#f2f2f2] hover:text-[#f3ba2f] font-semibold text-xs sm:text-[14px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 animate-[slideUp_0.9s_ease]">
         <iconify-icon icon="simple-icons:binance" class="w-5 h-5"></iconify-icon>
         <span>Connect with Binance</span>
+      </button>
+    </form>
+
+    <!-- Forgot Password Form -->
+    <form *ngIf="isForgotPassword && !forgotPasswordSent" [formGroup]="forgotPasswordForm" (ngSubmit)="onForgotPassword()" class="space-y-6 animate-[slideUp_0.5s_ease]">
+      <p class="text-[13px] text-[#888] leading-relaxed text-center">Enter the email address associated with your account and we'll send you a link to reset your password.</p>
+      
+      <div class="flex flex-col">
+        <label for="forgot-email" class="mb-1.5 text-xs sm:text-[13px] font-semibold text-[#f2f2f2] uppercase tracking-wider">Email Address</label>
+        <input
+          id="forgot-email"
+          type="email"
+          formControlName="email"
+          class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-[14px] text-[#f2f2f2] placeholder-[#555555] outline-none transition-all duration-200 focus:border-[#ef233c] focus:ring-2 focus:ring-[#ef233c]/20 focus:scale-[1.02]"
+          placeholder="your@email.com"
+        />
+        <div class="mt-1 text-[11px] sm:text-[12px] text-[#ef233c]" *ngIf="ff['email'].invalid && ff['email'].touched">
+          <span *ngIf="ff['email']?.errors?.['required']">Email is required</span>
+          <span *ngIf="ff['email']?.errors?.['email']">Please enter a valid email</span>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full bg-[#ef233c] hover:bg-[#d41f2f] text-white font-bold text-xs sm:text-[14px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 hover:shadow-[0_0_20px_rgba(239,35,60,0.4)] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2" [disabled]="isLoading">
+        <span *ngIf="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        <span>{{ isLoading ? 'Sending Link...' : 'Send Reset Link' }}</span>
+      </button>
+
+      <button type="button" (click)="toggleForgotPassword(false)" class="w-full bg-transparent border border-white/10 hover:border-white/20 text-[#f2f2f2] font-semibold text-xs sm:text-[13px] uppercase tracking-wider py-2.5 rounded-lg transition-all duration-200">
+        Back to Login
       </button>
     </form>
 

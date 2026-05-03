@@ -25,6 +25,9 @@ export class LoginModalComponent {
   error: string | null = null;
   showPassword = false;
   isSignUp = false;
+  isForgotPassword = false;
+  forgotPasswordSent = false;
+  forgotPasswordForm!: FormGroup;
   signUpForm!: FormGroup;
   signUpSubmitted = false;
 
@@ -53,6 +56,10 @@ export class LoginModalComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
     });
+
+    this.forgotPasswordForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
   }
 
   get lf() {
@@ -63,13 +70,26 @@ export class LoginModalComponent {
     return this.signUpForm.controls;
   }
 
+  get ff() {
+    return this.forgotPasswordForm.controls;
+  }
+
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
   toggleMode(): void {
     this.isSignUp = !this.isSignUp;
+    this.isForgotPassword = false;
     this.error = null;
+    this.cdr.markForCheck();
+  }
+
+  toggleForgotPassword(show: boolean): void {
+    this.isForgotPassword = show;
+    this.isSignUp = false;
+    this.error = null;
+    this.forgotPasswordSent = false;
     this.cdr.markForCheck();
   }
 
@@ -104,6 +124,31 @@ export class LoginModalComponent {
         this.error = error.error?.message || 'Login failed. Try again.';
         this.cdr.markForCheck();
       },
+    });
+  }
+
+  onForgotPassword(): void {
+    if (this.forgotPasswordForm.invalid) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.error = null;
+    this.cdr.markForCheck();
+
+    const { email } = this.forgotPasswordForm.value;
+
+    this.authService.forgotPassword(email).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.forgotPasswordSent = true;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.error = error.error?.message || 'Failed to send reset link. Try again.';
+        this.cdr.markForCheck();
+      }
     });
   }
 

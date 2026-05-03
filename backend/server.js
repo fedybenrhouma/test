@@ -13,6 +13,7 @@ const DebateMessage = require('./models/DebateMessage');
 const Trade = require('./models/Trade');
 const { spawn } = require('child_process');
 const path = require('path');
+const { startRealtimeMonitor } = require('./services/tradeMonitor');
 
 // Define relationships
 User.hasMany(Watchlist, { foreignKey: 'userId', as: 'watchlist' });
@@ -65,6 +66,7 @@ app.use('/api/binance', require('./routes/binance'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/agents', require('./routes/agents'));
+app.use('/api/trades', require('./routes/trades'));
 // Note: /api/payments/webhook is already handled above, 
 // but other payment routes (like create-checkout-session) need express.json()
 app.use('/api/payments', require('./routes/payments'));
@@ -102,12 +104,14 @@ sequelize
   .then(() => {
     console.log('✓ Database models synced');
 
-    // Start Monitor Agent Daemon
+    // Start Instant Node.js Trade Monitor
+    startRealtimeMonitor();
+
+    // Start Data Collector Daemon
     const pythonPath = path.join(__dirname, '../agents/venv/Scripts/python.exe');
-    const scriptPath = path.join(__dirname, '../agents/agents_nodes/monitor_agent.py');
-    
-    console.log('🚀 Starting Background Monitor Agent...');
-    const monitorProcess = spawn(pythonPath, [scriptPath], {
+    const collectorScriptPath = path.join(__dirname, '../agents/collect_data.py');
+    console.log('🚀 Starting Background Data Collector...');
+    const collectorProcess = spawn(pythonPath, [collectorScriptPath], {
       env: {
         ...process.env,
         PYTHONPATH: path.join(__dirname, '../agents')
@@ -115,12 +119,12 @@ sequelize
       cwd: path.join(__dirname, '../agents')
     });
 
-    monitorProcess.stdout.on('data', (data) => {
-      console.log(`[Monitor Agent]: ${data.toString().trim()}`);
+    collectorProcess.stdout.on('data', (data) => {
+      console.log(`[Data Collector]: ${data.toString().trim()}`);
     });
 
-    monitorProcess.stderr.on('data', (data) => {
-      console.error(`[Monitor Agent Error]: ${data.toString().trim()}`);
+    collectorProcess.stderr.on('data', (data) => {
+      console.error(`[Data Collector Error]: ${data.toString().trim()}`);
     });
   })
   .catch((error) => {

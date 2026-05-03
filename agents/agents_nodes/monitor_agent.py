@@ -10,9 +10,22 @@ import os
 import uuid
 import ccxt
 import psycopg
+import asyncio
 import pandas as pd
+from dotenv import load_dotenv
+
+# Try to load env from backend dir
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'backend', '.env')
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    load_dotenv()
+
 from graph.state import MASState
 from agents_nodes.technical_analyst import calculate_indicators, fetch_ohlcv
+
+# Instantiate single exchange for fast ticker updates
+exchange = ccxt.binance()
 
 async def fetch_open_trades() -> list:
     """Fetch all open trades from PostgreSQL."""
@@ -74,65 +87,78 @@ async def close_trade(trade: dict, reason: str, current_price: float):
     except Exception as e:
         print(f"Error closing trade in DB: {e}")
 
-async def monitor_trades():
-    """
-    Main loop for the Monitor Agent.
-    Checks open trades against live price and technical indicators.
-    """
-    trades = await fetch_open_trades()
-    if not trades:
-        return
-
-    for trade in trades:
-        try:
-            asset = trade["asset"]
-            # 1. Fetch live price
-            df = fetch_ohlcv(asset, "1m", limit=50) # Use 1m for fast monitoring
-            current_price = float(df["close"].iloc[-1])
-
-            # 2. Check Stop Loss / Take Profit
-            if trade["direction"] == "long":
-                if current_price <= float(trade["stop_loss"]):
-                    await close_trade(trade, "stop_loss", current_price)
-                    continue
-                if current_price >= float(trade["take_profit"]):
-                    await close_trade(trade, "take_profit", current_price)
-                    continue
-            else:
-                if current_price >= float(trade["stop_loss"]):
-                    await close_trade(trade, "stop_loss", current_price)
-                    continue
-                if current_price <= float(trade["take_profit"]):
-                    await close_trade(trade, "take_profit", current_price)
-                    continue
-
-            # 3. Check for technical exit signals (early exit)
-            indicators = calculate_indicators(df)
-            if trade["direction"] == "long" and indicators["rsi"] > 80:
-                await close_trade(trade, "rsi_overbought", current_price)
-            elif trade["direction"] == "short" and indicators["rsi"] < 20:
-                await close_trade(trade, "rsi_oversold", current_price)
-
-        except Exception as e:
-            print(f"Error monitoring trade {trade['id']}: {e}")
-
-async def run_continuous_monitor(interval_seconds=60):
+async def run_continuous_monitor(interval_seconds=5):
     print("🚀 Starting Monitor Agent continuous loop...")
+    loop_count = 0
     while True:
         try:
-            print("🔍 Monitor Agent checking open trades...")
-            await monitor_trades()
+            trades = await fetch_open_trades()
+            if trades:
+                # 1. Fetch current prices instantly for all needed assets
+                assets = list(set([t["asset"] for t in trades]))
+                try:
+                    tickers = exchange.fetch_tickers(assets)
+                except Exception as e:
+                    print(f"Error fetching tickers: {e}")
+                    tickers = {}
+
+                for trade in trades:
+                    asset = trade["asset"]
+                    
+                    if asset not in tickers or "last" not in tickers[asset]:
+                        continue
+                        
+                    current_price = float(tickers[asset]["last"])
+
+                    # 2. Check Stop Loss / Take Profit
+                    closed = False
+                    if trade["direction"] == "long":
+                        if current_price <= float(trade["stop_loss"]):
+                            await close_trade(trade, "stop_loss", current_price)
+                            closed = True
+                        elif current_price >= float(trade["take_profit"]):
+                            await close_trade(trade, "take_profit", current_price)
+                            closed = True
+                    else:
+                        if current_price >= float(trade["stop_loss"]):
+                            await close_trade(trade, "stop_loss", current_price)
+                            closed = True
+                        elif current_price <= float(trade["take_profit"]):
+                            await close_trade(trade, "take_profit", current_price)
+                            closed = True
+
+                    if closed:
+                        continue
+
+                    # 3. Check for technical exit signals (early exit) only every ~60 seconds (12 loops)
+                    if loop_count % 12 == 0:
+                        try:
+                            df = fetch_ohlcv(asset, "1m", limit=100) # Increased to 100 for safety
+                            indicators = calculate_indicators(df)
+                            
+                            # If indicators is None or missing 'rsi', skip
+                            if not indicators or 'rsi' not in indicators or pd.isna(indicators['rsi']):
+                                continue
+
+                            if trade["direction"] == "long" and indicators["rsi"] > 80:
+                                await close_trade(trade, "rsi_overbought", current_price)
+                            elif trade["direction"] == "short" and indicators["rsi"] < 20:
+                                await close_trade(trade, "rsi_oversold", current_price)
+                        except Exception as e:
+                            # Avoid spamming output if indicators crash occasionally
+                            pass
+
+            loop_count += 1
+            
         except Exception as e:
             print(f"Monitor loop error: {e}")
+            
         await asyncio.sleep(interval_seconds)
 
 if __name__ == "__main__":
-    import asyncio
     if os.name == 'nt':
         try:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         except:
             pass
-    from dotenv import load_dotenv
-    load_dotenv()
     asyncio.run(run_continuous_monitor())

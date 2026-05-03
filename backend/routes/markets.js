@@ -30,7 +30,7 @@ async function fetchWithRetry(url, config, maxRetries = 5) {
 }
 
 // Get all top 250 cryptocurrency markets (cached, no pagination)
-router.get('/markets', verifyToken, async (req, res) => {
+router.get('/markets', async (req, res) => {
   try {
     const cacheKey = 'markets_all_250';
 
@@ -106,7 +106,7 @@ router.get('/markets', verifyToken, async (req, res) => {
 });
 
 // Get specific coin details
-router.get('/markets/:coinId', verifyToken, async (req, res) => {
+router.get('/markets/:coinId', async (req, res) => {
   try {
     const { coinId } = req.params;
     const cacheKey = `coin_${coinId}`;

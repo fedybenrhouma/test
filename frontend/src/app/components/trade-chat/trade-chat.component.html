@@ -1,0 +1,74 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-[1001] flex items-center justify-center p-4 sm:p-6">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-sm animate-[fadeIn_0.2s_ease]" (click)="onClose()"></div>
+  
+  <!-- Centered Modal Container -->
+  <div class="relative w-full max-w-[600px] bg-surface border border-border rounded-2xl h-[85vh] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.8)] animate-[slideUp_0.3s_ease-out]">
+
+    
+    <!-- Header (Absolute Top) -->
+    <div class="absolute top-0 left-0 right-0 h-[72px] p-4 border-b border-border bg-[#111] flex items-center justify-between z-10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#ef233c]/10 flex items-center justify-center border border-[#ef233c]/20 text-[#ef233c]">
+          <iconify-icon icon="lucide:bot-message-square" class="text-xl"></iconify-icon>
+        </div>
+        <div>
+          <h2 class="text-base font-display font-black text-text-1 tracking-tight leading-tight">Agent Analysis</h2>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#00d68f] animate-pulse"></span>
+            <span class="text-[10px] font-mono font-bold text-text-3 uppercase tracking-wider">{{ trade?.asset }} • {{ trade?.direction }} {{ trade?.leverage }}x</span>
+          </div>
+        </div>
+      </div>
+      <button (click)="onClose()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-2 text-text-3 hover:text-white transition-colors">
+        <iconify-icon icon="lucide:x" class="text-lg"></iconify-icon>
+      </button>
+    </div>
+
+    <!-- Scrollable Messages (Absolute Middle) -->
+    <div #scrollContainer class="absolute top-[72px] bottom-[76px] left-0 right-0 overflow-y-auto p-5 bg-[#0a0a0a] flex flex-col gap-4 custom-scrollbar">
+      <div *ngFor="let msg of messages" class="flex flex-col gap-1.5" 
+           [ngClass]="msg.role === 'user' ? 'items-end' : 'items-start'">
+        
+        <div class="px-4 py-3 text-[13px] leading-relaxed shadow-sm break-words max-w-[85%]" 
+             [ngClass]="msg.role === 'user' 
+                ? 'bg-surface-3 border border-white/5 text-text-1 rounded-2xl rounded-tr-sm' 
+                : 'text-text-2 bg-transparent max-w-full border-l-2 border-[#ef233c]/40 pl-4 py-1'">
+          <div class="whitespace-pre-wrap">{{ msg.content }}</div>
+        </div>
+      </div>
+
+      <!-- Typing State -->
+      <div *ngIf="isTyping" class="flex items-center gap-2 text-text-3 ml-4 mt-2">
+        <div class="flex gap-1.5">
+          <span class="w-1.5 h-1.5 bg-[#ef233c] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+          <span class="w-1.5 h-1.5 bg-[#ef233c] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+          <span class="w-1.5 h-1.5 bg-[#ef233c] rounded-full animate-bounce"></span>
+        </div>
+        <span class="text-[10px] font-bold uppercase tracking-widest ml-1">Processing...</span>
+      </div>
+    </div>
+
+    <!-- Input Footer (Absolute Bottom) -->
+    <div class="absolute bottom-0 left-0 right-0 h-[76px] p-4 bg-[#111] border-t border-border z-10 flex items-center">
+      <form (submit)="sendMessage()" class="flex items-center gap-3 w-full">
+        <input 
+          type="text" 
+          [(ngModel)]="userInput" 
+          name="userInput"
+          placeholder="Ask about strategy or context..."
+          class="flex-1 bg-black border border-border rounded-xl px-4 py-3.5 text-[13px] text-text-1 focus:outline-none focus:border-[#ef233c]/50 transition-all placeholder:text-text-3 shadow-inner"
+          [disabled]="isTyping"
+          autocomplete="off"
+        >
+        <button 
+          type="submit" 
+          [disabled]="!userInput.trim() || isTyping"
+          class="shrink-0 w-11 h-11 rounded-xl bg-[#ef233c] text-white flex items-center justify-center transition-all disabled:opacity-20 hover:bg-[#d90429] shadow-lg shadow-[#ef233c]/20"
+        >
+          <iconify-icon icon="lucide:send" class="text-xl"></iconify-icon>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

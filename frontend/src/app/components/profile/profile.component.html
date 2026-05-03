@@ -48,9 +48,32 @@
     <!-- Personal Info Tab -->
     <div *ngIf="activeTab === 'profile'" class="animate-[fadeIn_0.3s_ease]">
       <div class="bg-surface-2 border border-white/5 rounded-2xl overflow-hidden">
-        <div class="p-8 border-b border-white/5 bg-white/[0.02]">
-          <h2 class="text-xl font-bold text-white mb-1">Personal Details</h2>
-          <p class="text-xs text-[#555555]">These details will be used for your account identification.</p>
+        <div class="p-8 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-white mb-1">Personal Details</h2>
+            <p class="text-xs text-[#555555]">These details will be used for your account identification.</p>
+          </div>
+          <div *ngIf="currentUser && !currentUser.isEmailVerified" class="flex flex-col items-end">
+            <span class="text-xs text-[#ef233c] font-bold mb-2 flex items-center gap-1">
+              <iconify-icon icon="lucide:alert-triangle"></iconify-icon>
+              Email not verified
+            </span>
+            <button 
+              type="button" 
+              (click)="resendVerificationEmail()" 
+              [disabled]="resendLoading"
+              class="px-4 py-2 bg-[#ef233c]/10 text-[#ef233c] hover:bg-[#ef233c]/20 border border-[#ef233c]/20 rounded-lg text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              <iconify-icon *ngIf="resendLoading" icon="lucide:loader-2" class="animate-spin"></iconify-icon>
+              {{ resendLoading ? 'Sending...' : 'Verify my email' }}
+            </button>
+            <span *ngIf="resendSuccess" class="text-[10px] text-[#00d68f] mt-1">Verification email sent!</span>
+            <span *ngIf="resendError" class="text-[10px] text-[#ef233c] mt-1">{{ resendError }}</span>
+          </div>
+          <div *ngIf="currentUser && currentUser.isEmailVerified" class="flex items-center gap-2 text-[#00d68f] bg-[#00d68f]/10 px-4 py-2 rounded-lg border border-[#00d68f]/20">
+            <iconify-icon icon="lucide:check-circle" class="text-lg"></iconify-icon>
+            <span class="text-xs font-bold">Email Verified</span>
+          </div>
         </div>
 
         <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()" class="p-8 space-y-6">

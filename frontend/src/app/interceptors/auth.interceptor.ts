@@ -54,7 +54,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           console.log('AuthInterceptor - 401 error, logging out user');
           const authService = injector.get(AuthService);
           authService.logout();
-          router.navigate(['/login']);
+          
+          // Only redirect or trigger modal if NOT on a public auth page
+          const currentUrl = router.url;
+          if (!currentUrl.includes('/reset-password') && !currentUrl.includes('/verify-email')) {
+            // Instead of navigating to a non-existent /login route, 
+            // we trigger the login modal or go to home
+            authService.triggerLoginModal();
+            router.navigate(['/markets']);
+          }
         }
       }
 

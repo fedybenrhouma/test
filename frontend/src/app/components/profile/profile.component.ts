@@ -49,6 +49,11 @@ export class ProfileComponent implements OnInit {
   showSecret = false;
   showDisconnectConfirm = false;
 
+  // Verification properties
+  resendLoading = false;
+  resendSuccess = false;
+  resendError: string | null = null;
+
   // Subscription properties
   subscriptions: any[] = [];
   isSubLoading = false;
@@ -150,6 +155,36 @@ export class ProfileComponent implements OnInit {
         console.error('Error fetching Binance status:', error);
         this.statusLoading = false;
         this.cdr.markForCheck();
+      }
+    });
+  }
+
+  resendVerificationEmail(): void {
+    if (!this.currentUser?.email) return;
+
+    this.resendLoading = true;
+    this.resendSuccess = false;
+    this.resendError = null;
+    this.cdr.markForCheck();
+
+    this.authService.resendVerification(this.currentUser.email).subscribe({
+      next: () => {
+        this.resendLoading = false;
+        this.resendSuccess = true;
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.resendSuccess = false;
+          this.cdr.markForCheck();
+        }, 5000);
+      },
+      error: (error) => {
+        this.resendLoading = false;
+        this.resendError = error.error?.message || 'Failed to send verification email';
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.resendError = null;
+          this.cdr.markForCheck();
+        }, 5000);
       }
     });
   }

@@ -119,6 +119,22 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
   }
 
+  verifyEmail(token: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/verify-email`, { token });
+  }
+
+  resendVerification(email: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/resend-verification`, { email });
+  }
+
+  forgotPassword(email: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/reset-password`, { token, newPassword });
+  }
+
   updateUser(user: User): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('current_user', JSON.stringify(user));

@@ -55,6 +55,10 @@
             </div>
 
             <div class="flex gap-2">
+              <button (click)="openChatModal(trade)" class="px-4 py-2.5 text-xs font-bold bg-[#ef233c]/10 text-[#ef233c] border border-[#ef233c]/20 rounded-lg hover:bg-[#ef233c]/20 transition-all flex items-center gap-2">
+                <iconify-icon icon="lucide:message-square" class="text-sm"></iconify-icon>
+                Analyze
+              </button>
               <button class="px-4 py-2.5 text-xs font-bold bg-surface-3 text-text-2 border border-border rounded-lg hover:bg-surface-2 transition-colors">
                 View Cycle
               </button>
@@ -218,3 +222,5 @@
     </div>
   </div>
 </ng-container>
+
+<app-trade-chat [trade]="tradeToChat" [isOpen]="showChatModal" (close)="closeChatModal()"></app-trade-chat>

@@ -12,6 +12,8 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { ProductsComponent } from './components/products/products.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard';
 import { AdminBansComponent } from './components/admin-bans/admin-bans';
+import { VerifyEmailComponent } from './components/verify-email/verify-email';
+import { ResetPasswordComponent } from './components/reset-password/reset-password';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
@@ -20,6 +22,14 @@ export const routes: Routes = [
     path: '',
     redirectTo: 'markets',
     pathMatch: 'full',
+  },
+  {
+    path: 'verify-email',
+    component: VerifyEmailComponent,
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
   },
   {
     path: 'markets',
