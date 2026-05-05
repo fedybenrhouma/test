@@ -1,0 +1,73 @@
+Chapitre 2 : Préparation du Projet
+
+Dans ce chapitre, nous allons définir les contours de notre application en identifiant clairement les attentes des utilisateurs et les contraintes techniques du système. Cette étape de préparation est indispensable pour garantir que l'architecture logicielle et les modèles d'Intelligence Artificielle développés répondront parfaitement aux exigences du marché du trading algorithmique.
+
+2.1 Capture des besoins
+
+La capture des besoins consiste à dresser l'inventaire exhaustif de ce que le système doit faire (besoins fonctionnels) et des contraintes de qualité, de sécurité et de performance qu'il doit respecter (besoins non fonctionnels).
+
+2.1.1 Besoins fonctionnels
+
+Les besoins fonctionnels décrivent les actions spécifiques que le système ou l'utilisateur doit pouvoir effectuer. Pour notre plateforme de trading Multi-Agents, ces besoins sont divisés en deux catégories : l'interaction utilisateur et l'automatisation de l'intelligence artificielle.
+
+Gestion des utilisateurs et des comptes :
+- Le système doit permettre à un utilisateur de s'inscrire, de se connecter et de se déconnecter de manière sécurisée.
+- L'utilisateur doit pouvoir souscrire à un abonnement payant via une passerelle de paiement (Stripe) pour accéder aux fonctionnalités de trading automatisé.
+- L'utilisateur doit pouvoir lier son compte de plateforme d'échange (ex: Binance) à l'application en fournissant ses clés API ou via une authentification OAuth.
+- L'utilisateur doit avoir accès à un tableau de bord (Dashboard) lui permettant de visualiser son portefeuille en temps réel, ses positions ouvertes et l'historique de ses transactions.
+
+Automatisation et Intelligence Artificielle (Le cœur du système) :
+- Le système doit collecter en continu des données de marché (historique des prix, volumes) et les actualités financières (via des flux RSS) pour alimenter sa base de données vectorielle.
+- L'application doit déclencher périodiquement un cycle d'analyse impliquant plusieurs agents virtuels (Technique, Tendance, Sentiment, Modèle Prédictif).
+- Le système doit évaluer dynamiquement le risque de chaque transaction, en calculant la volatilité du marché pour placer automatiquement des niveaux de protection (Stop Loss) et de prise de profit (Take Profit).
+- Le système doit organiser un débat automatisé entre les agents pour atteindre un consensus, tout en intégrant un agent contradicteur (Avocat du Diable) chargé d'analyser les transactions passées pour éviter les erreurs récurrentes.
+- Une fois la décision validée, le système doit transmettre automatiquement l'ordre d'achat ou de vente à la plateforme d'échange connectée.
+- Un module de surveillance en arrière-plan doit scruter les prix en direct pour clôturer instantanément les positions si les seuils de risque sont atteints.
+
+
+2.1.2 Besoins non fonctionnels
+
+Les besoins non fonctionnels définissent les critères de qualité du système. Dans le domaine de la finance automatisée, ces critères sont particulièrement stricts.
+
+Sécurité :
+- Les clés API des utilisateurs (Binance) doivent être impérativement chiffrées dans la base de données avec des algorithmes robustes (ex: AES-256) afin qu'elles ne soient jamais lisibles en clair, même par l'administrateur du système.
+- L'authentification des utilisateurs doit être sécurisée par des jetons cryptographiques à durée de vie limitée (JSON Web Tokens - JWT).
+
+Performance et Réactivité :
+- Le module de surveillance des transactions doit être capable de réagir en temps réel (de l'ordre de la milliseconde) aux variations de prix. C'est pourquoi ce module s'appuie sur une connexion asynchrone permanente (WebSockets) directement reliée à la plateforme d'échange.
+- Les cycles d'analyse de l'Intelligence Artificielle doivent être optimisés pour s'exécuter rapidement avant que la configuration du marché ne change.
+
+Scalabilité et Maintenabilité :
+- L'architecture doit être séparée (microservices) : le serveur web gérant les requêtes des utilisateurs (Node.js) doit être physiquement et logiquement séparé des scripts gourmands en calculs exécutant l'Intelligence Artificielle (Python).
+- Le système doit pouvoir ajouter de nouveaux agents virtuels à l'avenir sans perturber le fonctionnement du reste de l'application.
+
+
+2.2 Modélisation des besoins (Diagrammes)
+
+Pour traduire ces besoins en spécifications compréhensibles par les équipes de développement, nous utilisons le langage de modélisation UML (Unified Modeling Language), et plus particulièrement les diagrammes de cas d'utilisation.
+
+Description du Diagramme de Cas d'Utilisation global :
+
+Le diagramme met en évidence trois acteurs principaux interagissant avec le système :
+1. Le Trader (Utilisateur final)
+2. Le Serveur d'Exécution (Node.js en arrière-plan)
+3. Le Comité d'IA (Système Multi-Agents Python)
+
+Les interactions de l'acteur "Trader" :
+- S'authentifier sur la plateforme.
+- Souscrire à un abonnement premium.
+- Lier son compte d'échange (Configuration des clés API).
+- Consulter le tableau de bord (Portefeuille, historiques, rapports d'analyse de l'IA).
+
+Les interactions de l'acteur "Serveur d'Exécution" :
+- Collecter les flux d'actualités RSS (toutes les 15 minutes) et les insérer dans la mémoire du système.
+- Surveiller les cours en direct via WebSockets.
+- Clôturer les transactions automatiquement lorsque le prix touche le seuil de protection (Stop Loss) ou l'objectif (Take Profit).
+
+Les interactions de l'acteur "Comité d'IA" :
+- Analyser les indicateurs techniques et le sentiment général.
+- Organiser le consensus et le débat critique.
+- Décider de l'exécution d'une transaction.
+- Interagir avec l'API de l'échange (Binance) pour placer l'ordre initial.
+
+(Note pour le rapport : Insérer ici le diagramme de cas d'utilisation UML réalisé graphiquement pour illustrer ces relations).

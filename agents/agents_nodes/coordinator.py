@@ -68,8 +68,38 @@ async def coordinator_node(state: MASState) -> dict:
         risk_data = state.get("risk", {})
         risk_acceptable = risk_data.get("acceptable", False)
         direction = risk_data.get("direction", "neutral")
+        asset = state["asset"]
 
-        # 3. Build the final synthesis prompt
+        # 3. Retrieve similar past trades (wins + losses) for context
+        import psycopg2
+        from agents_nodes.trade_memory import retrieve_similar_trades
+        
+        postgres_url = os.getenv("POSTGRES_URL")
+        if "cryptoAI" not in postgres_url and "account_system" in postgres_url:
+            postgres_url = postgres_url.replace("account_system", "cryptoAI")
+        
+        conn = psycopg2.connect(postgres_url)
+        try:
+            # Query the database for similar trades
+            trade_results = await retrieve_similar_trades(
+                conn, 
+                query=f"{asset} {direction} consensus", 
+                asset=asset, 
+                outcome=None, 
+                limit=5
+            )
+        finally:
+            conn.close()
+
+        if trade_results:
+            trade_text_list = []
+            for i, (t_summary, t_asset, t_dir, t_tf, t_outcome, pnl, similarity) in enumerate(trade_results):
+                trade_text_list.append(f"- [Sim: {similarity:.2f}] {t_summary}")
+            past_trades_context = "\n".join(trade_text_list)
+        else:
+            past_trades_context = "No similar past trades found."
+
+        # 4. Build the final synthesis prompt
         prompt = f"""You are the Multi-Agent System Coordinator. You have received reports from multiple specialized trading agents and a final risk assessment.
 
 ## Agent Reports
@@ -83,18 +113,22 @@ async def coordinator_node(state: MASState) -> dict:
 - Take Profit: ${risk_data.get('take_profit', 0):,}
 - Leverage: {risk_data.get('leverage', 1)}x
 
+## Similar Past Trades Context (Wins & Losses)
+{past_trades_context}
+
 ## Your Task
 Summarize the consensus (or lack thereof) among the agents. 
+Review the similar past trades to see if this setup has historically succeeded or failed.
 Provide a final verdict for the user.
 If Risk Manager says REJECT, your recommendation MUST be to WAIT.
 If Risk Manager says ACCEPT, your recommendation should be to EXECUTE the trade.
 
 Respond in this exact format:
-SUMMARY: <1-2 sentences summarizing the overall agent consensus>
+SUMMARY: <1-2 sentences summarizing the overall agent consensus and past trade relevance>
 VERDICT: <EXECUTE | WAIT>
 REASONING: <Final explanation for the user>"""
 
-        # 4. Ask LLM for final summary
+        # 5. Ask LLM for final summary
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         response_text = response.content
 

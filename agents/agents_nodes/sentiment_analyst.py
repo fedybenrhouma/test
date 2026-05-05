@@ -3,13 +3,16 @@ import httpx
 from langchain_core.messages import HumanMessage
 from agents_nodes.llm import llm
 from graph.state import MASState
+from agents_nodes.news_embedder import retrieve_relevant_news
+import psycopg2
 
 
 # --- API endpoints ---
 FEAR_GREED_URL = "https://api.alternative.me/fng/?limit=1"
-CRYPTOPANIC_URL = "https://cryptopanic.com/api/v1/posts/"
-CRYPTOPANIC_API_KEY = os.getenv("CRYPTOPANIC_API_KEY", "")
+POSTGRES_URL = os.getenv("POSTGRES_URL")
 
+def get_db_connection():
+    return psycopg2.connect(POSTGRES_URL)
 
 async def fetch_fear_and_greed() -> dict:
     """Fetch the current Fear & Greed index from alternative.me (free, no key needed)."""
@@ -22,52 +25,6 @@ async def fetch_fear_and_greed() -> dict:
             "classification": latest["value_classification"],
             # e.g. "Extreme Fear", "Fear", "Neutral", "Greed", "Extreme Greed"
         }
-
-
-async def fetch_crypto_news(asset: str) -> list[str]:
-    """
-    Fetch latest crypto news headlines.
-    Uses CryptoPanic if API key is set, otherwise falls back to free endpoint.
-    """
-    # Extract coin symbol from asset e.g. "BTC/USDT" → "BTC"
-    coin = asset.split("/")[0].upper()
-
-    headlines = []
-
-    if CRYPTOPANIC_API_KEY:
-        try:
-            async with httpx.AsyncClient() as client:
-                params = {
-                    "auth_token": CRYPTOPANIC_API_KEY,
-                    "currencies": coin,
-                    "kind": "news",
-                    "filter": "hot",
-                    "limit": 10
-                }
-                response = await client.get(CRYPTOPANIC_URL, params=params, timeout=10)
-                data = response.json()
-                headlines = [post["title"] for post in data.get("results", [])]
-        except Exception:
-            headlines = []
-
-    # Fallback — use free CryptoPanic endpoint (no key, limited)
-    if not headlines:
-        try:
-            async with httpx.AsyncClient() as client:
-                params = {
-                    "auth_token": "anonymous",
-                    "currencies": coin,
-                    "kind": "news",
-                    "limit": 10
-                }
-                response = await client.get(CRYPTOPANIC_URL, params=params, timeout=10)
-                data = response.json()
-                headlines = [post["title"] for post in data.get("results", [])]
-        except Exception:
-            headlines = [f"Could not fetch news for {coin}"]
-
-    return headlines[:10]  # max 10 headlines
-
 
 def classify_fear_greed(value: int) -> str:
     """Convert numeric F&G value to trading bias."""
@@ -82,50 +39,62 @@ def classify_fear_greed(value: int) -> str:
     else:
         return "EXTREME GREED — contrarian sell signal, market may be overbought"
 
+def build_prompt(asset: str, fear_greed: dict, news_results: list[tuple]) -> str:
+    """Build the prompt to send to Groq using the new RAG instructions."""
+    
+    if news_results:
+        # Expected tuple: (title, content, source, created_at, similarity_score)
+        news_text_list = []
+        for i, (title, content, source, created_at, similarity) in enumerate(news_results):
+            # Format the created_at timestamp string
+            date_str = created_at.strftime('%Y-%m-%d %H:%M') if hasattr(created_at, 'strftime') else str(created_at)
+            news_text_list.append(
+                f"[Article {i+1} | Source: {source} | Date: {date_str} | Similarity: {similarity:.2f}]\n"
+                f"Title: {title}\n"
+                f"Content: {content}\n"
+            )
+        news_context = "\n".join(news_text_list)
+    else:
+        news_context = "No relevant news found in the last 24 hours."
 
-def build_prompt(asset: str, fear_greed: dict, headlines: list[str]) -> str:
-    """Build the prompt to send to Groq."""
-    headlines_text = "\n".join([f"- {h}" for h in headlines]) if headlines else "- No headlines available"
+    return f"""You are a professional crypto sentiment analyst specializing in {asset}.
 
-    return f"""You are a professional crypto sentiment analyst. Analyze the following market sentiment data for {asset} and provide a trading signal.
+━━━ FEAR & GREED INDEX ━━━
+Value: {fear_greed['value']}/100
+Classification: {fear_greed['classification']}
+Implication: {classify_fear_greed(fear_greed['value'])}
 
-## Fear & Greed Index
-- Current Value: {fear_greed['value']} / 100
-- Classification: {fear_greed['classification']}
-- Trading Implication: {classify_fear_greed(fear_greed['value'])}
+━━━ RELEVANT NEWS (semantically matched, last 24h) ━━━
+{news_context}
 
-## Latest News Headlines
-{headlines_text}
+━━━ ANALYSIS INSTRUCTIONS ━━━
+- Does news confirm or contradict Fear & Greed?
+- Are headlines about {asset} specifically or general crypto noise?
+- Do multiple sources agree or contradict?
+- Look for: ETF news, regulations, hacks, whale moves, exchange issues
 
-## How to Interpret Sentiment
-- Extreme Fear (0-25): Often a contrarian BUY signal — market is overly pessimistic
-- Fear (26-45): Bearish sentiment, approach with caution
-- Neutral (46-55): No strong sentiment bias
-- Greed (56-75): Bullish sentiment, but watch for overextension
-- Extreme Greed (76-100): Often a contrarian SELL signal — market is overly optimistic
+━━━ RULES ━━━
+- Never give LONG or SHORT with confidence below 0.55
+- If news and Fear & Greed contradict, lower confidence and explain
+- If fewer than 2 articles available, cap confidence at 0.60
+- NEUTRAL is always valid
 
-## Your Task
-Analyze BOTH the Fear & Greed index AND the news headlines together.
-Look for:
-- Are headlines confirming or contradicting the F&G reading?
-- Any major news events (ETF approvals, hacks, regulations, whale moves)?
-- Overall market mood
-
-Provide:
-1. Signal: LONG, SHORT, or NEUTRAL
-2. Confidence: a number between 0.0 and 1.0
-3. Reasoning: 2-3 sentences explaining your sentiment analysis
-
-Respond in this exact format:
+━━━ OUTPUT ━━━
+Respond in this EXACT format:
 SIGNAL: <LONG|SHORT|NEUTRAL>
 CONFIDENCE: <0.0-1.0>
-REASONING: <your reasoning here>"""
-
+REASONING: <3-5 sentences>
+WARNINGS: <contradictions or NONE>"""
 
 def parse_response(response_text: str) -> dict:
-    """Parse Groq response into structured signal."""
+    """Parse Groq response into structured signal matching the new format."""
     lines = response_text.strip().split("\n")
-    result = {"signal": "neutral", "confidence": 0.5, "reasoning": response_text}
+    result = {
+        "signal": "neutral", 
+        "confidence": 0.5, 
+        "reasoning": response_text,
+        "warnings": "NONE"
+    }
 
     for line in lines:
         if line.startswith("SIGNAL:"):
@@ -136,30 +105,43 @@ def parse_response(response_text: str) -> dict:
             try:
                 result["confidence"] = float(line.replace("CONFIDENCE:", "").strip())
             except ValueError:
-                result["confidence"] = 0.5
+                pass
         elif line.startswith("REASONING:"):
             result["reasoning"] = line.replace("REASONING:", "").strip()
+        elif line.startswith("WARNINGS:"):
+            result["warnings"] = line.replace("WARNINGS:", "").strip()
 
     return result
 
-
 async def sentiment_analyst_node(state: MASState) -> dict:
     """
-    Sentiment Analyst Agent.
-    Fetches Fear & Greed index + latest crypto news headlines,
+    Sentiment Analyst Agent (RAG Enabled).
+    Fetches Fear & Greed index + similar news via pgvector embeddings,
     sends to Groq for interpretation, returns a sentiment signal.
     """
     try:
         asset = state["asset"]
+        coin = asset.split("/")[0].upper()
 
         # 1. Fetch Fear & Greed index (free, no key needed)
         fear_greed = await fetch_fear_and_greed()
 
-        # 2. Fetch latest news headlines
-        headlines = await fetch_crypto_news(asset)
+        # 2. Retrieve Relevant News (RAG Pipeline)
+        conn = get_db_connection()
+        try:
+            # Query the database for the asset using the news_embedder
+            news_results = await retrieve_relevant_news(
+                conn, 
+                query=f"{coin} news crypto", 
+                asset=coin, 
+                limit=5, 
+                hours_back=24
+            )
+        finally:
+            conn.close()
 
         # 3. Build prompt and ask Groq
-        prompt = build_prompt(asset, fear_greed, headlines)
+        prompt = build_prompt(asset, fear_greed, news_results)
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         response_text = response.content
 
@@ -179,9 +161,10 @@ async def sentiment_analyst_node(state: MASState) -> dict:
             f"📰 Sentiment Analyst Report\n"
             f"Asset: {asset}\n"
             f"Fear & Greed: {fg_emoji} {fear_greed['value']}/100 — {fear_greed['classification']}\n"
-            f"Headlines analyzed: {len(headlines)}\n"
+            f"RAG News Analyzed: {len(news_results)} articles\n"
             f"Signal: {signal['signal'].upper()} (confidence: {signal['confidence']})\n"
-            f"Reasoning: {signal['reasoning']}"
+            f"Reasoning: {signal['reasoning']}\n"
+            f"Warnings: {signal['warnings']}"
         )
 
         return {

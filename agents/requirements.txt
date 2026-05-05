@@ -12,3 +12,7 @@ python-dotenv
 pydantic
 httpx
 xgboost
+sentence-transformers
+psycopg2-binary
+feedparser
+beautifulsoup4

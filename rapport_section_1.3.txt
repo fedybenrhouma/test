@@ -1,0 +1,26 @@
+1.3 Méthodologie de travail
+
+Pour mener à bien ce projet de conception d'un système de trading automatisé, la gestion du cycle de vie du développement est primordiale. En effet, la réalisation de cette application requiert une double expertise : d'une part, le développement d'une architecture logicielle robuste capable de traiter des flux de données en temps réel (backend, bases de données, websockets) ; d'autre part, la recherche, l'entraînement et l'intégration de modèles d'Intelligence Artificielle (Machine Learning et Traitement du Langage Naturel). Pour répondre à cette dualité, nous avons opté pour une approche méthodologique hybride, combinant les meilleures pratiques de l'ingénierie logicielle et de la science des données.
+
+1.3.1 Les méthodes agiles
+
+Les méthodes agiles sont nées du constat que les approches traditionnelles de gestion de projet (comme le modèle en cascade), très linéaires, étaient souvent inadaptées aux projets informatiques complexes. L'agilité repose sur des cycles de développement courts, la flexibilité, et l'adaptation continue aux changements. Au lieu d'attendre la fin du projet pour livrer un produit fini, les méthodes agiles privilégient la livraison régulière de versions partielles mais fonctionnelles de l'application. Cette démarche itérative permet de tester rapidement les hypothèses, d'identifier les erreurs très tôt dans le processus, et d'ajuster la trajectoire du projet en fonction des imprévus techniques ou de l'évolution des exigences du marché. Dans le domaine particulièrement volatil des cryptomonnaies, cette capacité d'adaptation rapide est un atout indispensable.
+
+1.3.2 La méthodologie SCRUM
+
+Afin d'encadrer notre démarche agile, nous nous appuyons sur le cadre de travail SCRUM pour la partie purement logicielle du projet. SCRUM est une méthodologie qui structure le développement en cycles itératifs appelés "Sprints", d'une durée généralement fixée à deux ou trois semaines. Chaque Sprint débute par une phase de planification où l'on sélectionne les tâches prioritaires à accomplir, et se termine par la livraison d'un incrément fonctionnel du produit (par exemple, le déploiement du module de scraping des flux RSS ou la mise en place de la base de données). L'utilisation de SCRUM apporte une grande transparence grâce à ses réunions régulières, garantissant ainsi que l'infrastructure technique (API, orchestration des agents, communication avec les plateformes d'échange) avance à un rythme constant, prévisible, et avec un niveau de qualité logiciel élevé.
+
+1.3.3 La méthodologie CRISP-DM
+
+Si SCRUM excelle dans le développement de logiciels, il n'offre pas le cadre adéquat pour les travaux liés à la donnée et à l'Intelligence Artificielle. Le cycle de vie d'un algorithme prédictif est, par nature, incertain et exploratoire. Pour pallier cela, nous utilisons CRISP-DM (Cross-Industry Standard Process for Data Mining), la méthodologie de référence mondiale pour les projets de Data Science. CRISP-DM structure la recherche autour de six phases itératives :
+1. Compréhension du métier : Définir clairement l'objectif financier, à savoir la détection de signaux de trading rentables.
+2. Compréhension des données : Identifier, collecter et explorer les données nécessaires (historiques de prix, indicateurs techniques, articles d'actualité).
+3. Préparation des données : Nettoyer, filtrer et formater les données pour qu'elles soient exploitables par la machine (calcul des moyennes mobiles, création des vecteurs d'intégration).
+4. Modélisation : Sélectionner et paramétrer les algorithmes (entraînement du modèle prédictif, ajustement des directives de l'IA générative).
+5. Évaluation : Mesurer rigoureusement les performances des modèles sur des données passées pour valider leur précision avant toute mise en production.
+6. Déploiement : Intégrer les modèles validés au cœur du système de prise de décision.
+
+1.3.4 Intégration SCRUM + CRISP-DM
+
+La véritable force de notre méthodologie réside dans la fusion stratégique de SCRUM et CRISP-DM. Étant donné qu'un projet d'IA ne peut être livré de manière aussi prévisible qu'une application classique (un modèle nécessitant parfois de multiples retours en arrière entre les phases d'évaluation et de préparation des données), SCRUM agit comme le cadre de gestion global du temps et des ressources. 
+Concrètement, les objectifs de Data Science (suivants le cycle CRISP-DM) sont intégrés sous forme de tâches spécifiques au sein des Sprints SCRUM. Ainsi, pendant un Sprint de deux semaines, l'équipe technique peut travailler sur l'infrastructure de la base de données (SCRUM pure), tandis que l'effort de recherche se concentre sur l'exploration et la préparation d'un nouveau jeu de données (les trois premières phases de CRISP-DM). Une fois qu'un modèle d'IA a traversé toutes les étapes d'évaluation de CRISP-DM avec succès, il est alors considéré comme un module logiciel finalisé et est intégré au prochain Sprint SCRUM pour son déploiement final. Cette synergie permet de sécuriser le calendrier du projet sans brider la dimension exploratoire et expérimentale inhérente à l'Intelligence Artificielle.

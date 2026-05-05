@@ -1,0 +1,21 @@
+1.2.1 Analyse de l'existant (Problématique)
+
+Le marché des cryptomonnaies est caractérisé par sa nature continue (ouvert 24h/24 et 7j/7), sa très forte volatilité et sa sensibilité extrême aux facteurs macroéconomiques ainsi qu'à l'actualité. Dans ce contexte, les traders humains et les systèmes automatisés traditionnels font face à plusieurs défis majeurs :
+
+1. Surcharge informationnelle et biais cognitifs : Un trader humain est incapable de traiter en temps réel la quantité massive de données disponibles (données de prix, indicateurs techniques multiples, actualités globales, sentiment du marché). De plus, les décisions humaines sont souvent parasitées par des émotions telles que la peur de manquer une opportunité ou la panique, conduisant à une mauvaise gestion des risques.
+2. Limites des robots de trading classiques : Les solutions existantes reposent sur des règles mathématiques strictes. Elles manquent de flexibilité et sont incapables de s'adapter au contexte lors de retournements de marché complexes ou lors d'événements imprévus (scénarios extrêmes, faillite d'une plateforme d'échange).
+3. Incapacité à lier les chiffres et le contexte : Les algorithmes classiques excellent dans la prédiction basée sur l'historique des prix, mais ne peuvent pas "comprendre" le contexte d'une actualité. Inversement, l'analyse du sentiment général ne suffit pas, à elle seule, pour optimiser un point d'entrée précis.
+4. Absence d'esprit critique automatisé : La plupart des systèmes automatisés ne remettent pas en question leurs propres signaux. Lorsqu'une fausse tendance se dessine, le système exécute l'ordre aveuglément, répétant parfois les mêmes erreurs passées sans mécanisme d'auto-évaluation.
+
+La problématique principale est donc la suivante : Comment concevoir un système de trading automatisé capable de raisonner de manière globale (combinant analyse technique, analyse psychologique, prédiction statistique et gestion stricte des risques) tout en évitant les émotions humaines et en s'adaptant en temps réel à l'évolution du marché ?
+
+
+1.2.2 Solution proposée
+
+Pour répondre à ces défis, nous proposons la création d'un système de trading intelligent qui reproduit virtuellement le fonctionnement d'un véritable comité d'investissement. 
+
+Plutôt que de s'appuyer sur un seul algorithme rigide, notre solution déploie une équipe de plusieurs "experts" pilotés par l'Intelligence Artificielle. Chacun de ces experts possède une spécialité unique : l'un se concentre sur les mathématiques et la tendance des prix, un autre évalue la psychologie des investisseurs, tandis qu'un dernier gère strictement les risques financiers.
+
+Avant toute prise de décision, ces experts analysent le marché, intègrent l'actualité financière en temps réel, et collaborent pour trouver un consensus. Pour garantir une sécurité maximale et éviter les erreurs de jugement collectif, un rôle "d'avocat du diable" est intégré. Celui-ci s'appuie sur la mémoire des transactions passées du système pour remettre en question le consensus et empêcher les investissements trop risqués. 
+
+Une fois la décision validée par l'ensemble du comité, le système exécute l'opération de manière totalement autonome. Il surveille ensuite le marché en continu afin de sécuriser les profits ou de couper les pertes instantanément, offrant ainsi une gestion des risques intraitable, dépourvue de toute émotion humaine.

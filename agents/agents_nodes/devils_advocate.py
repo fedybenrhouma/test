@@ -13,25 +13,63 @@ async def devils_advocate_node(state: MASState) -> dict:
         reports = [msg.content for msg in state["messages"] if isinstance(msg, HumanMessage)]
         full_context = "\n\n---\n\n".join(reports)
 
-        # 2. Build the "Critical Challenge" prompt
-        prompt = f"""You are the Devil's Advocate for a crypto trading team. Your job is to be the "Skeptic." 
-Even if the team is bullish, you must find the bearish risks. If they are bearish, you must find the bullish reversal signs.
+        asset = state.get("asset", "UNKNOWN")
+        risk_data = state.get("risk", {})
+        direction = risk_data.get("direction", "neutral")
 
-## Current Agent Reports
-{full_context}
+        # 2. Retrieve similar past LOSING trades for context
+        import os
+        import psycopg2
+        from agents_nodes.trade_memory import retrieve_similar_trades
+        
+        postgres_url = os.getenv("POSTGRES_URL")
+        if "cryptoAI" not in postgres_url and "account_system" in postgres_url:
+            postgres_url = postgres_url.replace("account_system", "cryptoAI")
 
-## Your Task
-1. Identify the current consensus (Are most agents LONG or SHORT?).
-2. Provide a "Counter-Argument": Why might this consensus fail? 
-3. Look for "Hidden Risks" (e.g., hidden bearish divergence, liquidity traps, upcoming macro news).
-4. Signal: Provide a "CHALLENGE" signal if you see major risks, or "CONCUR" if the consensus is extremely solid.
+        conn = psycopg2.connect(postgres_url)
+        try:
+            # Query the database for similar LOSING trades
+            trade_results = await retrieve_similar_trades(
+                conn, 
+                query=f"{asset} {direction} consensus failure", 
+                asset=asset, 
+                outcome="LOSS", 
+                limit=5
+            )
+        finally:
+            conn.close()
 
-Respond in this exact format:
-CHALLENGE_SIGNAL: <CHALLENGE | CONCUR>
-COUNTER_ARGUMENT: <2-3 sentences explaining the risk to the current consensus>
-CONFIDENCE: <0.0-1.0>"""
+        if trade_results:
+            trade_text_list = []
+            for i, (t_summary, t_asset, t_dir, t_tf, t_outcome, pnl, similarity) in enumerate(trade_results):
+                trade_text_list.append(f"- [Sim: {similarity:.2f}] {t_summary}")
+            past_losses_context = "\n".join(trade_text_list)
+        else:
+            past_losses_context = "No similar past losing trades found."
 
-        # 3. Ask LLM for the challenge
+        # 3. Build the "Critical Challenge" prompt
+        prompt = f"""You are the Devil's Advocate for a crypto trading team. Your job is to be the "Skeptic."
+        Even if the team is bullish, you must find the bearish risks. If they are bearish, you must find the bullish reversal signs.
+
+        ## Current Agent Reports
+        {full_context}
+
+        ## Past Failures (Similar LOSING Trades Context)
+        Review these past failures to see how similar setups have previously failed:
+        {past_losses_context}
+
+        ## Your Task
+        1. Identify the current consensus (Are most agents LONG or SHORT?).
+        2. Provide a "Counter-Argument": Why might this consensus fail? Draw specific parallels to the "Past Failures" if any exist.
+        3. Look for "Hidden Risks" (e.g., hidden bearish divergence, liquidity traps, upcoming macro news).
+        4. Signal: Provide a "CHALLENGE" signal if you see major risks, or "CONCUR" if the consensus is extremely solid.
+
+        Respond in this exact format:
+        CHALLENGE_SIGNAL: <CHALLENGE | CONCUR>
+        COUNTER_ARGUMENT: <2-3 sentences explaining the risk to the current consensus>
+        CONFIDENCE: <0.0-1.0>"""
+
+        # 4. Ask LLM for the challenge
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         response_text = response.content
 
