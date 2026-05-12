@@ -126,6 +126,25 @@ sequelize
     collectorProcess.stderr.on('data', (data) => {
       console.error(`[Data Collector Error]: ${data.toString().trim()}`);
     });
+
+    // Start ML Auto-Retrain Daemon
+    const retrainScriptPath = path.join(__dirname, '../agents/auto_retrain.py');
+    console.log('🚀 Starting Background ML Auto-Retrainer...');
+    const retrainProcess = spawn(pythonPath, [retrainScriptPath], {
+      env: {
+        ...process.env,
+        PYTHONPATH: path.join(__dirname, '../agents')
+      },
+      cwd: path.join(__dirname, '../agents')
+    });
+
+    retrainProcess.stdout.on('data', (data) => {
+      console.log(`[ML Retrainer]: ${data.toString().trim()}`);
+    });
+
+    retrainProcess.stderr.on('data', (data) => {
+      console.error(`[ML Retrainer Error]: ${data.toString().trim()}`);
+    });
   })
   .catch((error) => {
     console.error('✗ Database connection error:', error.message);

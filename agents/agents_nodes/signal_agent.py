@@ -3,21 +3,90 @@ import ccxt
 import numpy as np
 import pandas as pd
 import ta
+import psycopg2
+import sys
+import io
 from langchain_core.messages import HumanMessage
 from graph.state import MASState
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report
+from xgboost import XGBClassifier
+from dotenv import load_dotenv
 
+# Force UTF-8 encoding for Windows console to support emojis/special chars
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except AttributeError:
+        # Fallback for older python versions if reconfigure is not available
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', line_buffering=True)
+
+load_dotenv()
+
+# --- Database Config ---
+POSTGRES_URL = os.getenv("POSTGRES_URL")
+
+def get_db_connection():
+    url = POSTGRES_URL
+    if not url:
+        # Fallback for local dev if URL is not in env
+        DB_HOST = os.getenv("DB_HOST", "localhost")
+        DB_NAME = os.getenv("DB_NAME", "postgres")
+        DB_USER = os.getenv("DB_USER", "postgres")
+        DB_PASS = os.getenv("DB_PASS", "postgres")
+        url = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+    
+    if "cryptoAI" not in url and "account_system" in url:
+        url = url.replace("account_system", "cryptoAI")
+    return psycopg2.connect(url)
 
 # --- Model path ---
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "models", "signal_model.json")
 
 
-def fetch_ohlcv(asset: str, timeframe: str, limit: int = 200) -> pd.DataFrame:
-    """Fetch OHLCV candles from Binance."""
-    exchange = ccxt.binance()
-    ohlcv = exchange.fetch_ohlcv(asset, timeframe, limit=limit)
-    df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
-    df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
-    return df
+def fetch_ohlcv_hybrid(asset: str, timeframe: str, limit: int = 2000) -> pd.DataFrame:
+    """Fetch OHLCV candles from Database + CCXT fallback."""
+    df_db = pd.DataFrame()
+    
+    # 1. Try to fetch from local database first
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            query = """
+                SELECT open_time as timestamp, open, high, low, close, volume 
+                FROM coin_price_history 
+                WHERE asset = %s AND timeframe = %s 
+                ORDER BY open_time ASC
+            """
+            cur.execute(query, (asset, timeframe))
+            rows = cur.fetchall()
+            if rows:
+                df_db = pd.DataFrame(rows, columns=["timestamp", "open", "high", "low", "close", "volume"])
+        conn.close()
+        if not df_db.empty:
+            df_db['timestamp'] = pd.to_datetime(df_db['timestamp'])
+            print(f"📦 Loaded {len(df_db)} candles from database for {asset}.")
+    except Exception as e:
+        print(f"⚠️ Database fetch failed: {e}")
+
+    # 2. Fetch latest from CCXT to ensure we have the most recent data
+    try:
+        exchange = ccxt.binance()
+        ohlcv = exchange.fetch_ohlcv(asset, timeframe, limit=500)
+        df_ccxt = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
+        df_ccxt["timestamp"] = pd.to_datetime(df_ccxt["timestamp"], unit="ms")
+        
+        if df_db.empty:
+            return df_ccxt
+        
+        # Combine and deduplicate
+        df_combined = pd.concat([df_db, df_ccxt]).drop_duplicates(subset=['timestamp']).sort_values('timestamp')
+        return df_combined.tail(limit)
+    except Exception as e:
+        print(f"⚠️ CCXT fetch failed: {e}")
+        return df_db
 
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -25,6 +94,10 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     Build all features the XGBoost model will use.
     These MUST match exactly what was used during training.
     """
+    df = df.copy()
+    
+    # Ensure data is sorted
+    df = df.sort_values("timestamp")
 
     # --- Momentum ---
     df["rsi"] = ta.momentum.RSIIndicator(close=df["close"], window=14).rsi()
@@ -76,25 +149,22 @@ FEATURE_COLS = [
 ]
 
 
-def train_and_save_model(asset: str = "BTC/USDT", timeframe: str = "1h"):
+def train_and_save_model(asset: str = "BTC/USDT", timeframe: str = "1h", use_grid_search: bool = True):
     """
-    Train XGBoost model on historical Binance data and save it.
-    Run this ONCE before using the signal agent.
-    Call: python -c "from agents_nodes.signal_agent import train_and_save_model; train_and_save_model()"
+    Train XGBoost model on historical data and save it.
     """
-    from xgboost import XGBClassifier
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score
+    print(f"🚀 Starting model training for {asset} {timeframe}...")
+    df = fetch_ohlcv_hybrid(asset, timeframe, limit=5000)
+    
+    if len(df) < 100:
+        print("❌ Not enough data to train.")
+        return None
 
-    print(f"Fetching training data for {asset} {timeframe}...")
-    df = fetch_ohlcv(asset, timeframe, limit=1000)
     df = build_features(df)
 
     # --- Label: did price go up by at least 0.5% in the next 3 candles? ---
     df["future_return"] = df["close"].shift(-3) / df["close"] - 1
     df["target"] = (df["future_return"] > 0.005).astype(int)
-    # 1 = long signal (price went up 0.5%+)
-    # 0 = short/neutral signal
 
     # Drop NaN rows (from indicators + future label)
     df = df.dropna()
@@ -102,44 +172,54 @@ def train_and_save_model(asset: str = "BTC/USDT", timeframe: str = "1h"):
     X = df[FEATURE_COLS]
     y = df["target"]
 
-    # Train/test split
+    # Train/test split (no shuffle for time series)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, shuffle=False  # no shuffle — time series data
+        X, y, test_size=0.2, shuffle=False
     )
 
-    print(f"Training on {len(X_train)} samples, testing on {len(X_test)} samples...")
-
-    # Train XGBoost
-    model = XGBClassifier(
-        n_estimators=200,
-        max_depth=4,
-        learning_rate=0.05,
-        subsample=0.8,
-        colsample_bytree=0.8,
-        eval_metric="logloss",
-        random_state=42
-    )
-    model.fit(
-        X_train, y_train,
-        eval_set=[(X_test, y_test)],
-        verbose=False
-    )
+    if use_grid_search:
+        print("🔍 Running GridSearchCV for hyperparameter optimization...")
+        param_grid = {
+            'max_depth': [3, 4, 5, 6],
+            'learning_rate': [0.01, 0.05, 0.1],
+            'n_estimators': [100, 200, 300],
+            'subsample': [0.7, 0.8, 0.9],
+            'colsample_bytree': [0.7, 0.8, 0.9]
+        }
+        xgb = XGBClassifier(eval_metric="logloss", random_state=42)
+        grid_search = GridSearchCV(xgb, param_grid, cv=3, scoring='f1', n_jobs=-1)
+        grid_search.fit(X_train, y_train)
+        model = grid_search.best_estimator_
+        print(f"✅ Best parameters: {grid_search.best_params_}")
+    else:
+        model = XGBClassifier(n_estimators=200, max_depth=4, learning_rate=0.05, eval_metric="logloss", random_state=42)
+        model.fit(X_train, y_train)
 
     # Evaluate
     y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"Model accuracy: {accuracy:.2%}")
+    metrics = {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "f1": f1_score(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred),
+        "recall": recall_score(y_test, y_pred)
+    }
+    
+    print("\n📊 Model Evaluation:")
+    print(f"Accuracy:  {metrics['accuracy']:.2%}")
+    print(f"F1-Score:  {metrics['f1']:.2%}")
+    print(f"Precision: {metrics['precision']:.2%}")
+    print(f"Recall:    {metrics['recall']:.2%}")
+    print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
     # Save model
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
     model.save_model(MODEL_PATH)
-    print(f"Model saved to {MODEL_PATH}")
-    return accuracy
+    print(f"💾 Model saved to {MODEL_PATH}")
+    return metrics
 
 
 def load_model():
     """Load the trained XGBoost model."""
-    from xgboost import XGBClassifier
     model = XGBClassifier()
     model.load_model(MODEL_PATH)
     return model
@@ -148,43 +228,36 @@ def load_model():
 async def signal_agent_node(state: MASState) -> dict:
     """
     Signal Agent — ML-based trading signal using XGBoost.
-    Uses a trained model to predict price direction
-    based on technical features.
     """
     try:
         asset = state["asset"]
         timeframe = state["timeframe"]
 
-        # 1. Check if model exists
         if not os.path.exists(MODEL_PATH):
             return {
                 "signal_model": {
                     "signal": "neutral",
                     "confidence": 0.0,
-                    "reasoning": "Model not trained yet. Run train_and_save_model() first."
+                    "reasoning": "Model not trained yet."
                 },
-                "messages": [HumanMessage(
-                    content="⚠️ Signal Agent: Model not trained yet. Returning neutral.",
-                    name="signal_agent"
-                )]
+                "messages": [HumanMessage(content="⚠️ Signal Agent: Model not trained.", name="signal_agent")]
             }
 
-        # 2. Fetch latest candles
-        df = fetch_ohlcv(asset, timeframe, limit=200)
-
-        # 3. Build features
+        # Fetch latest candles (hybrid)
+        df = fetch_ohlcv_hybrid(asset, timeframe, limit=200)
         df = build_features(df)
         df = df.dropna()
 
-        # 4. Get latest row of features
+        if df.empty:
+            raise ValueError("No valid features generated from latest data.")
+
         latest_features = df[FEATURE_COLS].iloc[-1:]
 
-        # 5. Load model and predict
+        # Load model and predict
         model = load_model()
-        prediction = model.predict(latest_features)[0]           # 0 or 1
-        probability = model.predict_proba(latest_features)[0]    # [prob_0, prob_1]
+        prediction = model.predict(latest_features)[0]
+        probability = model.predict_proba(latest_features)[0]
 
-        # 6. Convert to signal
         if prediction == 1:
             signal = "long"
             confidence = round(float(probability[1]), 3)
@@ -192,47 +265,29 @@ async def signal_agent_node(state: MASState) -> dict:
             signal = "short"
             confidence = round(float(probability[0]), 3)
 
-        # Downgrade to neutral if model is not confident
         if confidence < 0.6:
             signal = "neutral"
 
         reasoning = (
-            f"XGBoost model predicts {'upward' if prediction == 1 else 'downward'} price movement. "
-            f"Probability: {probability[1]:.1%} long / {probability[0]:.1%} short. "
-            f"Key features: RSI={df['rsi'].iloc[-1]:.1f}, "
-            f"BB position={df['bb_position'].iloc[-1]:.2f}, "
-            f"Volume ratio={df['volume_ratio'].iloc[-1]:.2f}x"
+            f"XGBoost model predicts {'upward' if prediction == 1 else 'downward'} movement. "
+            f"Prob: {probability[1]:.1%} long / {probability[0]:.1%} short. "
+            f"Indicators: RSI={df['rsi'].iloc[-1]:.1f}, BB Pos={df['bb_position'].iloc[-1]:.2f}"
         )
 
-        # 7. Build message for debate log
         message_content = (
-            f"🤖 Signal Agent Report (XGBoost ML Model)\n"
-            f"Asset: {asset} | Timeframe: {timeframe}\n"
+            f"🤖 Signal Agent (XGBoost)\n"
             f"Prediction: {'📈 LONG' if prediction == 1 else '📉 SHORT'}\n"
             f"Confidence: {confidence:.1%}\n"
-            f"Long probability:  {probability[1]:.1%}\n"
-            f"Short probability: {probability[0]:.1%}\n"
-            f"Signal: {signal.upper()}\n"
-            f"Reasoning: {reasoning}"
+            f"Signal: {signal.upper()}"
         )
 
         return {
-            "signal_model": {
-                "signal": signal,
-                "confidence": confidence,
-                "reasoning": reasoning
-            },
+            "signal_model": {"signal": signal, "confidence": confidence, "reasoning": reasoning},
             "messages": [HumanMessage(content=message_content, name="signal_agent")]
         }
 
     except Exception as e:
-        error_msg = f"Signal Agent error: {str(e)}"
         return {
-            "signal_model": {
-                "signal": "neutral",
-                "confidence": 0.0,
-                "reasoning": f"Error occurred: {str(e)}"
-            },
-            "messages": [HumanMessage(content=error_msg, name="signal_agent")],
-            "error": error_msg
+            "signal_model": {"signal": "neutral", "confidence": 0.0, "reasoning": f"Error: {str(e)}"},
+            "messages": [HumanMessage(content=f"Signal Agent Error: {str(e)}", name="signal_agent")]
         }

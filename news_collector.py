@@ -5,10 +5,22 @@ import hashlib
 import psycopg2
 import feedparser
 import re
+import sys
+import io
 from bs4 import BeautifulSoup
 from psycopg2.extras import execute_values
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
+
+# Force UTF-8 encoding for Windows console to support emojis/special chars
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except AttributeError:
+        # Fallback for older python versions if reconfigure is not available
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', line_buffering=True)
 
 # Load environment variables from the correct .env file
 load_dotenv('backend/.env')
@@ -29,9 +41,20 @@ RSS_FEEDS = [
 # Keywords to map articles to our tracked assets
 ASSET_KEYWORDS = {
     "BTC": ["BTC", "Bitcoin"],
-    "ETH": ["ETH", "Ethereum"],
+    "ETH": ["ETH", "Ethereum", "Ether"],
     "BNB": ["BNB", "Binance Coin", "Binance"],
-    "SOL": ["SOL", "Solana"]
+    "SOL": ["SOL", "Solana"],
+    "XRP": ["XRP", "Ripple"],
+    "ADA": ["ADA", "Cardano"],
+    "DOGE": ["DOGE", "Dogecoin"],
+    "AVAX": ["AVAX", "Avalanche"],
+    "DOT": ["DOT", "Polkadot"],
+    "LINK": ["LINK", "Chainlink"],
+    "MATIC": ["MATIC", "Polygon"],
+    "SHIB": ["SHIB", "Shiba Inu"],
+    "LTC": ["LTC", "Litecoin"],
+    "UNI": ["UNI", "Uniswap"],
+    "NEAR": ["NEAR", "Near Protocol"]
 }
 
 # Load model once at startup
