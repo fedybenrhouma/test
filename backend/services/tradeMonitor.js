@@ -2,6 +2,7 @@ const Trade = require('../models/Trade');
 const Alert = require('../models/Alert');
 const { v4: uuidv4 } = require('uuid');
 const Binance = require('node-binance-api');
+const socketService = require('./socket');
 
 const binance = new Binance().options({
     family: 1, // Optional: forces IPv4 to avoid ENOTFOUND issues sometimes
@@ -55,7 +56,7 @@ async function closeTrade(trade, reason, currentPrice) {
         
         const message = `Closed ${trade.direction.toUpperCase()} position at $${currentPrice.toFixed(2)}. Reason: ${reasonText}. PNL: ${pnlText}`;
         
-        await Alert.create({
+        const alert = await Alert.create({
             id: uuidv4(),
             userId: trade.user_id,
             coinId: coinId,
@@ -70,6 +71,15 @@ async function closeTrade(trade, reason, currentPrice) {
         });
 
         console.log(`[Trade Monitor] ⚡ CLOSED TRADE ${trade.id} (${trade.asset}) | Reason: ${reasonText} | PNL: ${pnlText}`);
+        
+        // Emit WebSocket events
+        try {
+            const io = socketService.getIO();
+            io.to(trade.user_id).emit('trade_closed', { trade: existing, reason: reasonText, pnl: pnl });
+            io.to(trade.user_id).emit('alert_triggered', alert);
+        } catch (socketErr) {
+            console.error('[Trade Monitor] Failed to emit socket event:', socketErr.message);
+        }
         
     } catch (err) {
         console.error(`[Trade Monitor] Error closing trade ${trade.id}:`, err.message);

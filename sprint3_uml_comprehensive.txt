@@ -1,0 +1,55 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Utilisateur" as U
+actor "Système Multi-Agents (IA)" as MAS <<Acteur Secondaire>>
+
+rectangle "Plateforme CryptoMAS" {
+  
+  ' --- Actions de l'Utilisateur ---
+  usecase "Démarrer une analyse IA" as UC_U1
+  usecase "Choisir le mode (Auto / Manuel)" as UC_U2
+  usecase "Regarder l'IA débattre en direct" as UC_U3
+  usecase "Gérer ses trades (Clôturer/Modifier)" as UC_U4
+  usecase "Voir l'historique et son portfolio" as UC_U5
+
+  ' --- Actions des Agents (Le cycle de vie) ---
+  usecase "1. Analyser le marché\n(Prix, Tendances, Actus)" as UC_MAS1
+  usecase "2. Voter et Débattre\n(Consensus)" as UC_MAS2
+  usecase "3. Gérer les risques\n(Stop-Loss / Take-Profit)" as UC_MAS3
+  usecase "4. Exécuter l'ordre de trading" as UC_MAS4
+  usecase "5. Surveiller les prix en direct\n(Monitoring)" as UC_MAS5
+}
+
+' Connexions Utilisateur (à gauche)
+U -- UC_U1
+U -- UC_U2
+U -- UC_U3
+U -- UC_U4
+U -- UC_U5
+
+' Connexions IA (à droite)
+UC_MAS1 -- MAS
+UC_MAS2 -- MAS
+UC_MAS3 -- MAS
+UC_MAS4 -- MAS
+UC_MAS5 -- MAS
+
+' Relations Logiques (Comment tout s'enchaîne)
+UC_U1 ..> UC_MAS1 : <<déclenche>>
+UC_MAS1 ..> UC_MAS2 : <<fournit les arguments>>
+UC_MAS2 ..> UC_MAS3 : <<soumet au contrôle>>
+UC_MAS3 ..> UC_MAS4 : <<déclenche si mode Auto>>
+UC_MAS4 ..> UC_MAS5 : <<lance le suivi continu>>
+
+' Retour visuel vers l'utilisateur
+UC_MAS2 ..> UC_U3 : <<s'affiche pour>>
+
+note right of MAS
+  L'IA exécute ces 5 étapes 
+  de manière autonome pour 
+  gérer le trade de A à Z.
+end note
+
+@enduml

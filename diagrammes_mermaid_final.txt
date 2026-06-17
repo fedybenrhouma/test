@@ -1,0 +1,119 @@
+Voici les diagrammes Mermaid.js complets, stylisés et incluant tous les nouveaux concepts (Signal Agent, Ré-entraînement, MAS, RAG).
+
+--------------------------------------------------
+1. ARCHITECTURE GLOBALE DU SYSTÈME (MAS + LANGGRAPH)
+Emplacement : Section 1.4.3.2
+Description : Illustre la collaboration entre les agents spécialisés et le rôle décisionnel du Signal Agent.
+--------------------------------------------------
+graph TD
+    %% Noeuds principaux
+    Start((Début)) --> Coord[Coordinateur LangGraph]
+    
+    subgraph "Comité d'Experts (Agents)"
+        Coord --> Tech[Agent Technique<br/>XGBoost]
+        Coord --> Sent[Agent Sentiment<br/>NLP/News]
+        Coord --> Vol[Agent Volatilité]
+    end
+
+    Tech --> Agg[Signal Agent]
+    Sent --> Agg
+    Vol --> Agg
+
+    subgraph "Phase de Validation"
+        Agg -->|Proposition de Trade| Devil[Avocat du Diable]
+        Devil -->|Analyse Critique| Risk[Risk Manager]
+    end
+
+    Risk -->|Ordre Validé| Exec[Exécuteur CCXT]
+    Risk -->|Rejet| Coord
+
+    %% Styles
+    style Coord fill:#f9f,stroke:#333,stroke-width:2px
+    style Agg fill:#f9f,stroke:#333,stroke-width:4px
+    style Devil fill:#fdd,stroke:#f66,stroke-width:2px
+    style Risk fill:#dfd,stroke:#3c3,stroke-width:2px
+    style Exec fill:#eee,stroke:#333,stroke-dasharray: 5 5
+
+--------------------------------------------------
+2. PIPELINE D'APPRENTISSAGE CONTINU (AUTO-RETRAIN)
+Emplacement : Section 1.4.3.3
+Description : Montre comment le système s'auto-améliore pour éviter l'obsolescence des modèles.
+--------------------------------------------------
+graph LR
+    subgraph "Collecte & Stockage"
+        A[Flux Marché Temps Réel] --> B[(Base de Données DB)]
+        B --> C{Nouveau Volume de Données?}
+    end
+
+    subgraph "Entraînement Automatique"
+        C -- Oui --> D[Calcul de Features<br/>TA-Lib]
+        D --> E[Entraînement XGBoost]
+        E --> F[Validation Performance]
+    end
+
+    subgraph "Déploiement"
+        F -->|Si Score > Seuil| G[(Model Store)]
+        G -.-> H[Agent Technique]
+    end
+
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#bbf,stroke:#333,stroke-width:2px
+
+--------------------------------------------------
+3. PROCESSUS RAG & ANALYSE DE SENTIMENT
+Emplacement : Section 1.4.3.4 (ou 1.5.4)
+Description : Explique l'intégration des news réelles pour justifier les décisions.
+--------------------------------------------------
+graph TD
+    subgraph "Ingestion Qualitative"
+        N1[News / RSS / Tweets] --> N2[Sentence-Transformers]
+        N2 --> N3[(Vector Store)]
+    end
+
+    subgraph "Raisonnement Augmenté (RAG)"
+        Q[Agent Sentiment] -->|Requête Sémantique| N3
+        N3 -->|Contexte Récupéré| R[Fusion Contexte + LLM]
+        R --> S[Score de Sentiment Pondéré]
+    end
+
+    style N3 fill:#bbf,stroke:#333
+    style R fill:#f9f,stroke:#333
+
+--------------------------------------------------
+4. CONCEPT DE SURAJUSTEMENT (OVERFITTING)
+Emplacement : Section 1.4.2.2
+Description : Schéma pédagogique montrant la différence entre apprentissage réel et mémorisation du bruit.
+--------------------------------------------------
+graph LR
+    subgraph "Modèle Robuste"
+        A[Données] --> B[Apprentissage des Lois du Marché]
+        B --> C((Succès Real-World))
+    end
+
+    subgraph "Surajustement (Overfitting)"
+        D[Données] --> E[Mémorisation du Bruit / Hasard]
+        E --> F((Échec Real-World))
+    end
+
+    style C fill:#dfd,stroke:#3c3
+    style F fill:#fdd,stroke:#f66
+
+--------------------------------------------------
+5. COMPARAISON : RÈGLES VS SYSTÈME AGENTIQUE
+Emplacement : Section 1.4.1.2
+Description : Met en avant le saut technologique vers l'autonomie.
+--------------------------------------------------
+graph TB
+    subgraph "Bots Classiques (Règles)"
+        Rule1[Si RSI < 30] --> Rule2[Achat immédiat]
+        Rule2 --> Rule3[Rigidité face aux News]
+    end
+
+    subgraph "Système Intelligent (MAS)"
+        IA1[Analyse Technique] --> IA2{Raisonnement LLM}
+        IA3[Analyse Sentiment] --> IA2
+        IA2 --> IA4[Décision Adaptative]
+    end
+
+    style Rule3 fill:#eee,stroke:#999
+    style IA4 fill:#dfd,stroke:#3c3

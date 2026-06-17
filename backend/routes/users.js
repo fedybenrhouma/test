@@ -294,4 +294,31 @@ router.delete('/watchlist/:coinId', verifyToken, async (req, res) => {
   }
 });
 
+// Update execution mode
+router.patch('/execution-mode', verifyToken, async (req, res) => {
+  try {
+    const { mode } = req.body;
+    if (!['manual', 'automatic'].includes(mode)) {
+      return res.status(400).json({ success: false, message: 'Invalid mode' });
+    }
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.executionMode = mode;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Execution mode set to ${mode}`,
+      executionMode: user.executionMode
+    });
+  } catch (error) {
+    console.error('Update execution mode error:', error);
+    return res.status(500).json({ success: false, message: 'Error updating mode' });
+  }
+});
+
 module.exports = router;

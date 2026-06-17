@@ -88,7 +88,7 @@ async def close_trade(trade: dict, reason: str, current_price: float):
         print(f"Error closing trade in DB: {e}")
 
 async def run_continuous_monitor(interval_seconds=5):
-    print("🚀 Starting Monitor Agent continuous loop...")
+    print(" Starting Monitor Agent continuous loop...")
     loop_count = 0
     while True:
         try:

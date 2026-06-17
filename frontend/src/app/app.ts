@@ -4,14 +4,16 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { BannedModalComponent } from './components/banned-modal/banned-modal';
+import { AssistantChatComponent } from './components/assistant-chat/assistant-chat';
 import { AuthService } from './services/auth.service';
+import { SocketService } from './services/socket.service';
 import { interval, Subscription } from 'rxjs';
 import { startWith, switchMap, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, HeaderComponent, FooterComponent, BannedModalComponent, CommonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, HeaderComponent, FooterComponent, BannedModalComponent, AssistantChatComponent, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -21,6 +23,7 @@ export class App implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -41,6 +44,21 @@ export class App implements OnInit {
         if (user && user.isBanned) {
           this.authService.triggerBanModal(user.banReason || 'Violation of terms', user.banExpires || null);
         }
+      });
+
+      // Listen for real-time WebSocket events
+      this.socketService.listen<any>('alert_triggered').subscribe(alertData => {
+        console.log('🚨 REAL-TIME ALERT:', alertData);
+        // TODO: Replace with a proper toast notification system
+        if (typeof window !== 'undefined') {
+           // Use standard browser alert for MVP demonstration
+           setTimeout(() => alert(`🚨 ALERT TRIGGERED: ${alertData.message || 'Price target reached'}`), 100);
+        }
+      });
+
+      this.socketService.listen<any>('trade_closed').subscribe(data => {
+        console.log('⚡ TRADE CLOSED IN BACKGROUND:', data);
+        // Refresh trades list if the user is on the dashboard
       });
     }
   }

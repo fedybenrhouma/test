@@ -1,0 +1,73 @@
+Voici les codes Mermaid.js corrigés pour vos diagrammes, avec les emplacements suggérés dans votre rapport.
+
+--------------------------------------------------
+EMPLACEMENT : Section 1.4.1.2 (Comparaison Approches)
+DESCRIPTION : Ce diagramme illustre la différence entre la rigidité des règles classiques et la flexibilité de l'IA.
+--------------------------------------------------
+graph TD
+    subgraph "Approche Classique (Règles)"
+        R1[Indicateur Technique] --> R2{Règle Statique}
+        R2 -->|Si A alors B| R3[Exécution]
+    end
+
+    subgraph "Approche IA (MAS)"
+        I1[Données Techniques] --> I2{Raisonnement Multi-Agents}
+        I3[Données Sentiment] --> I2
+        I4[Gestion Risque] --> I2
+        I2 --> I5[Décision Contextuelle]
+    end
+
+--------------------------------------------------
+EMPLACEMENT : Section 1.4.2.1 (Overfitting / Surajustement)
+DESCRIPTION : Explique visuellement pourquoi un modèle trop complexe échoue en conditions réelles.
+--------------------------------------------------
+graph LR
+    A[Données d'Entraînement] --> B{Complexité du Modèle}
+    B -->|Équilibré| C[Généralisation : Succès en Temps Réel]
+    B -->|Trop Complexe| D[Overfitting : Échec en Temps Réel]
+    
+    style D fill:#ffcccc,stroke:#ff0000
+
+--------------------------------------------------
+EMPLACEMENT : Section 1.4.3.2 (Architecture MAS avec LangGraph)
+DESCRIPTION : Montre le flux de décision circulaire et le rôle de l'Avocat du Diable.
+--------------------------------------------------
+graph TD
+    Start((Début)) --> Coord[Coordinateur LangGraph]
+    Coord --> Tech[Agent Technique]
+    Coord --> Sent[Agent Sentiment]
+    
+    Tech --> Merge[Fusion des Signaux]
+    Sent --> Merge
+    
+    Merge --> Consensus{Consensus?}
+    Consensus -->|Oui| Devil[Avocat du Diable]
+    Consensus -->|Non| Coord
+    
+    Devil -->|Validation| Risk[Risk Manager]
+    Devil -->|Rejet| Coord
+    
+    Risk --> Final[Exécution Ordre]
+
+--------------------------------------------------
+EMPLACEMENT : Section 1.4.3.4 (Processus RAG)
+DESCRIPTION : Explique comment l'IA récupère les informations pour éviter les hallucinations.
+--------------------------------------------------
+graph LR
+    Input[Flux de News] --> Embed[Embedding : Sentence-Transformers]
+    Embed --> DB[(Vector Store)]
+    
+    Query[Analyse Agent] --> Search[Recherche Similitude]
+    DB --> Search
+    Search --> Context[Contexte Réel]
+    Context --> LLM[Génération Décision]
+
+--------------------------------------------------
+EMPLACEMENT : Section 1.4.4.1 (Pipeline XGBoost)
+DESCRIPTION : Détaille le traitement des données quantitatives.
+--------------------------------------------------
+graph TB
+    Raw[Prix OHLCV] --> Features[Calcul RSI / MACD / Bollinger]
+    Features --> Train[Entraînement XGBoost]
+    Train --> Model[Modèle Prédictif]
+    Model --> Signal[Signal de Tendance]

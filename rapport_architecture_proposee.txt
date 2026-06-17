@@ -1,0 +1,70 @@
+2.5. Architecture proposée du système
+
+Pour répondre aux exigences de performance, de scalabilité et d'intelligence en temps réel, nous avons conçu une architecture robuste basée sur une approche micro-services et un système multi-agents (MAS). Cette architecture est découpée en quatre couches logiques interdépendantes :
+
+2.5.1. Couche Présentation (Frontend - Expérience Utilisateur)
+Développée avec Angular 20, cette couche constitue le point d'entrée pour l'utilisateur. Elle ne se limite pas à l'affichage mais assure une gestion d'état réactive (State Management) :
+- Visualisation Avancée : Intégration des graphiques financiers via TradingView LightWeight Charts pour un rendu fluide des prix en temps réel.
+- Temps Réel Bidirectionnel : Utilisation de Socket.io pour recevoir instantanément les logs de débats des agents et les notifications de trades sans rechargement de page.
+- Design System : Mise en œuvre de Tailwind CSS pour garantir une interface adaptative (Mobile-First) et respectant les standards d'accessibilité.
+
+2.5.2. Couche Application (Backend - Orchestrateur de Services)
+Le cœur de l'application est propulsé par Node.js et Express 5. Cette couche agit comme le chef d'orchestre entre l'interface et les ressources de données :
+- Sécurité & Identité : Authentification robuste via JWT (JSON Web Tokens) et hachage des mots de passe avec Bcrypt. Gestion des rôles (Admin/User).
+- Gestion des Transactions : Intégration de Stripe pour la monétisation des services et de l'API Binance pour la gestion des portefeuilles via un chiffrement AES-256 des clés API.
+- Passerelle de Streaming : Développement d'un "Bridge" capturant le flux de sortie (stdout) des agents Python pour le rediriger en temps réel vers le client via des WebSockets.
+
+2.5.3. Couche Intelligence Artificielle (Système Multi-Agents - Le Cerveau)
+C'est le composant le plus complexe, développé en Python 3.11. Il repose sur une architecture de graphe cyclique :
+- Orchestration LangGraph : Chaque agent (Technique, Sentiment, Risk) est un nœud d'un graphe d'état (`MASState`). Le flux de décision n'est pas linéaire mais itératif, permettant à "l'Avocat du Diable" de renvoyer une proposition pour ré-examen si elle est jugée risquée.
+- Pipeline RAG (Retrieval-Augmented Generation) : Utilisation de LangChain pour interroger une base vectorielle pgvector contenant les dernières actualités crypto, permettant aux LLMs de s'appuyer sur des faits réels plutôt que sur leurs connaissances pré-entraînées.
+- Modèles Hybrides : Combinaison de modèles prédictifs quantitatifs (XGBoost) et de modèles cognitifs (Llama 3.3 via Groq) pour une prise de décision équilibrée.
+
+2.5.4. Infrastructure et Persistance (Le Socle)
+- Nginx : Reverse proxy assurant la terminaison SSL/TLS, la compression Gzip des ressources et la protection contre les attaques de type DoS élémentaires.
+- Docker & Kubernetes Ready : Conteneurisation complète via Docker Compose, facilitant le déploiement continu (CI/CD) et l'isolation des dépendances.
+- Base de Données Vectorielle (PostgreSQL + pgvector) : Stockage hybride des données relationnelles (utilisateurs, trades) et des vecteurs sémantiques (news, mémoire de trade).
+- Redis Cache : Mise en cache des prix en temps réel et gestion des files d'attente pour soulager la base de données principale lors des pics de volatilité.
+
+--------------------------------------------------
+DIAGRAMME D'ARCHITECTURE GÉNÉRALE (MERMAID.JS)
+--------------------------------------------------
+
+graph TB
+    User((Utilisateur)) <-->|Socket.io / HTTPS| Nginx[Serveur Nginx<br/>Reverse Proxy]
+
+    subgraph "Frontend (Angular 20)"
+        Nginx <--> Angular[Dashboard & Chatbot<br/>Tailwind CSS]
+    end
+
+    subgraph "Backend Node.js (Express 5)"
+        Nginx <--> Express[API Express<br/>Auth / Logic / DB Access]
+        Express <--> Bridge[Streaming Bridge<br/>Python Intercept]
+    end
+
+    subgraph "Persistance & Cache"
+        Express <--> Postgre[(PostgreSQL + pgvector)]
+        Express <--> Redis[(Redis Cache)]
+    end
+
+    subgraph "IA & Multi-Agents (Python)"
+        Bridge <--> Python[LangGraph Engine<br/>MASState]
+        Python <--> Groq[LLM Groq Llama 3]
+        Python <--> VectorDB[pgvector Search]
+        Python <--> ML[XGBoost Model]
+    end
+
+    subgraph "Services Externes"
+        Python <--> Binance[Binance API / CCXT]
+        Python <--> News[RSS Feeds / CryptoNews]
+        Express <--> Stripe[Stripe Payments]
+    end
+
+    %% Styles
+    style Nginx fill:#f96,stroke:#333,stroke-width:2px
+    style Angular fill:#dd0031,stroke:#333,color:#fff
+    style Express fill:#3c3,stroke:#333
+    style Python fill:#3776ab,stroke:#333,color:#fff
+    style Postgre fill:#336791,stroke:#333,color:#fff
+    style Redis fill:#d82c20,stroke:#333,color:#fff
+    style Bridge fill:#fff,stroke:#333,stroke-dasharray: 5 5

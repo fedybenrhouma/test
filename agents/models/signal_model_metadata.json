@@ -1,0 +1,12 @@
+{
+    "balanced_acc": 0.9684054283290924,
+    "auprc": 0.983345192842742,
+    "best_threshold": 0.7000000000000002,
+    "trained_at": "2026-06-04T12:31:22.705163",
+    "best_params": {
+        "xgb__learning_rate": "0.03",
+        "xgb__max_depth": "3",
+        "xgb__n_estimators": "200",
+        "xgb__scale_pos_weight": "3.638888888888889"
+    }
+}

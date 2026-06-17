@@ -62,6 +62,10 @@
               <button class="px-4 py-2.5 text-xs font-bold bg-surface-3 text-text-2 border border-border rounded-lg hover:bg-surface-2 transition-colors">
                 View Cycle
               </button>
+              <button *ngIf="trade.status === 'open'" (click)="openEditModal(trade)" class="px-4 py-2.5 text-xs font-bold bg-surface-3 text-text-2 border border-border rounded-lg hover:bg-surface-2 transition-colors flex items-center gap-2">
+                <iconify-icon icon="lucide:settings-2" class="text-sm"></iconify-icon>
+                Edit SL/TP
+              </button>
               <button *ngIf="trade.status === 'open'" (click)="openCloseModal(trade)" class="px-4 py-2.5 text-xs font-bold bg-[#ef233c] text-white rounded-lg hover:bg-[#d90429] transition-colors">
                 Close Trade
               </button>
@@ -224,3 +228,49 @@
 </ng-container>
 
 <app-trade-chat [trade]="tradeToChat" [isOpen]="showChatModal" (close)="closeChatModal()"></app-trade-chat>
+
+<!-- Edit SL/TP Modal -->
+<ng-container *ngIf="showEditModal">
+  <div class="fixed inset-0 z-[999] animate-[fadeIn_0.2s_ease] bg-black/50 backdrop-blur-sm" (click)="closeEditModal()"></div>
+
+  <div class="fixed top-1/2 left-1/2 z-[1000] w-[85%] max-w-sm -translate-x-1/2 -translate-y-1/2 animate-[slideUp_0.3s_ease] sm:w-[90%] md:max-w-[380px]">
+    <div class="relative rounded-2xl bg-[#111111] border border-white/7 p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)]" (click)="$event.stopPropagation()">
+      <button class="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-[#888888] hover:text-[#f2f2f2] hover:bg-white/10 transition-all duration-200 border-none cursor-pointer" (click)="closeEditModal()">
+        <iconify-icon icon="lucide:x" class="w-5 h-5"></iconify-icon>
+      </button>
+
+      <div class="mb-5 text-center animate-[slideUp_0.4s_ease]">
+        <h2 class="m-0 text-xl sm:text-2xl font-bold text-[#f2f2f2] font-display tracking-tight flex items-center justify-center gap-2">
+          <iconify-icon icon="lucide:settings-2" class="text-[#ef233c] text-lg"></iconify-icon> Edit SL/TP
+        </h2>
+      </div>
+
+      <div class="flex flex-col gap-5">
+        <div class="text-center animate-[slideUp_0.5s_ease]">
+          <p class="text-text-2 mb-2 text-[13px] sm:text-sm">Adjust protection levels for your <span class="font-bold text-white">{{ tradeToEdit?.asset }}</span> position.</p>
+        </div>
+
+        <div class="flex flex-col gap-4 animate-[slideUp_0.6s_ease]">
+          <div class="flex flex-col gap-2">
+            <label class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Stop Loss (Price)</label>
+            <input type="number" [(ngModel)]="editSl" step="0.000001" class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 text-text-1 font-mono focus:outline-none focus:border-[#ef233c] transition-colors">
+          </div>
+          
+          <div class="flex flex-col gap-2">
+            <label class="text-[10px] font-bold text-text-3 uppercase tracking-wider">Take Profit (Price)</label>
+            <input type="number" [(ngModel)]="editTp" step="0.000001" class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 text-text-1 font-mono focus:outline-none focus:border-[#00d68f] transition-colors">
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-2 animate-[slideUp_0.7s_ease]">
+          <button (click)="closeEditModal()" class="flex-1 border border-white/10 hover:border-white/20 text-[#f2f2f2] hover:text-white hover:bg-white/5 font-semibold text-[11px] sm:text-[13px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 bg-transparent">
+            Cancel
+          </button>
+          <button (click)="confirmEditTrade()" class="flex-1 bg-white text-black hover:bg-white/90 font-bold text-[11px] sm:text-[13px] uppercase tracking-wider py-2.5 sm:py-3 rounded-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+            Update Levels
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

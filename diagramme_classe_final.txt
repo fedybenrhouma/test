@@ -1,0 +1,144 @@
+# --- DIAGRAMME DE CLASSES GLOBAL DU PROJET (SPRINT 3) ---
+
+classDiagram
+    %% ==========================================
+    %% 1. GESTION DES UTILISATEURS (PostgreSQL)
+    %% ==========================================
+    class User {
+        +UUID id
+        +String username
+        +String email
+        +String password
+        +String firstName
+        +String lastName
+        +Enum role (user, admin)
+        +Enum executionMode (manual, automatic)
+        +Boolean isPro
+        +DateTime proExpiry
+        +String stripeCustomerId
+        +Boolean isBanned
+        +DateTime createdAt
+        +DateTime updatedAt
+    }
+
+    class Subscription {
+        +UUID id
+        +UUID userId
+        +String stripeSubscriptionId
+        +String planType
+        +String status
+        +DateTime currentPeriodStart
+        +DateTime currentPeriodEnd
+    }
+
+    class UserExchangeKey {
+        +UUID id
+        +UUID userId
+        +String exchangeName
+        +String encryptedApiKey
+        +String encryptedApiSecret
+    }
+
+    class Watchlist {
+        +UUID id
+        +UUID userId
+        +String symbol
+        +DateTime addedAt
+    }
+
+    %% ==========================================
+    %% 2. TRADING ET ALERTES
+    %% ==========================================
+    class Trade {
+        +UUID id
+        +UUID userId
+        +String symbol
+        +String side
+        +Float entry_price
+        +Float quantity
+        +Float stop_loss
+        +Float take_profit
+        +String status (open, closed)
+        +Float pnl
+        +DateTime closed_at
+    }
+
+    class Alert {
+        +UUID id
+        +UUID userId
+        +String symbol
+        +Float target_price
+        +String condition (above, below)
+        +Boolean is_triggered
+        +DateTime createdAt
+    }
+
+    %% ==========================================
+    %% 3. SYSTÈME MULTI-AGENTS (MAS)
+    %% ==========================================
+    class DebateCycle {
+        +UUID id
+        +UUID userId
+        +String asset
+        +String timeframe
+        +String recommendation
+        +Boolean approved
+        +Float confidence_score
+        +String status
+        +DateTime created_at
+    }
+
+    class DebateMessage {
+        +UUID id
+        +UUID cycle_id
+        +String agent_name
+        +String role
+        +Text content
+        +String signal
+        +Float confidence
+        +JSON arguments
+        +DateTime created_at
+    }
+
+    %% ==========================================
+    %% 4. DONNÉES DE MARCHÉ ET IA (RAG)
+    %% ==========================================
+    class crypto_news_embeddings {
+        <<Table pgvector>>
+        +String content_hash
+        +String title
+        +Text content
+        +String source
+        +String asset
+        +String url
+        +Vector embedding (384)
+        +DateTime created_at
+    }
+
+    class CoinPriceHistory {
+        +UUID id
+        +String symbol
+        +String timeframe
+        +Float open
+        +Float high
+        +Float low
+        +Float close
+        +Float volume
+        +DateTime timestamp
+    }
+
+    %% ==========================================
+    %% RELATIONS ET ASSOCIATIONS (NAVIGATION UML RESPECTÉE)
+    %% ==========================================
+    User "1" --> "0..1" Subscription : a
+    User "1" --> "1" UserExchangeKey : possède
+    User "1" --> "*" Trade : exécute
+    User "1" --> "*" DebateCycle : déclenche
+    User "1" --> "*" Alert : configure
+    User "1" --> "*" Watchlist : suit
+    
+    DebateCycle "1" --> "*" DebateMessage : contient
+    DebateCycle "1" --> "0..1" Trade : génère si APPROVED
+    
+    DebateMessage "*" ..> "1..*" crypto_news_embeddings : RAG Context
+    DebateMessage "*" ..> "1..*" CoinPriceHistory : Analyse Technique

@@ -108,9 +108,14 @@ const User = sequelize.define(
     },
     role: {
       type: DataTypes.ENUM('user', 'admin'),
-      defaultValue: 'user'
+      defaultValue: 'user',
+    },
+    executionMode: {
+      type: DataTypes.ENUM('manual', 'automatic'),
+      defaultValue: 'manual',
     },
     isBanned: {
+
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },

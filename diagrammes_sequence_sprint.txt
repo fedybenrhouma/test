@@ -1,0 +1,183 @@
+================================================================================
+DIAGRAMMES DE SÉQUENCE DÉTAILLÉS - SPRINT 1
+================================================================================
+
+Note : Les lignes verticales de vie (lifelines) sont pleines par défaut dans Mermaid. 
+L'aspect "coupé" et la conformité UML sont assurés par les blocs d'activation 
+et les flèches de retour en pointillés (-->>).
+
+1. Cas d'Utilisation : Créer un compte
+--------------------------------------------------------------------------------
+sequenceDiagram
+    autonumber
+    title Flux de Création de Compte
+
+    actor U as Utilisateur
+    participant F as Angular Frontend
+    participant B as Express Backend
+    participant DB as PostgreSQL
+    participant E as EmailService
+
+    U->>+F: Remplit le formulaire d'inscription
+    F->>F: Validation client (Email, Match Pass)
+    F->>+B: POST /api/auth/register
+    B->>+DB: Vérifier si Email/Username existe
+    DB-->>-B: Résultat (Aucun doublon)
+    
+    alt Utilisateur existe déjà
+        B-->>F: Échec (Utilisateur déjà existant)
+        F-->>U: "Email ou Pseudo déjà utilisé"
+    else Nouvel Utilisateur
+        B->>B: Hachage du mot de passe (bcrypt)
+        B->>B: Génération du token de vérification
+        B->>+DB: INSERT INTO Users
+        DB-->>-B: Confirmation (Succès)
+        B->>+E: Envoi Email de Bienvenue
+        E-->>-B: Succès (Envoyé)
+        B->>+E: Envoi Email de Vérification
+        E-->>-B: Succès (Envoyé)
+        B-->>-F: Succès (Compte créé) + Token JWT
+        F->>F: Stockage JWT (LocalStorage)
+        F-->>-U: Message de succès + Redirection Dashboard
+    end
+
+
+2. Cas d'Utilisation : S'authentifier (Login)
+--------------------------------------------------------------------------------
+sequenceDiagram
+    autonumber
+    title Flux d'Authentification Sécurisée
+
+    actor U as Utilisateur
+    participant F as Angular Frontend
+    participant B as Express Backend
+    participant DB as PostgreSQL
+
+    U->>+F: Saisit ses identifiants (Email + Pass)
+    F->>+B: POST /api/auth/login
+    B->>+DB: SELECT * FROM Users WHERE email = ?
+    DB-->>-B: Données utilisateur (avec Hash Pass)
+    
+    alt Utilisateur non trouvé
+        B-->>F: Échec (Utilisateur introuvable)
+        F-->>U: "Identifiants incorrects"
+    else Utilisateur trouvé
+        B->>B: Comparaison bcrypt(pass, hash)
+        alt Mot de passe incorrect
+            B-->>F: Échec (Identifiants invalides)
+            F-->>U: "Identifiants incorrects"
+        else Mot de passe correct
+            B->>B: Génération Token JWT
+            B-->>-F: Succès (Accès accordé) + JWT + Profil
+            F->>F: Stockage JWT (LocalStorage)
+            F-->>-U: Redirection vers le Dashboard
+        end
+    end
+
+
+3. Cas d'Utilisation : Gérer son profil et modifier son mot de passe
+--------------------------------------------------------------------------------
+sequenceDiagram
+    autonumber
+    title Flux de Gestion de Profil
+
+    actor U as Utilisateur
+    participant F as Angular Frontend
+    participant B as Express Backend
+    participant DB as PostgreSQL
+
+    U->>+F: Accède à la page Profil
+    F->>+B: GET /api/users/profile (JWT)
+    B-->>-F: Succès (Données profil renvoyées)
+    U->>F: Modifie infos ou saisit nouveau password
+    F->>+B: PUT /api/users/profile (ou /change-password)
+    
+    alt Modification Mot de Passe
+        B->>B: Vérifier ancien mot de passe (bcrypt)
+        alt Ancien mot de passe invalide
+            B-->>F: Échec (Mot de passe incorrect)
+            F-->>U: "Ancien mot de passe incorrect"
+        else Succès
+            B->>B: Hachage nouveau mot de passe
+            B->>+DB: UPDATE Users SET password = ?
+            DB-->>-B: Succès (Mise à jour DB)
+            B-->>-F: Succès (Mot de passe modifié)
+            F-->>U: "Mot de passe mis à jour"
+        end
+    else Modification Infos (Nom/Email)
+        B->>+DB: UPDATE Users SET firstName, lastName...
+        DB-->>-B: Succès (Mise à jour DB)
+        B-->>-F: Succès (Profil mis à jour)
+        F-->>-U: "Profil mis à jour"
+    end
+
+
+4. Cas d'Utilisation : Connecter son compte Binance via API Key
+--------------------------------------------------------------------------------
+sequenceDiagram
+    autonumber
+    title Flux de Connexion API Binance
+
+    actor U as Utilisateur
+    participant F as Angular Frontend
+    participant B as Express Backend
+    participant CCXT as CCXT (Library)
+    participant BA as API Binance
+    participant DB as PostgreSQL
+
+    U->>+F: Saisit API Key + API Secret
+    F->>+B: POST /api/binance/connect (JWT)
+    B->>+CCXT: Test de connexion (fetchBalance)
+    CCXT->>+BA: GET /v3/account
+    BA-->>-CCXT: Réponse (Succès ou Échec)
+    
+    alt Connexion Échouée
+        CCXT-->>B: Erreur (Clés invalides)
+        B-->>F: Échec (Erreur de clés API)
+        F-->>U: "Clés invalides ou permissions insuffisantes"
+    else Connexion Réussie
+        CCXT-->>-B: Succès (Balances retournées)
+        B->>B: Chiffrement AES-256-GCM des clés
+        B->>+DB: Sauvegarde clés chiffrées dans profil User
+        DB-->>-B: Confirmation (Sauvegardé)
+        B-->>-F: Succès (Binance lié)
+        F-->>-U: "Compte Binance lié avec succès"
+    end
+
+
+5. Cas d'Utilisation : Configurer et Surveillance des Alertes (via WebSocket)
+--------------------------------------------------------------------------------
+sequenceDiagram
+    autonumber
+    title Flux des Alertes et Surveillance Temps Réel
+
+    actor U as Utilisateur
+    participant F as Angular Frontend
+    participant B as Express Backend
+    participant TM as Trade Monitor (WS Service)
+    participant BA as Binance WebSocket
+    participant DB as PostgreSQL
+
+    Note over U, B: Phase A: Création
+    U->>+F: Définit une alerte de prix (BTC > 70000)
+    F->>+B: POST /api/alerts (JWT)
+    B->>+DB: INSERT INTO Alerts (triggered=false)
+    DB-->>-B: Succès (Alerte enregistrée)
+    B-->>-F: Succès (Alerte activée)
+    F-->>-U: "Alerte activée"
+
+    Note over TM, BA: Phase B: Surveillance WebSocket
+    TM->>+BA: Souscription aux flux de prix (WebSockets)
+    loop Toutes les secondes
+        BA-->>TM: Flux de prix en direct (Live Price)
+        TM->>TM: Vérification des seuils (In-Memory)
+        alt Prix Cible Atteint
+            TM->>+DB: UPDATE Alerts SET triggered=true
+            DB-->>-TM: Succès (Mis à jour)
+            TM->>+B: Notifier déclenchement
+            B->>F: WebSocket Push: alerte_déclenchée
+            B-->>-TM: Notifié
+            F-->>U: Toast: "L'alerte BTC a été déclenchée !"
+        end
+    end
+    deactivate TM

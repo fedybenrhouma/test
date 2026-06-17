@@ -1,0 +1,43 @@
+# --- DIAGRAMME DE CLASSES DU SPRINT 1 (CORRIGÉ) ---
+
+classDiagram
+    class User {
+        +UUID id
+        +String email
+        +String username
+        +String password
+        +String firstName
+        +String lastName
+        +Boolean isEmailVerified
+        +String role
+        +signup(userData)
+        +signin(credentials)
+        +verifyEmail(token)
+    }
+
+    class UserExchangeKey {
+        +UUID id
+        +UUID userId
+        +String exchange
+        +String encryptedApiKey
+        +String encryptedApiSecret
+    }
+
+    class Watchlist {
+        +UUID id
+        +UUID userId
+        +String symbol
+    }
+
+    class Alert {
+        +UUID id
+        +UUID userId
+        +String symbol
+        +Float targetPrice
+        +Boolean isTriggered
+    }
+
+    %% RELATIONS AVEC NAVIGATION UML ET CONCORDANCE TECHNIQUE
+    User "1" --> "0..*" Watchlist : suit
+    User "1" --> "0..*" Alert : configure
+    User "1" --> "0..1" UserExchangeKey : possède

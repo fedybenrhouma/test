@@ -1,0 +1,37 @@
+.bg-surface {
+  background-color: var(--surface, #1a1a1a);
+}
+
+.bg-surface-2 {
+  background-color: var(--surface-2, #2a2a2a);
+}
+
+.bg-surface-3 {
+  background-color: var(--surface-3, #3a3a3a);
+}
+
+.border-border {
+  border-color: var(--border, #444);
+}
+
+.text-text-1 {
+  color: var(--text-1, #fff);
+}
+
+.text-text-2 {
+  color: var(--text-2, #ccc);
+}
+
+.text-text-3 {
+  color: var(--text-3, #888);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); }
+  to { transform: translateY(0); }
+}

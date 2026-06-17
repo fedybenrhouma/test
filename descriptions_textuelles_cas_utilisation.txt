@@ -1,0 +1,152 @@
+================================================================================
+DESCRIPTION TEXTUELLE DES CAS D’UTILISATION DU SPRINT
+================================================================================
+
+Tableau 4.1: Description textuelle du cas d’utilisation « Créer un compte »
+--------------------------------------------------------------------------------
+Nom du Cas      : Créer un compte
+Objectif        : Permettre à l’utilisateur de créer son compte
+Acteurs         : Utilisateur
+Pré-condition   : - L’utilisateur ne doit pas avoir un compte
+                  - Si l’Utilisateur est un Analyste, il doit s’inscrire via le lien d'invitation
+Post-condition  : Système mis à jour (Utilisateur créé en attente de vérification).
+
+Scénario principal :
+1. L'utilisateur demande l'interface d'inscription.
+2. L'application affiche l'interface de pré-inscription.
+3. L'utilisateur saisit son email, son nom d'utilisateur, son nom, son prénom et son mot de passe.
+4. L'utilisateur clique sur le bouton "S'inscrire".
+5. L'application vérifie que tous les champs requis sont remplis et valides.
+6. Si des champs sont manquants ou invalides :
+   - L'application affiche une notification indiquant les erreurs.
+7. Si tous les champs sont valides :
+   - L'application hache le mot de passe de manière sécurisée (bcrypt).
+   - L'application génère un token de vérification unique.
+   - L'application crée l'entrée utilisateur dans la base de données.
+   - L'application envoie un email de bienvenue et un email de vérification contenant le lien unique.
+   - L'application affiche un message de succès.
+8. L'utilisateur vérifie son email pour activer son compte.
+
+
+Tableau 4.2: Description textuelle du cas d’utilisation « S'authentifier »
+--------------------------------------------------------------------------------
+Nom du Cas      : S'authentifier de manière sécurisée
+Objectif        : Permettre à l'utilisateur d'accéder à son espace personnel
+Acteurs         : Utilisateur
+Pré-condition   : L'utilisateur doit posséder un compte actif et vérifié
+Post-condition  : Session utilisateur établie (Token JWT généré).
+
+Scénario principal :
+1. L'utilisateur demande l'interface de connexion.
+2. L'application affiche le formulaire de login.
+3. L'utilisateur saisit son email et son mot de passe.
+4. L'utilisateur clique sur "Se connecter".
+5. L'application vérifie la validité des identifiants et le hachage du mot de passe.
+6. Si les identifiants sont corrects :
+   - L'application génère un token JWT sécurisé.
+   - L'application redirige l'utilisateur vers son tableau de bord.
+7. Si les identifiants sont incorrects :
+   - L'application affiche un message d'erreur d'authentification.
+
+
+Tableau 4.3: Description textuelle du cas d’utilisation « Gérer son profil »
+--------------------------------------------------------------------------------
+Nom du Cas      : Gérer mon profil et modifier mon mot de passe
+Objectif        : Modifier les informations personnelles ou sécuriser le compte
+Acteurs         : Utilisateur
+Pré-condition   : L'utilisateur doit être authentifié
+Post-condition  : Informations mises à jour en base de données.
+
+Scénario principal :
+1. L'utilisateur accède à la page "Profil".
+2. L'application affiche les informations actuelles (Nom, Prénom, Email, Username).
+3. L'utilisateur modifie ses champs ou saisit un nouveau mot de passe.
+4. L'utilisateur confirme la modification.
+5. L'application valide les nouvelles données et vérifie l'ancien mot de passe.
+6. L'application enregistre les modifications dans la base de données.
+7. L'application affiche une notification de succès.
+
+
+Tableau 4.4: Description textuelle du cas d’utilisation « Connecter Binance »
+--------------------------------------------------------------------------------
+Nom du Cas      : Connecter mon compte Binance via API Key
+Objectif        : Lier les données d'échange réelles à l'application
+Acteurs         : Utilisateur
+Pré-condition   : Utilisateur authentifié possédant des clés API Binance
+Post-condition  : Clés API chiffrées et stockées en base de données.
+
+Scénario principal :
+1. L'utilisateur se rend dans la section de connexion API.
+2. L'utilisateur saisit son API Key et son Secret Key.
+3. L'utilisateur clique sur "Connecter".
+4. L'application teste la validité des clés via l'échange (CCXT).
+5. Si les clés sont valides :
+   - L'application chiffre les clés avec l'algorithme AES-256-GCM.
+   - L'application sauvegarde les clés chiffrées dans le profil utilisateur.
+6. L'application affiche un message de succès et marque le compte comme "Connecté".
+
+
+Tableau 4.5: Description textuelle du cas d’utilisation « Visualiser Portfolio »
+--------------------------------------------------------------------------------
+Nom du Cas      : Visualiser mon portfolio
+Objectif        : Consulter la valeur totale et la répartition de ses actifs
+Acteurs         : Utilisateur
+Pré-condition   : Compte Binance connecté avec des clés valides
+Post-condition  : Affichage des soldes valorisés en temps réel.
+
+Scénario principal :
+1. L'utilisateur demande l'interface "Portfolio".
+2. L'application déchiffre les clés API et interroge l'échange Binance.
+3. L'application récupère les soldes et les croise avec les prix du marché (CoinGecko).
+4. L'application calcule la valeur totale en USD et les performances (P/L).
+5. L'application affiche la liste des actifs avec leurs icônes et valeurs respectives.
+
+
+Tableau 4.6: Description textuelle du cas d’utilisation « Gérer les Favoris »
+--------------------------------------------------------------------------------
+Nom du Cas      : Ajouter une crypto monnaie à la liste des favoris
+Objectif        : Suivre spécifiquement certaines crypto-monnaies
+Acteurs         : Utilisateur
+Pré-condition   : Utilisateur authentifié
+Post-condition  : Liste de favoris (Watchlist) mise à jour en base de données.
+
+Scénario principal :
+1. L'utilisateur consulte la liste des marchés crypto.
+2. L'utilisateur clique sur l'icône de favori (étoile) d'une crypto.
+3. L'application enregistre l'identifiant (coinId) dans la Watchlist de l'utilisateur.
+4. L'application met à jour l'interface pour refléter l'ajout.
+5. L'utilisateur peut accéder à l'onglet "Favoris" pour voir uniquement ses cryptos suivies.
+
+
+Tableau 4.7: Description textuelle du cas d’utilisation « Visualiser les charts »
+--------------------------------------------------------------------------------
+Nom du Cas      : Visualiser les charts en temps réel
+Objectif        : Analyser l'évolution des prix via des graphiques interactifs
+Acteurs         : Utilisateur
+Pré-condition   : Aucune
+Post-condition  : Graphique TradingView affiché avec les données correctes.
+
+Scénario principal :
+1. L'utilisateur sélectionne une crypto-monnaie dans la liste.
+2. L'application identifie le Ticker correspondant sur les exchanges (Binance, Bybit, etc.).
+3. L'application charge le widget TradingView avec le symbole identifié.
+4. Le graphique s'affiche avec les outils d'analyse technique et le flux temps réel.
+5. L'utilisateur peut ajuster les périodes (1H, 1D, etc.) et les indicateurs.
+
+
+Tableau 4.8: Description textuelle du cas d’utilisation « Configurer Alertes »
+--------------------------------------------------------------------------------
+Nom du Cas      : Configurer des alertes de prix
+Objectif        : Être alerté quand une crypto atteint un seuil de prix
+Acteurs         : Utilisateur
+Pré-condition   : Utilisateur authentifié
+Post-condition  : Alerte active dans le moteur de surveillance.
+
+Scénario principal :
+1. L'utilisateur définit un prix cible pour une crypto-monnaie.
+2. L'utilisateur sélectionne la condition (Prix au-dessus / Prix en-dessous).
+3. L'application enregistre l'alerte en base de données.
+4. Le moteur de surveillance (Backend) compare en continu le prix du marché à l'alerte.
+5. Lorsque le seuil est franchi :
+   - L'application marque l'alerte comme déclenchée.
+   - L'application envoie une notification visuelle et/ou un email à l'utilisateur.

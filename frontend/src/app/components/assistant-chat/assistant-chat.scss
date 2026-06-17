@@ -1,0 +1,55 @@
+.bg-surface {
+  background-color: var(--surface, #0a0a0a);
+}
+
+.bg-surface-2 {
+  background-color: var(--surface-2, #111111);
+}
+
+.border-border {
+  border-color: var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.text-text-1 {
+  color: var(--text-1, #ffffff);
+}
+
+.text-text-2 {
+  color: var(--text-2, #cccccc);
+}
+
+.text-text-3 {
+  color: var(--text-3, #888888);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 35, 60, 0.3);
+}

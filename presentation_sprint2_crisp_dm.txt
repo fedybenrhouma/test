@@ -1,0 +1,55 @@
+STRUCTURE DES SLIDES - SPRINT 2 (MÉTHODE CRISP-DM) - VERSION FRANÇAIS FACILE
+================================================================================
+
+Voici le contenu simplifié pour vos slides. Le vocabulaire est clair, direct et facile à expliquer à n'importe quel jury, tout en gardant le côté professionnel.
+
+--------------------------------------------------------------------------------
+SLIDE 1 : Phase 1 & 2 - Compréhension (Métier et Données)
+--------------------------------------------------------------------------------
+* Titre : Phase 1 & 2 - Objectif du Projet et Défis des Données
+* Points clés :
+  - L'Objectif : Créer une intelligence artificielle capable de nous dire de manière fiable s'il faut acheter ou attendre.
+  - Le but de performance : Atteindre un "F1-Score" supérieur à 90%. C'est l'équilibre parfait entre "ne rater aucune bonne opportunité" et "ne pas faire de fausses alertes".
+  - Les données : Récupération de l'historique des prix du Bitcoin via Binance.
+  - Le grand défi : Le marché stagne ou baisse 88% du temps. Les vraies hausses sont rares (12%). L'IA risque donc d'apprendre à ne rien faire. Il a fallu corriger cela.
+
+--------------------------------------------------------------------------------
+SLIDE 2 : Phase 3 - Préparation des Données (Feature Engineering)
+--------------------------------------------------------------------------------
+* Titre : Phase 3 - Préparation et Amélioration des Données
+* Points clés :
+  - L'Historique (Lags Temporels) : Au lieu de regarder juste le prix actuel, on donne à l'IA les données des 2 dernières heures (t-1, t-2). Cela lui permet de comprendre la "vitesse" et la direction du prix (l'élan), pas juste sa position.
+  - La Tendance Générale (Régime) : On ajoute un indicateur (EMA200) pour dire à l'IA si on est globalement dans une période de hausse ou de baisse.
+  - Correction du Déséquilibre (SMOTE) : Comme les vraies hausses sont rares, on a généré mathématiquement de "faux" exemples de hausses pour forcer l'IA à bien les étudier et les reconnaître.
+* Visuel suggéré : Mettez une capture d'écran d'un bout de code de votre fonction `build_features`.
+
+--------------------------------------------------------------------------------
+SLIDE 3 : Phase 4 - Modélisation (La Rigueur Scientifique)
+--------------------------------------------------------------------------------
+* Titre : Phase 4 - Entraînement du Modèle sans "Triche"
+* Points clés :
+  - L'Algorithme : Utilisation de XGBoost, un modèle très puissant pour analyser des données financières complexes.
+  - La méthode de test (Walk-Forward) : En IA classique, on mélange souvent les données pour s'entraîner. Ici, on a respecté l'ordre chronologique (TimeSeriesSplit).
+  - Pourquoi c'est crucial ? L'IA s'entraîne sur Janvier pour prédire Février, puis sur Janvier+Février pour prédire Mars.
+  - Résultat : L'IA ne triche jamais en "regardant dans le futur". Nos résultats sont donc garantis fiables pour le monde réel.
+
+--------------------------------------------------------------------------------
+SLIDE 4 : Phase 5 - Évaluation (Les Résultats)
+--------------------------------------------------------------------------------
+* Titre : Phase 5 - Résultats de l'Intelligence Artificielle
+* Points clés (Mettez ces chiffres en GRAS) :
+  - Le score d'équilibre (F1-Score) : 90.64%. Le modèle est extrêmement précis et rate très peu d'opportunités.
+  - La fiabilité globale (Accuracy) : 97.65%. Sur l'ensemble de ses décisions, l'IA se trompe très rarement.
+  - La conclusion : Nous avons réussi à transformer un modèle basique en un outil fiable pour de la prise de décision financière.
+* Visuel suggéré : Mettez l'image "figure_3_4_confusion_matrix.png" (Le tableau avec les pourcentages de réussite).
+
+--------------------------------------------------------------------------------
+SLIDE 5 : Phase 6 - Déploiement (Industrialisation)
+--------------------------------------------------------------------------------
+* Titre : Phase 6 - Déploiement dans le Projet Final
+* Points clés :
+  - Code propre et robuste : Le modèle est programmé sous forme d'Objet (POO) pour s'intégrer facilement dans l'application.
+  - Journal de bord (Logs) : Toutes les actions de l'IA sont enregistrées pour pouvoir surveiller son bon fonctionnement.
+  - Sauvegarde intelligente : Le modèle garde en mémoire ses meilleurs paramètres dans un fichier (JSON).
+  - Prêt à l'emploi : Le "Signal Agent" est maintenant prêt à envoyer ses recommandations aux autres agents du système.
+================================================================================

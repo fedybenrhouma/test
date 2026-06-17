@@ -1,0 +1,76 @@
+<div [style.display]="isOpen ? 'flex' : 'none'" class="flex fixed inset-0 z-[999999] items-center justify-center p-4">
+  <div class="fixed inset-0 bg-black/80 backdrop-blur-sm" (click)="onClose()"></div>
+  
+  <div class="relative w-full max-w-[450px] bg-surface border border-border rounded-2xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.9)]">
+    
+    <!-- Header -->
+    <div class="p-5 border-b border-border bg-[#111] flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#ef233c]/10 flex items-center justify-center border border-[#ef233c]/20 text-[#ef233c]">
+          <span class="text-xl">⚡</span>
+        </div>
+        <div>
+          <h2 class="text-base font-display font-black text-text-1 tracking-tight leading-tight">Trigger AI Analysis</h2>
+          <p class="text-[10px] font-bold text-text-3 uppercase tracking-wider mt-0.5">Start Multi-Agent Debate for {{ asset }}</p>
+        </div>
+      </div>
+      <button (click)="onClose()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-2 text-text-3 hover:text-white transition-colors border-none cursor-pointer">
+        ✕
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 space-y-5 bg-[#0a0a0a]">
+      
+      <!-- Timeframe Selection -->
+      <div>
+        <label class="text-[10px] font-black text-[#ef233c] uppercase tracking-tighter mb-2 block">Analysis Timeframe</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button *ngFor="let tf of ['15m', '1h', '4h', '1d']" 
+                  (click)="selectedTimeframe = tf"
+                  [class]="selectedTimeframe === tf ? 'bg-[#ef233c] text-white border-[#ef233c]' : 'bg-surface-2 text-text-3 border-border'"
+                  class="py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer">
+            {{ tf }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Amount Input -->
+      <div>
+        <label class="text-[10px] font-black text-[#ef233c] uppercase tracking-tighter mb-2 block">Investment Amount ($)</label>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-text-3 font-mono text-sm">$</span>
+          <input type="number" 
+                 [(ngModel)]="manualMargin" 
+                 placeholder="e.g. 100" 
+                 class="w-full bg-[#111] border border-border rounded-xl px-10 py-3.5 text-sm font-bold text-white outline-none focus:border-[#ef233c] transition-colors">
+        </div>
+        <p class="text-[9px] text-text-3 mt-2 italic">* This amount will be used to calculate position sizing and risk.</p>
+      </div>
+
+      <!-- Advanced: Target Price (Optional) -->
+      <div>
+        <label class="text-[10px] font-black text-text-3 uppercase tracking-tighter mb-2 block">Target Entry Price (Optional)</label>
+        <input type="number" 
+               [(ngModel)]="manualPrice" 
+               placeholder="Leave empty for Market Price" 
+               class="w-full bg-[#111] border border-border rounded-xl px-4 py-3 text-xs font-bold text-white outline-none focus:border-[#ef233c]/50 transition-colors">
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="p-5 bg-[#111] border-t border-border flex gap-3">
+      <button (click)="onClose()" class="flex-1 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-text-2 bg-surface-2 border border-border hover:bg-surface-3 transition-colors border-none cursor-pointer">
+        Cancel
+      </button>
+      <button (click)="triggerAgents()" 
+              [disabled]="isStartingAgents"
+              class="flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-[#ef233c] hover:bg-[#d90429] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#ef233c]/20 border-none cursor-pointer">
+        <span *ngIf="isStartingAgents" class="animate-spin w-3 h-3 border-2 border-white/30 border-t-white rounded-full"></span>
+        {{ isStartingAgents ? 'Launching...' : 'Trigger Hive-Mind' }}
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -14,6 +14,7 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 import { AdminBansComponent } from './components/admin-bans/admin-bans';
 import { VerifyEmailComponent } from './components/verify-email/verify-email';
 import { ResetPasswordComponent } from './components/reset-password/reset-password';
+import { StartAnalysisComponent } from './components/start-analysis/start-analysis';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
@@ -91,6 +92,11 @@ export const routes: Routes = [
   {
     path: 'dashboard/debates',
     component: DebatesComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'analysis',
+    component: StartAnalysisComponent,
     canActivate: [AuthGuard],
   },
   {

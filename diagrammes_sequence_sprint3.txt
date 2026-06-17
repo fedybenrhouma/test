@@ -1,0 +1,195 @@
+# Diagrammes de Séquence - Sprint 3
+
+## 1. Lancement de l'Analyse et Débat Multi-Agents
+Ce diagramme montre le flux avec les barres d'activation représentant la durée de vie des processus.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Utilisateur
+    participant F as Frontend (Angular)
+    participant B as Backend (Node.js)
+    participant MAS as Orchestrateur (Python)
+    participant BIN as API Binance / CCXT
+    participant AG as Agents Analystes
+    participant DB as PostgreSQL (pgvector)
+
+    U->>F: Clique sur "Démarrer l'analyse"
+    activate F
+    F->>B: POST /api/agents/start
+    activate B
+    B->>MAS: Spawn processus Python
+    activate MAS
+    MAS->>BIN: Récupère l'historique OHLCV
+    activate BIN
+    BIN-->>MAS: Retourne Live Candles
+    deactivate BIN
+    MAS->>DB: Initialise le dossier partagé (État + Candles)
+    activate DB
+    DB-->>MAS: OK
+    deactivate DB
+    
+    parallel Analyse Parallèle
+        MAS->>AG: Agent Technique: RSI/MACD/BB
+        activate AG
+        MAS->>AG: Agent Tendance: EMA Multi-TF
+        MAS->>AG: Agent Volatilité: ATR & Turbulence
+        MAS->>AG: Agent Sentiment: RAG News
+        MAS->>AG: Agent ML: Prédiction XGBoost
+        AG-->>MAS: Signaux mis à jour dans l'état
+        deactivate AG
+    end
+
+    MAS->>B: Stream logs via stdout
+    B->>F: Socket.io: Diffusion live
+    F->>U: Affiche le débat + Graphique
+    deactivate B
+    deactivate F
+    deactivate MAS
+```
+
+---
+
+## 2. Consensus, Exécution et Monitoring (Mode Auto)
+Ce diagramme montre le cycle de décision incluant l'Avocat du Diable et la surveillance WebSocket.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant MAS as Orchestrateur (LangGraph)
+    participant RM as Risk Manager (Rule-Based)
+    participant AD as Avocat du Diable (LLM)
+    participant CO as Coordinateur (LLM)
+    participant EX as Executor (CCXT)
+    participant BIN as API Binance
+    participant WM as WS Monitor (Node.js)
+
+    activate MAS
+    MAS->>RM: Soumet l'état partagé (Analyses)
+    activate RM
+    RM->>RM: Calcule SL/TP via ATR & Volatilité
+    RM-->>MAS: Valide et ajoute les limites de sécurité
+    deactivate RM
+
+    MAS->>AD: Demande une critique (Anti-Biais)
+    activate AD
+    AD->>AD: Cherche les failles dans le consensus
+    AD-->>MAS: Ajoute les contre-arguments à l'état
+    deactivate AD
+    
+    MAS->>CO: Demande le verdict final
+    activate CO
+    CO->>CO: Synthèse (Signaux + Risque + Critique)
+    CO-->>MAS: Verdict: LONG / SHORT / NEUTRAL
+    deactivate CO
+
+    alt Mode Automatique Activé ET Verdict != NEUTRAL
+        MAS->>EX: Transmet l'ordre validé
+        activate EX
+        EX->>BIN: Envoi de l'ordre (API Key)
+        activate BIN
+        BIN-->>EX: Confirmation d'exécution
+        deactivate BIN
+        EX->>WM: Active la surveillance (Ligne ouverte)
+        activate WM
+        deactivate EX
+        deactivate MAS
+        
+        loop Monitoring Temps Réel 24h/24
+            BIN->>)WM: Flux WebSocket (Live Candles)
+            WM->>WM: Vérifie prix en direct vs SL/TP
+            alt Prix touche une limite
+                WM->>BIN: Ordre de clôture immédiat
+                WM-->>MAS: Notifie fin de trade (Terminé)
+                deactivate WM
+            end
+        end
+    end
+```
+
+---
+
+## 3. Gestion Manuelle des Trades (Edit SL/TP, Close, History)
+Ce diagramme montre comment l'utilisateur intervient sur ses positions en cours.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Utilisateur
+    participant F as Frontend (Trades Page)
+    participant B as Backend (API)
+    participant WM as WS Monitor
+    participant BIN as API Binance / CCXT
+    participant DB as PostgreSQL
+
+    U->>F: Accède à l'onglet "Trades"
+    activate F
+    F->>B: GET /api/trades/active
+    activate B
+    B->>DB: Récupère les positions "Open"
+    DB-->>B: Liste des trades
+    B-->>F: Affiche les positions live
+    deactivate B
+
+    alt Modification SL/TP
+        U->>F: Saisit de nouvelles limites
+        F->>B: PATCH /api/trades/:id (New SL/TP)
+        activate B
+        B->>DB: Met à jour le trade
+        B->>WM: Notifie les nouveaux seuils
+        WM->>WM: Met à jour la surveillance
+        B-->>F: Confirmation (Success Toast)
+        deactivate B
+    end
+
+    alt Clôture Manuelle
+        U->>F: Clique sur "Close Trade"
+        F->>B: POST /api/dashboard/trades/:id/close
+        activate B
+        B->>BIN: Ordre de vente immédiat (Market Sell)
+        activate BIN
+        BIN-->>B: Confirmation d'exécution
+        deactivate BIN
+        B->>WM: Arrête la surveillance pour ce trade
+        B->>DB: Marque le trade comme "Closed"
+        B-->>F: Rafraîchit la vue (Historique)
+        deactivate B
+    end
+    deactivate F
+```
+
+---
+
+## 4. Assistant Chatbot IA (Analyse de Trade & RAG)
+Ce diagramme montre le cycle de réponse de l'assistant conversationnel.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Utilisateur
+    participant F as Frontend
+    participant B as Backend (LangChain)
+    participant DB as PostgreSQL (pgvector)
+    participant AI as Groq (Llama 3.3)
+
+    U->>F: Pose une question
+    activate F
+    F->>B: POST /api/trades/:id/chat
+    activate B
+    
+    B->>DB: Fetch Trade + Candles + News + Débats
+    activate DB
+    DB-->>B: Données contextuelles
+    deactivate DB
+    
+    B->>B: Construit le Prompt (LangChain)
+    B->>AI: Requête (Prompt + Context)
+    activate AI
+    AI-->>B: Stream des Tokens
+    deactivate AI
+    
+    B-->>F: SSE (Server-Sent Events)
+    F->>U: Affiche l'explication technique mot par mot
+    deactivate B
+    deactivate F
+```

@@ -4,7 +4,7 @@ import asyncio
 import psycopg2
 import sys
 import io
-from agents_nodes.signal_agent import train_and_save_model, MODEL_PATH
+from agents_nodes.signal_agent import train_and_save_model
 from dotenv import load_dotenv
 
 # Force UTF-8 encoding for Windows console to support emojis/special chars

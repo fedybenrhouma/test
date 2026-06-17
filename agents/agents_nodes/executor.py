@@ -105,13 +105,20 @@ async def executor_node(state: MASState) -> dict:
 
         # 4. Place Order
         side = 'buy' if risk["direction"] == 'long' else 'sell'
+        is_manual_price = state.get("target_price") is not None
         
         # Simulation for mock keys
         if keys['apiKey'].startswith("mock"):
             order_id = f"mock_order_{state['cycle_id']}"
         else:
             # Real or Testnet Order
-            order = await exchange.create_market_order(asset, side, risk["position_size"])
+            if is_manual_price:
+                print(f"🎯 Placing LIMIT order at ${risk['entry_price']} for {asset}")
+                order = await exchange.create_limit_order(asset, side, risk["position_size"], risk["entry_price"])
+            else:
+                print(f"⚡ Placing MARKET order for {asset}")
+                order = await exchange.create_market_order(asset, side, risk["position_size"])
+            
             order_id = order['id']
             
             # Place SL and TP

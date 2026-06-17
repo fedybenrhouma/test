@@ -16,6 +16,8 @@ class MASState(TypedDict):
     # --- What to trade ---
     asset: str         # e.g. "BTC/USDT"
     timeframe: str     # e.g. "1h"
+    target_price: Optional[float]  # Price the user wants to enter at
+    margin: Optional[float]        # Funds the user wants to allocate
 
     # --- Agent signals (filled in as agents run) ---
     technical: Optional[AgentSignal]

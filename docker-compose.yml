@@ -52,7 +52,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    command: npm run dev
 
   # Frontend Angular App
   frontend:
@@ -63,15 +62,13 @@ services:
     ports:
       - "4200:4200"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/dist
-    command: >
-      sh -c "npm run tailwind:build && npx ng serve --host 0.0.0.0 --poll 2000"
 
   # Python Agents
   agents:
@@ -87,6 +84,18 @@ services:
       - ./agents:/app
     stdin_open: true
     tty: true
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: pfe_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
 
 volumes:
   postgres_data:

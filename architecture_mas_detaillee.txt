@@ -1,0 +1,80 @@
+================================================================================
+ARCHITECTURE DU SYSTÈME MULTI-AGENTS (MAS) - CRYPTO IA
+================================================================================
+
+--------------------------------------------------------------------------------
+1. LE DIAGRAMME DES AGENTS (LangGraph)
+--------------------------------------------------------------------------------
+graph TD
+    START((DÉBUT)) --> T[Agent Technique]
+    START --> S[Agent Sentiment]
+    START --> TR[Agent Tendance]
+    START --> ML[Agent ML XGBoost]
+    START --> V[Agent Volatilité]
+
+    T --> RM{Risk Manager}
+    S --> RM
+    TR --> RM
+    ML --> RM
+    V --> RM
+
+    RM -- "Validation Risque" --> DA[Avocat du Diable]
+    DA -- "Challenge Critique" --> CO[Coordinateur]
+    CO -- "Verdict Final" --> EX[Exécuteur Binance]
+    EX --> END((FIN))
+
+    subgraph "Phase 1 : Analyse Parallèle"
+        T
+        S
+        TR
+        ML
+        V
+    end
+
+    subgraph "Phase 2 : Synthèse & Protection"
+        RM
+        DA
+        CO
+    end
+
+    subgraph "Phase 3 : Action"
+        EX
+    end
+
+
+--------------------------------------------------------------------------------
+2. FONCTIONNEMENT DÉTAILLÉ DU CYCLE
+--------------------------------------------------------------------------------
+
+Étape 1 : Analyse Parallèle (Collecte de données)
+--------------------------------------------------
+Cinq agents travaillent simultanément pour observer le marché sous des angles différents :
+
+*   Agent Technique : Je veux analyser les bougies OHLCV et les indicateurs (RSI, MACD, BB, EMA) afin de fournir un signal technique précis basé sur la dynamique du prix.
+*   Agent Tendance : Je veux analyser la structure du prix sur plusieurs unités de temps afin d'identifier la tendance macro et d'éviter les positions à contre-courant.
+*   Agent Sentiment (RAG) : Je veux scraper les news et utiliser pgvector afin d'intégrer la psychologie du marché et l'actualité temps réel dans la prise de décision.
+*   Agent ML XGBoost : Je veux traiter les données historiques via un modèle pré-entraîné afin de prédire la probabilité statistique de mouvement du prix à court terme.
+*   Agent Volatilité : Je veux mesurer la turbulence du marché (ATR/STD) afin de définir si l'environnement est assez stable pour une exécution sécurisée.
+
+Étape 2 : Le Risk Manager (Le Filtre Mathématique)
+--------------------------------------------------
+*   Je veux calculer les niveaux de sortie (SL/TP) et la taille de position idéale afin d'appliquer une gestion des risques stricte et protéger le capital utilisateur.
+
+Étape 3 : L'Avocat du Diable (L'Anti-Groupthink)
+--------------------------------------------------
+*   Je veux challenger systématiquement le consensus et rechercher les échecs passés (RAG) afin d'identifier les risques cachés et éviter les biais cognitifs.
+
+Étape 4 : Le Coordinateur (Le Décideur Final)
+--------------------------------------------------
+*   Je veux synthétiser les rapports de tous les agents et valider le verdict final afin de produire une recommandation de trading cohérente et argumentée.
+
+Étape 5 : L'Exécuteur (Le Bras Armé)
+--------------------------------------------------
+*   Je veux piloter l'envoi d'ordres vers Binance et initialiser le monitoring afin d'automatiser l'ouverture de la position validée par le système.
+
+--------------------------------------------------------------------------------
+3. FLUX DE DONNÉES (Data Exchange)
+--------------------------------------------------------------------------------
+- MASState (Shared Memory) : C'est l'objet qui circule entre tous les agents. Il contient l'actif (ex: BTC), les signaux de chaque agent, les calculs de risque, et le verdict final.
+- pgvector (Long Term Memory) : Utilisé par l'Agent Sentiment (News) et le Coordinateur (Expérience historique) pour injecter du contexte réel dans le raisonnement des LLM.
+- WebSockets : Utilisés pour "pousser" chaque message d'agent vers votre interface Angular dès qu'il est généré.

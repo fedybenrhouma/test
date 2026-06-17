@@ -1,0 +1,89 @@
+# Plan de Rédaction : Chapitre : Architecture et Implémentation du Système Multi-Agents (MAS)
+
+Cette section détaillera le cœur intelligent du projet, en expliquant techniquement comment les données sont récoltées, analysées, et comment les agents interagissent pour prendre des décisions autonomes.
+
+## Intelligence Artificielle et Système Multi-Agents
+
+### Concepts Technologiques Fondamentaux (Glossaire Préalable)
+*Cette sous-section définit le socle technologique nécessaire à la compréhension du système, allant des formats de données boursières aux frameworks d'orchestration d'IA de pointe.*
+
+- **OHLCV (Open, High, Low, Close, Volume) :**
+  - C'est le format standard de représentation des données boursières sous forme de "bougies japonaises" (Candlesticks). Il indique pour une période donnée le prix d'Ouverture, le plus Haut, le plus Bas, le prix de Clôture et le Volume échangé.
+- **CCXT (CryptoCurrency eXchange Trading Library) :**
+  - Une bibliothèque open-source incontournable qui unifie la connexion à plus de 100 plateformes d'échange crypto (dont Binance). Elle permet d'utiliser une interface unique pour récupérer les prix et envoyer des ordres.
+- **Flux RSS (Really Simple Syndication) :**
+  - Un format de syndication de contenu web (XML) permettant de recevoir automatiquement et en temps réel les dernières publications d'un site web (titres, résumés), sans publicité ni menus.
+- **Base de Données Vectorielle (et pgvector) :**
+  - Système de stockage optimisé pour la recherche de similarité sémantique. L'extension `pgvector` pour PostgreSQL stocke des "Embeddings" (représentations mathématiques de texte) pour retrouver des informations par le sens plutôt que par mots-clés.
+- **Agents Basés sur des Règles (Rule-Based) :**
+  - Algorithmes déterministes fonctionnant sur une logique "SI/ALORS". Ils garantissent la précision mathématique et le respect strict des seuils de sécurité (ex: calcul d'indicateurs).
+- **Agents Basés sur les LLM (LLM-Based) :**
+  - Agents cognitifs utilisant un réseau de neurones (Llama 3.3) pour comprendre le contexte, nuancer des propos et prendre des décisions face à des informations complexes ou ambiguës.
+- **RAG (Retrieval-Augmented Generation) :**
+  - Architecture permettant d'injecter des données externes en temps réel (news fraîches) dans le "cerveau" de l'IA avant la génération d'une réponse, assurant une analyse ancrée dans l'actualité.
+- **LangChain :**
+  - Framework open-source conçu pour orchestrer les applications utilisant des LLM. Il permet de lier ensemble les modèles d'IA, les bases de données et les outils externes.
+- **LangGraph :**
+  - Extension de LangChain spécialisée dans la création de systèmes "cycliques" ou sous forme de graphes. C'est l'outil qui gère la logique de débat, le parallélisme et la mémoire d'état entre vos agents.
+
+---
+
+### Pipeline de Collecte de Données (Data Ingestion)
+*Le système repose sur un mécanisme d'ingestion hybride capable de traiter simultanément des flux de données numériques massifs (prix) et des flux textuels non structurés (actualités).*
+
+- **Données de Marché (CCXT & OHLCV) :** 
+  - **Source :** API Binance. **Outil :** Librairie `ccxt`.
+  - **Mécanisme :** Récupération en temps réel des bougies japonaises sur différents TimeFrames (15m, 1h, 4h, 1d).
+- **Données Textuelles (News Scraper) :** 
+  - **Sources :** Flux RSS officiels de **CoinTelegraph**, **NewsBTC**, **CryptoPotato** et **BeInCrypto**.
+  - **Outil :** Librairies `feedparser` (parsing) et `BeautifulSoup` (nettoyage HTML).
+
+### Pipeline RAG et Mémoire Vectorielle
+*Cette architecture transforme les actualités brutes en une mémoire sémantique interrogeable, permettant aux agents de contextualiser leurs décisions en fonction du climat informationnel global.*
+
+- **Orchestration :** Utilisation du framework **LangChain** pour lier le modèle LLM à la base vectorielle et gérer la récupération de documents.
+- **Vectorisation (Embeddings) :** Transformation du texte brut des actualités en vecteurs numériques via le modèle `sentence-transformers/all-MiniLM-L6-v2`.
+- **Stockage :** Hébergement des vecteurs dans PostgreSQL via `pgvector`.
+- **Recherche de Similarité (Retrieval) :** Utilisation de la distance vectorielle pour extraire les actualités les plus pertinentes via LangChain.
+
+### Architecture des Agents (Orchestration LangGraph)
+*Le cœur du projet utilise un graphe d'états sophistiqué où plusieurs intelligences collaborent, s'affrontent et se régulent pour atteindre un consensus de trading robuste.*
+
+- **Structure du Graphe (StateGraph) :** 
+  Contrairement aux pipelines linéaires, nous utilisons **LangGraph** pour permettre des boucles de rétroaction. Si le "Risk Manager" rejette un trade, le graphe peut rediriger le flux vers les agents d'analyse pour une ré-évaluation avec de nouveaux paramètres.
+- **Gestion de l'État (Le MASState) :** 
+  Conçu comme un objet typé contenant :
+  - `messages` : Historique complet des arguments échangés.
+  - `data` : Données OHLCV et news extraites.
+  - `signals` : Dictionnaire des votes de chaque agent (ex: `{"technical": "buy", "ml": "neutral"}`).
+  - `risk_params` : Niveaux de SL/TP calculés.
+
+- **Les Agents d'Analyse (Comité d'Experts) :**
+  *Ces agents agissent en parallèle pour maximiser la vitesse de traitement.*
+  - **Agent Technique (Rule-Based) :** 
+    Implémente une logique pondérée. Un signal d'achat n'est émis que si le RSI est inférieur à 30 (survente) ET qu'une divergence haussière est détectée sur le MACD.
+  - **Agent Sentiment (RAG + Llama 3) :** 
+    Ne se contente pas de lire les news. Il utilise le RAG pour extraire les 5 articles les plus pertinents des dernières 24h et demande au LLM : *"En te basant sur ces news, quel est l'impact probable sur le prix du BTC à court terme ? Réponds par un score de -1 (très baissier) à 1 (très haussier)."*
+  - **Agent ML (XGBoost) :** 
+    Fournit une probabilité statistique pure basée sur les 2000 dernières heures de trading, servant de "garde-fou" quantitatif aux analyses qualitatives des LLMs.
+
+- **Les Agents de Régulation & Résolution :**
+  - **Risk Manager (L'agent de sécurité) :** 
+    Il applique la règle mathématique du **2*ATR**. Si l'ATR (Average True Range) actuel est de 50$, le Stop-Loss sera placé à 100$ du prix d'entrée pour absorber le bruit du marché sans sortir prématurément. Il calcule également la taille de position pour ne jamais risquer plus de 1% du capital total par trade.
+  - **Avocat du Diable (Le Critique) :** 
+    Son rôle est de combattre le "biais de confirmation". Il reçoit tous les arguments positifs et a pour instruction système : *"Ta mission est de trouver toutes les raisons pour lesquelles ce trade pourrait échouer. Analyse les résistances techniques, les news négatives oubliées et les faiblesses des indicateurs."*
+  - **Coordinateur (L'Arbitre Final) :** 
+    Il reçoit le dossier final. Il pèse les arguments de chaque expert. Si l'Avocat du Diable soulève un point critique majeur, le Coordinateur peut décider d'un verdict "NEUTRAL" même si les autres agents sont optimistes, garantissant une approche de préservation du capital.
+
+### Exécution et Monitoring (Bridge & Binance)
+*Ce module assure la transition entre le monde virtuel du raisonnement de l'IA et le monde réel des transactions financières sur la blockchain.*
+
+- **L'Agent Executor (Rule-Based) :** Traduit le verdict en ordres réels via l'API Binance (CCXT).
+- **Monitoring Temps Réel :** Surveillance passive via WebSockets (`@miniTicker`) pour la fermeture automatique des positions sur SL/TP.
+
+### Le Chatbot Assistant IA (Llama 3.3)
+*L'interface utilisateur intègre un assistant conversationnel de pointe capable d'expliquer chaque décision de l'IA en s'appuyant sur l'intégralité des données du système.*
+
+- **Backend Orchestrator :** Utilisation du framework **LangChain** pour gérer l'historique et l'injection dynamique du contexte multi-sources (Trade + OHLCV + News + Débats).
+- **LLM Engine :** Modèle `Llama 3.3 70B-Versatile` via l'API **Groq**.
+- **Streaming :** Affichage fluide de la réponse via Server-Sent Events (SSE).

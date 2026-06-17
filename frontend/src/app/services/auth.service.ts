@@ -14,6 +14,7 @@ export interface User {
   proExpiry?: string;
   isProActive?: boolean;
   role: 'user' | 'admin';
+  executionMode?: 'manual' | 'automatic';
   isBanned?: boolean;
   banReason?: string;
   banExpires?: string;

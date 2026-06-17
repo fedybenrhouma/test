@@ -1,0 +1,40 @@
+Voici les compléments essentiels concernant le **Signal Agent** et le cycle d'entraînement **Machine Learning** à intégrer dans votre rapport :
+
+--------------------------------------------------
+1. DÉFINITION : SIGNAL AGENT (À ajouter en 1.4.3.2 ou 1.5.2)
+--------------------------------------------------
+*   **Signal Agent** : Agissant comme le rapporteur final du comité d'investissement, le Signal Agent est chargé de la synthèse décisionnelle. Il ne se contente pas de collecter les données ; il pondère les avis de l'agent technique (XGBoost) et de l'agent de sentiment (NLP) pour générer le signal final d'exécution (ACHAT, VENTE ou ATTENTE). Il assure la cohérence globale de la stratégie avant la transmission au Risk Manager.
+
+--------------------------------------------------
+2. DÉFINITION : CYCLE DE RÉ-ENTRAÎNEMENT (À ajouter en 1.4.2.1 ou 1.4.4.1)
+--------------------------------------------------
+*   **Auto-Retraining Pipeline** : Pour contrer le phénomène de "dérive du modèle" (Model Drift) lié à l'évolution constante des marchés, le système intègre un cycle d'apprentissage continu. Ce pipeline automatise la collecte de nouvelles données de marché et le ré-entraînement périodique du modèle XGBoost. Cela garantit que l'IA reste alignée sur le "régime" actuel du marché (bullish, bearish ou latéral) et ne se base pas sur des modèles obsolètes.
+
+--------------------------------------------------
+3. DIAGRAMME MERMAID MIS À JOUR (Signal Agent + Training)
+--------------------------------------------------
+Ce diagramme montre comment le Signal Agent s'insère dans le flux et comment le ré-entraînement alimente le système.
+
+graph TD
+    subgraph "Pipeline d'Apprentissage Continu"
+        Data[Collecte de Données] --> Train[Auto-Retrain.py]
+        Train --> ModelStore[(Modèles XGBoost mis à jour)]
+    end
+
+    subgraph "Flux de Décision (Temps Réel)"
+        Tech[Agent Technique] --> Signal[Signal Agent]
+        Sent[Agent Sentiment] --> Signal
+        ModelStore -.-> Tech
+        
+        Signal -->|Proposition de Trade| Devil[Avocat du Diable]
+        Devil -->|Validation| Risk[Risk Manager]
+        Risk --> Exec[Exécution CCXT]
+    end
+
+    style Signal fill:#f9f,stroke:#333,stroke-width:2px
+    style Train fill:#bbf,stroke:#333
+
+--------------------------------------------------
+CONSEIL RÉDACTIONNEL (L'apport du Signal Agent) :
+--------------------------------------------------
+Dans votre rapport, vous pouvez expliquer que le **Signal Agent** résout le problème du "conflit d'experts" : si l'IA technique dit "Acheter" mais que l'IA sentimentale dit "Vendre", c'est le Signal Agent qui utilise sa logique (ou un méta-modèle) pour trancher ou décider de ne pas prendre de risque.

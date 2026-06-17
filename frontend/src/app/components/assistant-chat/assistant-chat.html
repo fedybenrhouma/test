@@ -1,0 +1,76 @@
+<!-- Floating Trigger Button -->
+<button 
+  (click)="toggleChat()" 
+  class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#ef233c] text-white shadow-[0_10px_40px_rgba(239,35,60,0.5)] z-[9999] flex items-center justify-center hover:scale-110 active:scale-95 transition-all border-none cursor-pointer group"
+>
+  <iconify-icon [icon]="isOpen ? 'lucide:x' : 'lucide:message-circle'" class="text-2xl group-hover:rotate-12 transition-transform"></iconify-icon>
+  <span *ngIf="!isOpen" class="absolute -top-1 -right-1 flex h-4 w-4">
+    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+    <span class="relative inline-flex rounded-full h-4 w-4 bg-white text-[#ef233c] text-[10px] font-black items-center justify-center">1</span>
+  </span>
+</button>
+
+<!-- Chat Window -->
+<div 
+  *ngIf="isOpen" 
+  class="fixed bottom-24 right-6 w-[90%] max-w-[400px] h-[600px] bg-surface-2 border border-border rounded-2xl shadow-[0_30px_90px_rgba(0,0,0,0.6)] z-[9999] flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out] backdrop-blur-xl"
+>
+  <!-- Header -->
+  <div class="p-5 border-b border-border bg-[#111] flex items-center gap-4">
+    <div class="w-10 h-10 rounded-xl bg-[#ef233c]/10 flex items-center justify-center border border-[#ef233c]/20 text-[#ef233c]">
+      <iconify-icon icon="lucide:bot" class="text-xl"></iconify-icon>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-sm font-black text-text-1 uppercase tracking-wider m-0">Hive-Mind Assistant</h3>
+      <div class="flex items-center gap-1.5 mt-0.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+        <span class="text-[9px] text-text-3 font-bold uppercase tracking-widest">Active Intelligence</span>
+      </div>
+    </div>
+    <button (click)="toggleChat()" class="text-text-3 hover:text-white transition-colors bg-transparent border-none cursor-pointer">
+      <iconify-icon icon="lucide:minimize-2"></iconify-icon>
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div #scrollContainer class="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth">
+    <div *ngFor="let msg of messages" class="flex" [ngClass]="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+      <div 
+        class="max-w-[85%] p-3.5 rounded-2xl text-[13px] leading-relaxed"
+        [ngClass]="msg.role === 'user' ? 'bg-[#ef233c] text-white rounded-tr-none shadow-lg shadow-[#ef233c]/10' : 'bg-surface border border-border text-text-2 rounded-tl-none'"
+      >
+        {{ msg.content }}
+      </div>
+    </div>
+    
+    <div *ngIf="isTyping" class="flex justify-start">
+      <div class="bg-surface border border-border text-text-3 p-3.5 rounded-2xl rounded-tl-none flex items-center gap-2">
+        <span class="w-1 h-1 bg-text-3 rounded-full animate-bounce"></span>
+        <span class="w-1 h-1 bg-text-3 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+        <span class="w-1 h-1 bg-text-3 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="p-4 border-t border-border bg-[#0a0a0a]">
+    <form (submit)="sendMessage()" class="relative">
+      <input 
+        type="text" 
+        [(ngModel)]="userInput" 
+        name="userInput"
+        [placeholder]="isTyping ? 'Orchestrating response...' : 'Ask about your trades...'"
+        class="w-full bg-[#111] border border-border rounded-xl py-3.5 pl-4 pr-12 text-sm font-medium text-text-1 outline-none focus:border-[#ef233c] transition-all"
+        [disabled]="isTyping"
+      >
+      <button 
+        type="submit" 
+        [disabled]="!userInput.trim() || isTyping"
+        class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-[#ef233c] text-white flex items-center justify-center hover:bg-[#d90429] transition-all disabled:opacity-20"
+      >
+        <iconify-icon icon="lucide:send" class="text-lg"></iconify-icon>
+      </button>
+    </form>
+    <p class="text-[9px] text-text-3 mt-3 text-center uppercase tracking-widest font-bold opacity-50">Powered by Llama 3.3 70B Neural Network</p>
+  </div>
+</div>

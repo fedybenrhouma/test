@@ -59,8 +59,21 @@ router.post('/:id/chat', verifyToken, async (req, res) => {
             order: [['created_at', 'ASC']]
         });
 
+        // 4b. Fetch news articles related to the asset (from around trade creation)
+        const newsArticles = await sequelize.query(
+            `SELECT title, content AS summary, created_at FROM crypto_news_embeddings 
+             WHERE asset = :symbol AND created_at <= :entryTime
+             ORDER BY created_at DESC LIMIT 10`,
+            {
+                replacements: { 
+                    symbol: trade.asset.split('/')[0], 
+                    entryTime: trade.created_at 
+                },
+                type: QueryTypes.SELECT
+            }
+        );
+
         // 5. Build context string (with limits to prevent rate-limit/token issues)
-        // If there are too many candles during the trade, take the first 24 and the last 24.
         let formattedCandlesDuring = candlesDuring;
         let skippedCandlesMessage = '';
         if (candlesDuring.length > 48) {
@@ -91,6 +104,9 @@ ${formattedCandlesDuring.map(c => c.open === undefined ? c.open_time : `[${c.ope
 
 AGENT DEBATE LOG:
 ${debateMessages.map(m => `[${m.agent_name}]: ${m.content}`).join('\n\n')}
+
+RELEVANT NEWS ARTICLES (AT TIME OF TRADE):
+${newsArticles.length > 0 ? newsArticles.map(n => `- [${n.created_at}] ${n.title}: ${n.summary?.substring(0, 150)}...`).join('\n') : 'No specific news articles found for this asset period.'}
 `;
 
         // 6. Send to Groq with streaming
@@ -102,13 +118,13 @@ ${debateMessages.map(m => `[${m.agent_name}]: ${m.content}`).join('\n\n')}
             messages: [
                 {
                     role: 'system',
-                    content: `You are a Senior Trading Analyst assistant. You have access to trade execution data, market context (OHLCV), and the internal AI agent debate for this trade. 
+                    content: `You are a Senior Trading Analyst assistant. You have access to trade execution data, market context (OHLCV history), relevant news from the RAG pipeline, and the internal AI agent debate for this trade. 
                     
                     Your role:
-                    1. Answer the user's specific question concisely using the provided data.
-                    2. If they say 'hi' or greet you, be friendly and briefly offer to explain the trade's entry, risk, or market context.
-                    3. Only provide a deep "Why" analysis if they ask for it or ask a relevant question.
-                    4. Use the context to back up your claims with specific price levels or agent signals.`
+                    1. Answer the user's specific question using the provided facts and data.
+                    2. Be accurate: if the news was negative, mention it. If the technicals show a trend reversal in the candles, point it out.
+                    3. Refer to specific agents (e.g., 'The Sentiment Analyst noted...') to give weight to your analysis.
+                    4. Keep a professional, data-driven, yet accessible tone.`
                 },
                 {
                     role: 'user',
@@ -137,6 +153,36 @@ ${debateMessages.map(m => `[${m.agent_name}]: ${m.content}`).join('\n\n')}
             res.write(`data: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`);
             res.end();
         }
+    }
+});
+
+// PATCH /api/trades/:id
+router.patch('/:id', verifyToken, async (req, res) => {
+    const { id } = req.params;
+    const { stop_loss, take_profit } = req.body;
+
+    try {
+        const trade = await Trade.findOne({
+            where: { id, user_id: req.user.id, status: 'open' }
+        });
+
+        if (!trade) {
+            return res.status(404).json({ success: false, message: 'Open trade not found' });
+        }
+
+        if (stop_loss !== undefined) trade.stop_loss = stop_loss;
+        if (take_profit !== undefined) trade.take_profit = take_profit;
+
+        await trade.save();
+
+        return res.status(200).json({
+            success: true,
+            message: 'Trade protection levels updated successfully',
+            trade
+        });
+    } catch (error) {
+        console.error('Update trade error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update trade' });
     }
 });
 

@@ -1,0 +1,94 @@
+================================================================================
+CONSOLIDATION DU RAPPORT PFE - SYSTÈME DE TRADING MULTI-AGENTS (CRYPTO-MAS)
+================================================================================
+
+SOMMAIRE :
+1. CHAPITRE 2 : ANALYSE ET CONCEPTION ARCHITECTURALE
+2. CHAPITRE 3 : RELEASE 1 - CRÉATION DU MODÈLE DE SIGNAL ML (SPRINT 2)
+3. CHAPITRE 4 : RELEASE 2 - ARCHITECTURE ET IMPLÉMENTATION MAS (SPRINT 3)
+
+================================================================================
+1. CHAPITRE 2 : ANALYSE ET CONCEPTION ARCHITECTURALE
+================================================================================
+
+2.5. Architecture proposée du système
+Pour répondre aux exigences de performance, de scalabilité et d'intelligence en temps réel, nous avons conçu une architecture robuste basée sur une approche micro-services et un système multi-agents (MAS). Cette architecture est découpée en quatre couches logiques interdépendantes :
+
+2.5.1. Couche Présentation (Frontend - Expérience Utilisateur)
+Développée avec Angular 20, cette couche constitue le point d'entrée pour l'utilisateur :
+- Visualisation Avancée : Intégration des graphiques financiers via TradingView LightWeight Charts.
+- Temps Réel Bidirectionnel : Utilisation de Socket.io pour recevoir instantanément les logs de débats des agents.
+- Design System : Mise en œuvre de Tailwind CSS pour une interface responsive et moderne.
+
+2.5.2. Couche Application (Backend - Orchestrateur de Services)
+Propulsé par Node.js et Express 5 :
+- Sécurité : Authentification via JWT et chiffrement AES-256 des clés API Binance des utilisateurs.
+- Gestion des Transactions : Intégration de Stripe pour la monétisation.
+- Passerelle de Streaming : Développement d'un "Bridge" capturant le flux de sortie des agents Python.
+
+2.5.3. Couche Intelligence Artificielle (Système Multi-Agents - Le Cerveau)
+Développé en Python 3.11, il repose sur une architecture de graphe cyclique :
+- Orchestration LangGraph : Chaque agent est un nœud d'un graphe d'état (MASState).
+- Pipeline RAG : Utilisation de LangChain et pgvector pour injecter les actualités en temps réel dans les LLMs.
+- Modèles Hybrides : Combinaison de modèles prédictifs (XGBoost) et cognitifs (Llama 3.3).
+
+2.5.4. Infrastructure et Persistance (Le Socle)
+- Nginx : Reverse proxy assurant la terminaison SSL/TLS.
+- Docker & Docker Compose : Conteneurisation complète pour la portabilité.
+- Base de Données Vectorielle : PostgreSQL + pgvector pour le stockage hybride.
+- Redis Cache : Gestion des prix en temps réel et soulagement de la base de données.
+
+[INSÉRER DIAGRAMME D'ARCHITECTURE GÉNÉRALE ICI]
+
+================================================================================
+2. CHAPITRE 3 : RELEASE 1 - CRÉATION DU MODÈLE DE SIGNAL ML (SPRINT 2)
+================================================================================
+
+3.1. Pilotage avec la méthode CRISP-DM
+
+3.1.1. Compréhension du problème métier
+L'objectif est de minimiser le risque de perte en capital face à l'extrême volatilité crypto. Nous avons défini une approche de classification binaire stricte : le modèle doit identifier les opportunités d'achat uniquement lorsqu'il y a une forte probabilité de hausse (>0.5% en 3h).
+
+3.1.2. Préparation des données (Feature Engineering)
+Le "Feature Engineering" enrichit le dataset avec des indicateurs mathématiques :
+- RSI & Stochastique (Momentum)
+- MACD & EMA Ratio (Tendance)
+- Bandes de Bollinger & ATR (Volatilité)
+Nettoyage : Suppression des valeurs manquantes (NaN) générées par les indicateurs techniques.
+
+3.1.3. Création et évaluation (XGBoost)
+Nous avons sélectionné XGBoost pour sa performance sur les données tabulaires.
+Résultats : Accuracy de 86.46%. Le modèle adopte un comportement conservateur (priorité à la précision sur la classe 0), ce qui est un avantage majeur pour la préservation du capital en trading réel.
+
+[INSÉRER FIGURES 3.1 A 3.5 ICI]
+
+================================================================================
+3. CHAPITRE 4 : RELEASE 2 - ARCHITECTURE ET IMPLÉMENTATION MAS (SPRINT 3)
+================================================================================
+
+4.1. Architecture des Agents (Orchestration LangGraph)
+Le cœur du projet utilise un graphe d'états où plusieurs intelligences collaborent et se régulent.
+
+4.1.1. Les Agents d'Analyse (Comité d'Experts)
+- Agent Technique (Rule-Based) : Logique pondérée RSI/MACD.
+- Agent Sentiment (RAG + Llama 3) : Analyse de l'impact des news via recherche sémantique.
+- Agent ML (XGBoost) : Probabilité statistique pure.
+
+4.1.2. Les Agents de Régulation & Résolution
+- Risk Manager : Applique la règle mathématique du 2*ATR pour le Stop-Loss et calcule la taille de position (règle du 1% de risque).
+- Avocat du Diable : Challenger cognitif chargé de détecter les faux signaux et les biais de confirmation.
+- Coordinateur : Arbitre final synthétisant tous les signaux pour produire le consensus final.
+
+4.1.3. Concepts de Persistance (pgvector)
+Chaque trade et chaque actualité sont transformés en vecteurs numériques (Embeddings). Cela permet au système de comparer la situation actuelle avec sa "mémoire" des trades passés pour éviter de répéter les mêmes erreurs.
+
+[INSÉRER DIAGRAMME DE CLASSES FINAL ICI]
+
+================================================================================
+RÈGLES DE GESTION GÉNÉRALES
+================================================================================
+1. RG-01 (Sécurité) : Chiffrement AES-256 des secrets Binance.
+2. RG-02 (Décision) : Consensus requis avec score de confiance > 70%.
+3. RG-03 (Risque) : SL/TP obligatoires et calculés selon l'ATR.
+4. RG-04 (Mémoire) : Archivage vectoriel systématique à la clôture d'un trade.
+================================================================================

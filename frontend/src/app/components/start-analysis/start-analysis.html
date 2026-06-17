@@ -1,0 +1,211 @@
+<div class="max-w-4xl mx-auto px-4 py-12 md:py-20 animate-[fadeIn_0.5s_ease]">
+  
+  <!-- Header -->
+  <div class="mb-12 text-center">
+    <h1 class="text-3xl md:text-5xl font-display font-black text-white tracking-tight mb-3">
+      Launch Analysis
+    </h1>
+    <p class="text-text-3 text-base">Select an asset and trigger the multi-agent reasoning protocol.</p>
+  </div>
+
+  <!-- Stepper Navigation -->
+  <div class="flex items-center justify-center mb-12">
+    <div class="flex items-center gap-4">
+      <!-- Step 1 Indicator -->
+      <div class="flex flex-col items-center gap-2 cursor-pointer" (click)="setStep(1)">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all"
+             [class]="currentStep >= 1 ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,35,60,0.4)]' : 'bg-surface-2 text-text-3 border border-border'">
+          1
+        </div>
+        <span class="text-[10px] uppercase tracking-widest font-bold" [class]="currentStep >= 1 ? 'text-white' : 'text-text-3'">Asset</span>
+      </div>
+      
+      <!-- Divider -->
+      <div class="w-16 h-px" [class]="currentStep >= 2 ? 'bg-red-500' : 'bg-border'"></div>
+
+      <!-- Step 2 Indicator -->
+      <div class="flex flex-col items-center gap-2 cursor-pointer" (click)="selectedCoin ? setStep(2) : null">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all"
+             [class]="currentStep >= 2 ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,35,60,0.4)]' : 'bg-surface-2 text-text-3 border border-border'">
+          2
+        </div>
+        <span class="text-[10px] uppercase tracking-widest font-bold" [class]="currentStep >= 2 ? 'text-white' : 'text-text-3'">Params</span>
+      </div>
+
+      <!-- Divider -->
+      <div class="w-16 h-px" [class]="currentStep === 3 ? 'bg-red-500' : 'bg-border'"></div>
+
+      <!-- Step 3 Indicator -->
+      <div class="flex flex-col items-center gap-2 cursor-pointer" (click)="selectedCoin ? setStep(3) : null">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all"
+             [class]="currentStep === 3 ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,35,60,0.4)]' : 'bg-surface-2 text-text-3 border border-border'">
+          3
+        </div>
+        <span class="text-[10px] uppercase tracking-widest font-bold" [class]="currentStep === 3 ? 'text-white' : 'text-text-3'">Confirm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Card Container -->
+  <div class="bg-surface/80 backdrop-blur-2xl border border-white/5 rounded-3xl shadow-2xl overflow-hidden relative min-h-[400px]">
+    
+    <!-- Decorative background glow -->
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-red-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- ============================================== -->
+    <!-- STEP 1: ASSET SELECTION -->
+    <!-- ============================================== -->
+    <div *ngIf="currentStep === 1" class="p-8 md:p-12 animate-[fadeIn_0.3s_ease]">
+      
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-white mb-2">Select an Asset</h2>
+        <p class="text-sm text-text-3">Search for a specific coin or choose from popular assets.</p>
+      </div>
+
+      <!-- Search Input -->
+      <div class="relative mb-8 z-50">
+        <iconify-icon icon="lucide:search" class="absolute left-4 top-1/2 -translate-y-1/2 text-text-3 w-5 h-5"></iconify-icon>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (ngModelChange)="onSearch()" 
+          placeholder="Search e.g. Bitcoin, SOL..." 
+          class="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-red-500 transition-colors">
+        
+        <!-- Search Results Dropdown -->
+        <div *ngIf="searchResults.length > 0" class="absolute top-full left-0 right-0 mt-2 bg-surface border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-[slideDown_0.2s_ease]">
+          <div *ngFor="let coin of searchResults" 
+               (click)="selectCoin(coin)"
+               class="flex items-center gap-4 p-4 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-none group">
+            <img [src]="coin.image" class="w-8 h-8 rounded-full">
+            <div class="flex-1">
+              <div class="text-sm font-bold text-white group-hover:text-red-500">{{ coin.name }}</div>
+              <div class="text-[10px] text-text-3 uppercase">{{ coin.symbol }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Popular Assets Grid -->
+      <div *ngIf="searchResults.length === 0">
+        <p class="text-xs font-bold text-text-3 uppercase tracking-widest mb-4">Popular Assets</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <button *ngFor="let coin of popularCoins" 
+                  (click)="selectCoin(coin)"
+                  class="flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-red-500/50 hover:bg-red-500/5 transition-all group">
+            <img [src]="coin.image" class="w-10 h-10 rounded-full filter grayscale group-hover:grayscale-0 transition-all">
+            <span class="text-sm font-bold text-white group-hover:text-red-500">{{ coin.symbol | uppercase }}</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================== -->
+    <!-- STEP 2: PARAMETERS -->
+    <!-- ============================================== -->
+    <div *ngIf="currentStep === 2" class="p-8 md:p-12 animate-[fadeIn_0.3s_ease]">
+      
+      <!-- Selected Asset Header -->
+      <div class="flex items-center justify-between p-4 bg-black/40 border border-white/5 rounded-2xl mb-8">
+        <div class="flex items-center gap-4">
+          <img [src]="selectedCoin?.image" class="w-10 h-10 rounded-full">
+          <div>
+            <h3 class="text-base font-bold text-white">{{ selectedCoin?.name }}</h3>
+            <p class="text-xs text-text-3 uppercase">{{ selectedCoin?.symbol }} / USDT</p>
+          </div>
+        </div>
+        <button (click)="resetSelection()" class="text-xs text-text-3 hover:text-red-500 font-bold uppercase tracking-wider transition-colors">
+          Change
+        </button>
+      </div>
+
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-white mb-2">Execution Parameters</h2>
+        <p class="text-sm text-text-3">Define the horizon and simulated margin for the agents.</p>
+      </div>
+
+      <div class="space-y-8">
+        <!-- Timeframe -->
+        <div>
+          <label class="text-xs font-bold text-text-3 uppercase tracking-widest mb-4 block">Analysis Horizon</label>
+          <div class="flex flex-wrap gap-4">
+            <button *ngFor="let tf of ['15m', '1h', '4h', '1d']" 
+                    (click)="selectedTimeframe = tf"
+                    [class]="selectedTimeframe === tf ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-500/20' : 'bg-white/[0.02] text-text-3 border-white/5 hover:border-white/20'"
+                    class="px-8 py-3 rounded-xl text-sm font-bold border transition-all cursor-pointer">
+              {{ tf }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Margin -->
+        <div>
+          <label class="text-xs font-bold text-text-3 uppercase tracking-widest mb-4 block">Virtual Margin ($)</label>
+          <div class="relative max-w-sm">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-text-3 font-mono text-base">$</span>
+            <input type="number" 
+                   [(ngModel)]="manualMargin" 
+                   class="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-lg font-bold text-white outline-none focus:border-red-500 transition-colors">
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Button -->
+      <div class="mt-10 flex justify-end">
+        <button (click)="setStep(3)" class="px-8 py-3 rounded-xl bg-white text-black font-black uppercase tracking-wider hover:bg-gray-200 transition-colors">
+          Review & Launch
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ============================================== -->
+    <!-- STEP 3: SUMMARY & LAUNCH -->
+    <!-- ============================================== -->
+    <div *ngIf="currentStep === 3" class="p-8 md:p-12 animate-[fadeIn_0.3s_ease]">
+      
+      <div class="mb-8 text-center">
+        <h2 class="text-2xl font-black text-white mb-2">Pre-Flight Checklist</h2>
+        <p class="text-sm text-text-3">Review parameters before authorizing agent execution.</p>
+      </div>
+
+      <!-- Summary Box -->
+      <div class="bg-black/40 border border-red-500/20 rounded-2xl p-6 mb-10 max-w-lg mx-auto">
+        <div class="flex items-center gap-6 mb-6 pb-6 border-b border-white/5">
+          <img [src]="selectedCoin?.image" class="w-16 h-16 rounded-full shadow-[0_0_15px_rgba(239,35,60,0.3)]">
+          <div>
+            <h3 class="text-2xl font-black text-white">{{ selectedCoin?.symbol | uppercase }}/USDT</h3>
+            <p class="text-sm text-green-500 font-mono">Current: ${{ selectedCoin?.current_price | number:'1.2-2' }}</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-y-4">
+          <div class="text-text-3 text-xs uppercase tracking-widest">Horizon</div>
+          <div class="text-white font-bold text-right">{{ selectedTimeframe }}</div>
+          
+          <div class="text-text-3 text-xs uppercase tracking-widest">Virtual Margin</div>
+          <div class="text-white font-bold font-mono text-right">${{ manualMargin | number }}</div>
+          
+          <div class="text-text-3 text-xs uppercase tracking-widest">Active Agents</div>
+          <div class="text-white font-bold text-right">7 Modules</div>
+        </div>
+      </div>
+
+      <!-- Launch Button -->
+      <div class="text-center max-w-sm mx-auto">
+        <button 
+          (click)="startAnalysis()" 
+          [disabled]="isStarting"
+          class="w-full relative overflow-hidden rounded-2xl bg-red-500 text-white py-5 font-black uppercase tracking-[0.2em] text-sm transition-all hover:scale-[1.02] shadow-[0_10px_40px_rgba(239,35,60,0.3)] disabled:opacity-50 disabled:scale-100 flex justify-center items-center gap-3">
+          <iconify-icon *ngIf="!isStarting" icon="lucide:fingerprint" class="w-5 h-5"></iconify-icon>
+          <span *ngIf="isStarting" class="animate-spin w-5 h-5 border-2 border-white/30 border-t-white rounded-full"></span>
+          {{ isStarting ? 'Authenticating...' : 'Authorize Execution' }}
+        </button>
+        <p class="text-[10px] text-text-3 mt-4">By authorizing, you trigger the Hive-Mind ML and NLP pipelines.</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>

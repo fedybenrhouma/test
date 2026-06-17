@@ -1,0 +1,80 @@
+# Analyse Détaillée des Cas d'Utilisation (Acteur : Utilisateur)
+
+---
+
+**Nom du cas** : Démarrer une analyse
+**Objectif** : Permettre à l’utilisateur de lancer manuellement un cycle de réflexion des agents sur un actif spécifique.
+**Acteurs** : Utilisateur
+**Pré condition** : L'utilisateur doit être connecté à son compte.
+**Post condition** : 
+- Le système multi-agents est activé pour l'actif choisi.
+- Un nouveau cycle de débat est initialisé en base de données.
+**Scénario principale** : 
+• L'utilisateur accède à la page "Analysis" ou utilise le bouton d'analyse depuis la liste des marchés.
+• L'utilisateur sélectionne l'actif (ex: BTC/USDT), choisit le TimeFrame (ex: 1h) et saisit le montant de l'investissement souhaité.
+• L'application vérifie la validité des informations saisies.
+• Si les paramètres sont valides :
+   - L'application envoie une requête de démarrage au serveur backend.
+   - Le backend lance l'exécution de l'orchestrateur LangGraph avec les agents spécialisés.
+   - L'application affiche un message confirmant le lancement du débat.
+• L'utilisateur est redirigé vers le Dashboard pour suivre l'évolution en temps réel.
+
+---
+
+**Nom du cas** : Choisir le mode (Auto ou Manuel)
+**Objectif** : Permettre à l’utilisateur de définir si le système doit exécuter les trades de manière autonome ou attendre une action humaine.
+**Acteurs** : Utilisateur
+**Pré condition** : L'utilisateur doit être connecté et se trouver sur le Dashboard.
+**Post condition** : 
+- La préférence de mode d'exécution est mise à jour dans le profil de l'utilisateur.
+- Le comportement futur de l'Agent Exécuteur est modifié.
+**Scénario principale** : 
+• L'utilisateur localise le sélecteur de mode (Manuel / Automatique) dans l'en-tête du Dashboard.
+• L'utilisateur clique sur le bouton correspondant au mode souhaité.
+• L'application envoie une mise à jour de préférence au backend via l'API.
+• Le backend enregistre le nouveau mode (Manual ou Automatic) dans la base de données pour cet utilisateur.
+• L'interface utilisateur met à jour l'affichage pour confirmer visuellement le mode actif (ex: bouton rouge pour Auto).
+• Si le mode "Automatique" est activé, le système prévient l'utilisateur que les prochains signaux de consensus seront exécutés sans confirmation.
+
+---
+
+**Nom du cas** : Gérer les trades (Clôturer/Modifier/Analyser)
+**Objectif** : Offrir à l’utilisateur le contrôle total sur ses positions et lui permettre de discuter avec un assistant IA pour comprendre l'état de ses trades.
+**Acteurs** : Utilisateur, Assistant Chatbot (IA)
+**Pré condition** : L'utilisateur doit posséder au moins une position ouverte (Status: Open).
+**Post condition** : 
+- La position est clôturée, modifiée, ou l'utilisateur a reçu des conseils stratégiques via le chatbot.
+- Le statut du trade est mis à jour dans le système.
+**Scénario principale** : 
+• L'utilisateur se rend dans la section "Trades" pour voir ses positions actives.
+• L'utilisateur peut effectuer trois actions majeures :
+   1. **Clôturer le trade** : L'utilisateur clique sur "Close Trade", confirme le P&L affiché, et le backend ordonne la vente immédiate à l'Agent Exécuteur.
+   2. **Modifier les protections** : L'utilisateur clique sur "Edit SL/TP", saisit de nouveaux prix, et le système met à jour la surveillance en temps réel.
+   3. **Analyser avec le Chatbot** :
+      - L'utilisateur clique sur le bouton "Analyze" situé sur la ligne d'un trade spécifique.
+      - Une fenêtre de chat (Modal) s'ouvre, connectée à un **Assistant Chatbot IA** spécialisé.
+      - **Origine des données** : Le système injecte dynamiquement un contexte ultra-précis dans le chatbot :
+         1. **Données du Trade** : Prix d'entrée, levier, P&L actuel et direction.
+         2. **Historique des Prix** : Les dernières bougies (OHLCV) pour que l'IA comprenne la tendance technique actuelle.
+         3. **Sources d'Actualités (RAG)** : Les articles et news exacts scannés par l'Agent Sentiment lors du débat initial.
+         4. **Mémoire du Débat** : L'intégralité des arguments échangés par les agents MAS.
+      - L'utilisateur pose des questions libres (ex: "Quelles news ont poussé les agents à acheter ?", "Le prix a baissé depuis mon entrée, est-ce une correction normale selon l'historique ?").
+      - Le chatbot répond de manière factuelle en citant les sources d'informations utilisées par le système.
+• Le système confirme chaque action réussie par une notification visuelle.
+
+---
+
+**Nom du cas** : Voir l'historique des débats
+**Objectif** : Permettre à l'utilisateur de consulter les détails et le raisonnement des analyses passées.
+**Acteurs** : Utilisateur
+**Pré condition** : L'utilisateur doit être connecté.
+**Post condition** : L'utilisateur accède à la liste exhaustive des réflexions menées par l'IA.
+**Scénario principale** : 
+• L'utilisateur demande l'interface "Debates" ou consulte la section historique du Dashboard.
+• L'application récupère la liste des cycles de débats enregistrés pour cet utilisateur.
+• L'utilisateur sélectionne un débat spécifique dans la liste.
+• Le système affiche le détail complet :
+   - L'actif et le TimeFrame analysés.
+   - La décision finale (Consensus).
+   - L'intégralité des messages échangés par les différents agents (Tech, Sentiment, Coordinateur).
+• L'utilisateur peut ainsi comprendre pourquoi une décision d'achat ou de vente a été prise à un moment précis.

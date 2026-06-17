@@ -27,12 +27,18 @@ async def run_test():
     timeframe = os.getenv("TIMEFRAME", "1h")
     user_id = os.getenv("USER_ID", "00000000-0000-0000-0000-000000000000")
     
+    # Get manual entry parameters
+    target_price = os.getenv("TARGET_PRICE")
+    margin = os.getenv("MARGIN")
+    
     # 1. Define initial state
     initial_state: MASState = {
         "user_id": user_id,  
         "cycle_id": f"test_{uuid.uuid4().hex[:8]}",
         "asset": asset,
         "timeframe": timeframe,
+        "target_price": float(target_price) if target_price else None,
+        "margin": float(margin) if margin else None,
         "messages": [],
         "debate_round": 0,
         "consensus_reached": False,

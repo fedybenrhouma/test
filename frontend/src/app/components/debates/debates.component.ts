@@ -1,6 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
+import { SocketService } from '../../services/socket.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-debates',
@@ -10,25 +12,51 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./debates.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class DebatesComponent implements OnInit {
+export class DebatesComponent implements OnInit, OnDestroy {
   debates: any[] = [];
+  liveMessages: any[] = [];
   isLoading = true;
   expandedDebateId: string | null = null;
+  private socketSub: Subscription | null = null;
 
   constructor(
     private userService: UserService,
+    private socketService: SocketService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.fetchDebates();
+
+    // Listen for live agent messages
+    this.socketSub = this.socketService.listen<any>('agent_message').subscribe(data => {
+      console.log('Live Agent Message:', data);
+      this.liveMessages.push({
+         text: data.message,
+         asset: data.asset,
+         time: data.timestamp
+      });
+      this.cdr.markForCheck();
+    });
+
+    this.socketService.listen<any>('agent_debate_completed').subscribe(data => {
+       console.log('Debate completed:', data);
+       // Refresh debates from DB when a cycle finishes
+       this.fetchDebates();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.socketSub) {
+      this.socketSub.unsubscribe();
+    }
   }
 
   fetchDebates(): void {
     this.isLoading = true;
     this.userService.getDebates().subscribe({
       next: (response) => {
-        this.debates = response.debates;
+        this.debates = response.debates || [];
         this.isLoading = false;
         this.cdr.markForCheck();
       },

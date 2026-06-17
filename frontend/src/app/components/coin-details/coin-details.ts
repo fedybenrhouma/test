@@ -2,11 +2,13 @@ import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, CUSTOM_ELEME
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CryptoMarketService } from '../../services/crypto-market.service';
+import { AnalysisModalComponent } from '../analysis-modal/analysis-modal';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-coin-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AnalysisModalComponent],
   templateUrl: './coin-details.html',
   styleUrl: './coin-details.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -18,10 +20,15 @@ export class CoinDetails implements OnInit {
   error: string | null = null;
   Math = Math;
 
+  // Analysis Modal State
+  showAnalysisModal = false;
+  isAuthenticated = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private cryptoService: CryptoMarketService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
@@ -32,6 +39,11 @@ export class CoinDetails implements OnInit {
         this.coinId = params['name'];
         this.fetchCoinDetails();
       }
+    });
+
+    this.authService.isAuthenticated$.subscribe(auth => {
+      this.isAuthenticated = auth;
+      this.cdr.markForCheck();
     });
   }
 
@@ -71,5 +83,18 @@ export class CoinDetails implements OnInit {
     } else {
       this.router.navigate(['/coin', this.coinId, 'chart']);
     }
+  }
+
+  openAnalysis() {
+    if (!this.isAuthenticated) {
+      this.authService.triggerLoginModal();
+      return;
+    }
+    this.showAnalysisModal = true;
+    this.cdr.markForCheck();
+  }
+
+  onAnalysisStarted() {
+    console.log('Analysis started from Coin Details');
   }
 }

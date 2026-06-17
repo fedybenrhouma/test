@@ -43,6 +43,7 @@
           <th class="p-4 text-[11px] font-bold text-text-3 uppercase tracking-widest text-right">7d %</th>
           <th class="p-4 text-[11px] font-bold text-text-3 uppercase tracking-widest text-right">Market Cap</th>
           <th class="p-4 text-[11px] font-bold text-text-3 uppercase tracking-widest text-right">Volume</th>
+          <th class="p-4 text-[11px] font-bold text-text-3 uppercase tracking-widest text-right">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -80,6 +81,11 @@
           
           <td class="p-4 text-right font-mono text-[13px] text-text-2">{{ formatMarketCap(coin.market_cap) }}</td>
           <td class="p-4 text-right font-mono text-[13px] text-text-2">{{ formatVolume(coin.total_volume) }}</td>
+          <td class="p-4 text-right">
+            <button (click)="analyzeCoin($event, coin)" class="px-4 py-1.5 rounded-lg bg-[#ef233c]/10 text-[#ef233c] border border-[#ef233c]/30 text-[10px] font-bold uppercase tracking-wider hover:bg-[#ef233c] hover:text-white transition-all">
+              Analyze
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -100,3 +106,10 @@
     <p class="text-text-3 font-mono uppercase tracking-widest">No data available</p>
   </div>
 </div>
+
+<app-analysis-modal 
+  [isOpen]="showAnalysisModal" 
+  [asset]="selectedAssetForAnalysis"
+  (close)="showAnalysisModal = false"
+  (analysisStarted)="onAnalysisStarted()">
+</app-analysis-modal>

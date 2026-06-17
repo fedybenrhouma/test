@@ -1,12 +1,13 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { TradeChatComponent } from '../trade-chat/trade-chat.component';
 
 @Component({
   selector: 'app-trades',
   standalone: true,
-  imports: [CommonModule, TradeChatComponent],
+  imports: [CommonModule, FormsModule, TradeChatComponent],
   templateUrl: './trades.component.html',
   styleUrls: ['./trades.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -23,7 +24,11 @@ export class TradesComponent implements OnInit, OnDestroy {
 
   // Modal State
   showCloseModal = false;
+  showEditModal = false;
   tradeToClose: any = null;
+  tradeToEdit: any = null;
+  editSl: number = 0;
+  editTp: number = 0;
   livePrice: number | null = null;
   livePnl: number | null = null;
   ws: WebSocket | null = null;
@@ -173,6 +178,39 @@ export class TradesComponent implements OnInit, OnDestroy {
     this.tradeToClose = null;
     this.cleanupWebSocket();
     this.cdr.markForCheck();
+  }
+
+  openEditModal(trade: any): void {
+    this.tradeToEdit = trade;
+    this.editSl = parseFloat(trade.stop_loss);
+    this.editTp = parseFloat(trade.take_profit);
+    this.showEditModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.tradeToEdit = null;
+    this.cdr.markForCheck();
+  }
+
+  confirmEditTrade(): void {
+    if (!this.tradeToEdit) return;
+
+    this.userService.updateTrade(this.tradeToEdit.id, {
+      stop_loss: this.editSl,
+      take_profit: this.editTp
+    }).subscribe({
+      next: (res) => {
+        alert('Trade protection levels updated successfully!');
+        this.closeEditModal();
+        this.fetchTrades();
+      },
+      error: (err) => {
+        console.error('Error updating trade:', err);
+        alert('Failed to update trade. Check console.');
+      }
+    });
   }
 
   cleanupWebSocket(): void {

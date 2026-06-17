@@ -1,0 +1,101 @@
+Voici une série de diagrammes Mermaid.js pour votre section "État de l'art". Ils ont été conçus pour être plus généraux et théoriques, illustrant les concepts académiques plutôt que l'implémentation spécifique de votre code.
+
+--------------------------------------------------
+1. ÉVOLUTION DES SYSTÈMES DE TRADING
+Emplacement : Section 1.4.1 (Introduction des méthodes)
+Description : Illustre le passage d'une logique rigide à une logique apprenante puis collaborative.
+--------------------------------------------------
+graph LR
+    subgraph "Approche Classique"
+        A[Règles Statiques] --> B(Si A alors B)
+    end
+    subgraph "Machine Learning"
+        C[Données] --> D(Apprentissage de Modèles)
+    end
+    subgraph "État de l'Art : MAS"
+        E[Multi-Agents] --> F(Consensus & Raisonnement)
+    end
+    A -.-> C -.-> E
+
+--------------------------------------------------
+2. LE PROBLÈME DU SURAJUSTEMENT (OVERFITTING)
+Emplacement : Section 1.4.2.2
+Description : Visualisation théorique de l'écart entre performance historique et performance réelle.
+--------------------------------------------------
+graph TD
+    Data[Données Historiques] --> Model{Complexité du Modèle}
+    Model -->|Optimisation excessive| Over[Overfitting : Mémorisation du bruit]
+    Model -->|Généralisation| Robust[Modèle Robuste : Lois du marché]
+    
+    Over --> Fail[Échec en Conditions Réelles]
+    Robust --> Success[Succès en Conditions Réelles]
+    
+    style Over fill:#f96,stroke:#333
+    style Fail fill:#f66,stroke:#333
+
+--------------------------------------------------
+3. ARCHITECTURE GÉNÉRALE D'UN SYSTÈME MULTI-AGENTS (MAS)
+Emplacement : Section 1.4.3.2
+Description : Représentation conceptuelle de la collaboration entre experts autonomes.
+--------------------------------------------------
+graph TD
+    Env[Environnement de Marché] --> Coord[Orchestrateur]
+    subgraph "Experts Spécialisés"
+        Coord --> Agent1[Agent Quantitatif]
+        Coord --> Agent2[Agent Sémantique]
+        Coord --> Agent3[Agent de Risque]
+    end
+    Agent1 --> Agg[Agrégation de Signaux]
+    Agent2 --> Agg
+    Agent3 --> Agg
+    Agg --> Action[Décision Finale]
+
+--------------------------------------------------
+4. LOGIQUE D'AGRÉGATION (SIGNAL AGENT)
+Emplacement : Section 1.4.3.4
+Description : Montre comment l'agent de signal gère les avis contradictoires.
+--------------------------------------------------
+graph TB
+    S1[Signal Technique : HAUSSE] --- Agg{Signal Agent}
+    S2[Signal Sentiment : BAISSE] --- Agg
+    S3[Signal Volatilité : ÉLEVÉ] --- Agg
+    
+    Agg --> Weight[Pondération des Incertitudes]
+    Weight --> Final[Décision Optimisée : ATTENTE]
+    
+    style Agg fill:#f9f,stroke:#333
+
+--------------------------------------------------
+5. ARCHITECTURE RAG (RETRIEVAL AUGMENTED GENERATION)
+Emplacement : Section 1.4.3.6
+Description : Schéma standard de l'augmentation des LLM par des données externes.
+--------------------------------------------------
+graph LR
+    News[Données Externes] --> Store[(Base de Connaissances)]
+    User[Requête Agent] --> Ret[Récupération Contexte]
+    Store --> Ret
+    Ret --> LLM[Modèle de Langage]
+    LLM --> Out[Réponse Argumentée]
+
+--------------------------------------------------
+6. PIPELINE D'APPRENTISSAGE CONTINU
+Emplacement : Section 1.4.3.3
+Description : Illustre le cycle pour contrer la dérive de concept (Concept Drift).
+--------------------------------------------------
+graph LR
+    Prod[Modèle en Production] --> Monitor[Surveillance Performance]
+    Monitor -->|Baisse de Précision| Retrain[Ré-entraînement Automatique]
+    Data[Nouvelles Données] --> Retrain
+    Retrain --> Update[Mise à jour du Modèle]
+    Update --> Prod
+
+--------------------------------------------------
+7. PIPELINE DE MODÉLISATION QUANTITATIVE (XGBOOST)
+Emplacement : Section 1.4.4.1
+Description : Cycle standard de transformation des données tabulaires.
+--------------------------------------------------
+graph TB
+    Raw[Données Brutes] --> Prep[Prétraitement & Features]
+    Prep --> Train[Entraînement Boosting]
+    Train --> Eval[Évaluation / Backtest]
+    Eval --> Deploy[Déploiement]

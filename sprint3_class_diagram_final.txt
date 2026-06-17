@@ -1,0 +1,125 @@
+================================================================================
+DIAGRAMME DE CLASSES ET RÈGLES DE GESTION - SPRINT 3 (VERSION SIMPLIFIÉE CORRIGÉE)
+================================================================================
+
+1. DIAGRAMME MERMAID
+--------------------------------------------------------------------------------
+(Utilisez ce code dans l'éditeur Mermaid pour générer le visuel)
+
+classDiagram
+    class User {
+        +UUID id
+        +String email
+        +String username
+        +String password_hash
+    }
+
+    class UserExchangeKey {
+        +UUID id
+        +UUID userId
+        +String exchangeName
+        +String encryptedApiKey
+        +String encryptedApiSecret
+    }
+
+    class Trade {
+        +UUID id
+        +String symbol
+        +Enum side
+        +Float entry_price
+        +Float quantity
+        +Float stop_loss
+        +Float take_profit
+        +Enum status
+    }
+
+    class DebateCycle {
+        +UUID id
+        +DateTime start_time
+        +String final_verdict
+        +Float confidence_score
+    }
+
+    class DebateMessage {
+        +UUID id
+        +String agent_name
+        +String role
+        +Text content
+        +JSON arguments
+    }
+
+    class CoinPriceHistory {
+        +String symbol
+        +DateTime timestamp
+        +Float open
+        +Float high
+        +Float low
+        +Float close
+        +Float volume
+    }
+
+    class TradeMemory {
+        +UUID id
+        +Vector embedding_pgvector
+        +Text market_context
+        +Float performance
+    }
+
+    class CryptoNewsEmbedding {
+        +UUID id
+        +String title
+        +Vector embedding_pgvector
+        +DateTime published_at
+    }
+
+    User "1" --> "1" UserExchangeKey : possède
+    User "1" --> "*" Trade : exécute
+    Trade "1" --> "*" DebateCycle : déclenche
+    DebateCycle "1" --> "*" DebateMessage : contient
+    Trade "1" --> "1" TradeMemory : archive
+    CoinPriceHistory "1" --> "*" Trade : alimente
+    CryptoNewsEmbedding "*" --> "1" DebateCycle : enrichit
+
+--------------------------------------------------------------------------------
+2. DÉFINITION SIMPLE DES ATTRIBUTS
+--------------------------------------------------------------------------------
+
+* User (Utilisateur) :
+    - email : Adresse mail de l'utilisateur.
+    - username : Nom d'utilisateur.
+    - password_hash : Mot de passe sécurisé (caché).
+
+* UserExchangeKey (Clés d'Échange) :
+    - encryptedApiKey/Secret : Clés Binance chiffrées pour passer des ordres.
+
+* Trade (Transaction) :
+    - symbol : La crypto concernée (ex: BTC/USDT).
+    - side : Le sens de l'ordre (LONG pour achat, SHORT pour vente).
+    - entry_price : Le prix auquel on a acheté la crypto.
+    - status : Indique si le trade est encore actif (OPEN) ou fini (CLOSED).
+
+* DebateCycle (Cycle d'Analyse) :
+    - final_verdict : La décision finale de l'IA (Achat, Vente ou Attente).
+    - confidence_score : Le niveau de certitude de l'IA (ex: 0.85 pour 85%).
+
+* DebateMessage (Message d'Agent) :
+    - agent_name : Nom de l'agent qui s'exprime (ex: Agent Technique).
+    - role : Spécialité de l'agent (Analyse de prix, Sentiment, etc.).
+
+* CoinPriceHistory (Historique des Prix) :
+    - open/high/low/close : Prix OHLCV.
+
+* TradeMemory & News (IA et pgvector) :
+    - embedding_pgvector : Empreinte mathématique pour la recherche sémantique.
+    - performance : Gain ou perte final (%) réalisé sur le trade.
+
+--------------------------------------------------------------------------------
+3. RÈGLES DE GESTION SIMPLIFIÉES
+--------------------------------------------------------------------------------
+
+1. Sécurité : Les clés API sont stockées dans une table séparée et chiffrée.
+2. Décision IA : Un trade ne se lance que si l'IA est sûre à plus de 70%.
+3. Sécurité Trading : Chaque trade possède un Stop-Loss et un Take-Profit.
+4. Transparence : Tous les messages de l'IA sont sauvegardés (Auditabilité).
+5. Mémoire : Chaque trade est enregistré dans pgvector pour l'apprentissage.
+================================================================================

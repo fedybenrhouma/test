@@ -278,7 +278,8 @@ async def risk_manager_node(state: MASState) -> dict:
         current_price = float(df["close"].iloc[-1])
 
         # 3. Calculate entry, stop loss, take profit
-        entry_price = current_price
+        # USE MANUAL TARGET PRICE IF PROVIDED
+        entry_price = state.get("target_price") or current_price
 
         if direction == "long":
             stop_loss   = round(entry_price - (atr * ATR_STOP_MULTIPLIER), 2)
@@ -288,11 +289,20 @@ async def risk_manager_node(state: MASState) -> dict:
             take_profit = round(entry_price - (atr * ATR_STOP_MULTIPLIER * RISK_REWARD_RATIO), 2)
 
         # 4. Calculate position size
-        position_size = calculate_position_size(
-            portfolio_size=DEFAULT_PORTFOLIO_SIZE,
-            entry_price=entry_price,
-            stop_loss=stop_loss
-        )
+        # USE MANUAL MARGIN IF PROVIDED
+        if state.get("margin"):
+            # If manual margin is provided, we calculate size as (margin * leverage) / price
+            # But leverage is decided by Groq, so we'll use a temporary size for the prompt
+            # and then re-calculate after parsing Groq's leverage.
+            temp_position_size = round(float(state["margin"]) / entry_price, 6)
+            message_prefix = f"🛡️ Risk Manager (Manual Entry active: ${entry_price})"
+        else:
+            temp_position_size = calculate_position_size(
+                portfolio_size=DEFAULT_PORTFOLIO_SIZE,
+                entry_price=entry_price,
+                stop_loss=stop_loss
+            )
+            message_prefix = "🛡️ Risk Manager"
 
         # 5. Fetch open positions from DB
         open_positions = await fetch_open_positions(user_id)
@@ -307,24 +317,31 @@ async def risk_manager_node(state: MASState) -> dict:
         # 7. Ask Groq to evaluate risk
         prompt = build_prompt(
             asset, direction, entry_price, stop_loss, take_profit,
-            position_size, atr, open_positions, agent_signals
+            temp_position_size, atr, open_positions, agent_signals
         )
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         parsed = parse_response(response.content)
 
         acceptable = parsed["decision"] == "ACCEPT"
+        leverage = parsed["leverage"]
+
+        # Final position size calculation (applying leverage)
+        if state.get("margin"):
+            position_size = round((float(state["margin"]) * leverage) / entry_price, 6)
+        else:
+            position_size = temp_position_size
 
         # 8. Build message for debate log
         message_content = (
-            f"🛡️ Risk Manager Report\n"
+            f"{message_prefix} Report\n"
             f"Asset: {asset} | Direction: {direction.upper()}\n"
             f"Entry: ${entry_price:,} | SL: ${stop_loss:,} | TP: ${take_profit:,}\n"
-            f"Position Size: {position_size} {asset.split('/')[0]}\n"
+            f"Position Size: {position_size} {asset.split('/')[0]} (incl. {leverage}x leverage)\n"
             f"Agent votes: {long_votes} LONG / {short_votes} SHORT\n"
             f"Open positions: {len(open_positions)}\n"
             f"Decision: {'✅ ACCEPT' if acceptable else '❌ REJECT'} "
             f"(confidence: {parsed['confidence']})\n"
-            f"Leverage: {parsed['leverage']}x\n"
+            f"Leverage: {leverage}x\n"
             f"Reasoning: {parsed['reasoning']}"
         )
 
@@ -336,7 +353,7 @@ async def risk_manager_node(state: MASState) -> dict:
                 "stop_loss": stop_loss,
                 "take_profit": take_profit,
                 "position_size": position_size,
-                "leverage": parsed["leverage"],
+                "leverage": leverage,
                 "reasoning": parsed["reasoning"]
             },
             "messages": [HumanMessage(content=message_content, name="risk_manager")]

@@ -1,0 +1,25 @@
+Backlog Global - Système Multi-Agents (Signal Agent V2 PRO)
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+ID      | En tant que    | Je veux (Description & Tâches)                                                                 | PHASE CRISP-DM        | Priorité
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+US4.1   | Data Scientist | Définir l'objectif de prédiction et la structure du moteur de signal.                          | Phase 1 :             | Haute
+        |                | * Tâches : 1. Création de la structure POO ; 2. Mise en place du journal de suivi (Logs).       | Compréhension Métier  | 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+US4.2   | Data Scientist | Collecter et explorer les données OHLCV historiques pour l'entraînement.                       | Phase 2 :             | Haute
+        |                | * Tâches : 3. Extraction des données Binance/DB ; 4. Nettoyage des données manquantes.         | Compréhension Données | 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+US4.3   | Data Scientist | Préparer les données et calculer les indicateurs techniques (Feature Engineering).             | Phase 3 :             | Haute
+        |                | * Tâches : 5. Création des variables historiques (Lags) ; 6. Calcul des indicateurs de tendance.| Préparation Données   | 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+US4.4   | Data Scientist | Entraîner le modèle XGBoost via une validation chronologique.                                  | Phase 4 :             | Haute
+        |                | * Tâches : 7. Entraînement Walk-Forward ; 8. Optimisation des paramètres (GridSearch).         | Modélisation          | 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+US4.5   | Data Scientist | Évaluer le modèle via des métriques avancées (F1-Score, AUPRC).                                | Phase 5 :             | Haute
+        |                | * Tâches : 9. Calcul des scores de précision/rappel ; 10. Analyse de la matrice de confusion.   | Évaluation            | 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+US4.6   | Data Scientist | Vérifier et sauvegarder les résultats pour garantir l'auditabilité.                             | Phase 5 :             | Moyenne
+        |                | * Tâches : 11. Vérification de l'étanchéité temporelle ; 12. Sauvegarde des métadonnées JSON.  | Évaluation (Suite)    | 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+US4.7   | Data Scientist | Déployer et automatiser le cycle de ré-entraînement du modèle.                                 | Phase 6 :             | Basse
+        |                | * Tâches : 13. Automatisation des mises à jour ; 14. Intégration dans le système multi-agents. | Déploiement           | 
+----------------------------------------------------------------------------------------------------------------------------------------------------------

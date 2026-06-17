@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const pgvector = require('pgvector/sequelize');
 
 // Initialize Sequelize with PostgreSQL
 const sequelize = new Sequelize(
@@ -12,5 +13,8 @@ const sequelize = new Sequelize(
     logging: false, // Set to console.log to see SQL queries
   }
 );
+
+// Register pgvector data type
+pgvector.registerType(Sequelize);
 
 module.exports = sequelize;

@@ -1,0 +1,88 @@
+classDiagram
+    %% ==========================================
+    %% 1. UTILISATEURS & AUTHENTIFICATION
+    %% ==========================================
+    class User {
+        +UUID id
+        +String email
+        +String username
+        +String binanceApiKey
+        +String binanceApiSecret
+        +Boolean isPremium
+    }
+
+    %% ==========================================
+    %% 2. INFRASTRUCTURE & BACKEND MODELS
+    %% ==========================================
+    class Trade {
+        +UUID id
+        +UUID userId
+        +String symbol
+        +String side
+        +Float amount
+        +Float entryPrice
+        +String status
+        +DateTime createdAt
+    }
+
+    class DebateCycle {
+        +UUID id
+        +UUID tradeId
+        +DateTime startTime
+        +String finalVerdict
+    }
+
+    class DebateMessage {
+        +UUID id
+        +UUID cycleId
+        +String agentName
+        +String content
+        +String arguments
+        +DateTime timestamp
+        +persistToDB()
+    }
+
+    %% ==========================================
+    %% 3. HISTORIQUE & DONNÉES DE MARCHÉ
+    %% ==========================================
+    class CoinPriceHistory {
+        +String symbol
+        +DateTime timestamp
+        +Float open
+        +Float high
+        +Float low
+        +Float close
+        +Float volume
+        +saveOHLCV()
+    }
+
+    %% ==========================================
+    %% 4. MÉMOIRE LONG TERME (PGVECTOR)
+    %% ==========================================
+    class TradeMemory {
+        +UUID id
+        +UUID tradeId
+        +Vector embedding_pgvector
+        +String marketContext
+        +storeTradeVector()
+    }
+
+    class CryptoNewsEmbedding {
+        +UUID id
+        +String title
+        +String content
+        +String source
+        +Vector embedding_pgvector
+        +DateTime publishedAt
+        +searchSimilarity()
+    }
+
+    %% ==========================================
+    %% RELATIONS
+    %% ==========================================
+    User "1" -- "*" Trade : effectue
+    Trade "1" -- "*" DebateCycle : genere
+    DebateCycle "1" -- "*" DebateMessage : contient
+    Trade "1" -- "1" TradeMemory : archive (pgvector)
+    CoinPriceHistory "1" -- "*" Trade : contexte prix
+    CryptoNewsEmbedding "*" -- "1" DebateCycle : contexte sémantique (pgvector)

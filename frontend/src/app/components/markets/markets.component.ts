@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { CryptoMarketService, CryptoMarket } from '../../services/crypto-market.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { AnalysisModalComponent } from '../analysis-modal/analysis-modal';
 
 @Component({
   selector: 'app-markets',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AnalysisModalComponent],
   templateUrl: './markets.component.html',
   styleUrls: ['./markets.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -28,6 +29,10 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isAuthenticated = false;
   watchlist: Set<string> = new Set();
+
+  // Analysis Modal State
+  showAnalysisModal = false;
+  selectedAssetForAnalysis: string = 'BTC/USDT';
 
   @ViewChild('sentinel') sentinel!: ElementRef;
   private observer: IntersectionObserver | null = null;
@@ -236,5 +241,21 @@ export class MarketsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openDetails(id: string): void {
     window.open(`/coin/${id}`, '_blank');
+  }
+
+  analyzeCoin(event: Event, coin: CryptoMarket): void {
+    event.stopPropagation();
+    if (!this.isAuthenticated) {
+      this.authService.triggerLoginModal();
+      return;
+    }
+    this.selectedAssetForAnalysis = `${coin.symbol.toUpperCase()}/USDT`;
+    this.showAnalysisModal = true;
+    this.cdr.markForCheck();
+  }
+
+  onAnalysisStarted(): void {
+    // Optionally redirect to debates or dashboard
+    console.log('Analysis started from Markets');
   }
 }

@@ -93,16 +93,24 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+// Initialize Socket.io
+const io = require('./services/socket').init(server);
+
 // Database Connection and Sync (non-blocking)
 sequelize
   .authenticate()
   .then(() => {
-    console.log('✓ PostgreSQL connected successfully');
+    console.log('PostgreSQL connected successfully');
+    // Enable pgvector extension
+    return sequelize.query('CREATE EXTENSION IF NOT EXISTS vector;');
+  })
+  .then(() => {
+    console.log('pgvector extension enabled');
     // Sync models with database
     return sequelize.sync({ alter: true });
   })
   .then(() => {
-    console.log('✓ Database models synced');
+    console.log(' Database models synced');
 
     // Start Instant Node.js Trade Monitor
     startRealtimeMonitor();
@@ -110,7 +118,7 @@ sequelize
     // Start Data Collector Daemon
     const pythonPath = path.join(__dirname, '../agents/venv/Scripts/python.exe');
     const collectorScriptPath = path.join(__dirname, '../agents/collect_data.py');
-    console.log('🚀 Starting Background Data Collector...');
+    console.log(' Starting Background Data Collector...');
     const collectorProcess = spawn(pythonPath, [collectorScriptPath], {
       env: {
         ...process.env,
@@ -129,7 +137,7 @@ sequelize
 
     // Start ML Auto-Retrain Daemon
     const retrainScriptPath = path.join(__dirname, '../agents/auto_retrain.py');
-    console.log('🚀 Starting Background ML Auto-Retrainer...');
+    console.log(' Starting Background ML Auto-Retrainer...');
     const retrainProcess = spawn(pythonPath, [retrainScriptPath], {
       env: {
         ...process.env,

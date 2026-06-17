@@ -1,0 +1,25 @@
+Tableau 3.1: Sprint Backlog V2 PRO (Signal Agent) - Mapping CRISP-DM
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase CRISP-DM         | User Story                                     | Nombre jours | ID | Tâches (V2 PRO)
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase 1 :              | US4.1 : Définir l'objectif et la structure     | 4 jours      | 1  | - Création de la structure principale du modèle.
+Compréhension Métier   |                                                |              | 2  | - Mise en place d'un journal de suivi (Logs).
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase 2 :              | US4.2 : Collecte et exploration des données    | 5 jours      | 3  | - Extraction des données du marché (Binance/DB).
+Compréhension Données  |                                                |              | 4  | - Vérification et nettoyage des données manquantes.
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase 3 :              | US4.3 : Préparation et calcul des indicateurs  | 6 jours      | 5  | - Création des variables d'historique (Lags).
+Préparation Données    |                                                |              | 6  | - Calcul des indicateurs de tendance du marché.
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase 4 :              | US4.4 : Entraînement du modèle XGBoost         | 5 jours      | 7  | - Entraînement avec validation chronologique.
+Modélisation           |                                                |              | 8  | - Optimisation des paramètres du modèle.
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase 5 :              | US4.5 : Évaluation des performances du modèle  | 3 jours      | 9  | - Calcul des scores de précision et de rappel.
+Évaluation             |                                                |              | 10 | - Analyse des résultats via la matrice de confusion.
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase 5 :              | US4.6 : Vérification et sauvegarde des résultats| 2 jours      | 11 | - Vérification de la validité des prédictions.
+Évaluation (Suite)     |                                                |              | 12 | - Sauvegarde des paramètres et résultats (JSON).
+------------------------------------------------------------------------------------------------------------------------------------------
+Phase 6 :              | US4.7 : Déploiement et automatisation          | 5 jours      | 13 | - Automatisation des mises à jour du modèle.
+Déploiement            |                                                |              | 14 | - Intégration du modèle dans le système.
+------------------------------------------------------------------------------------------------------------------------------------------

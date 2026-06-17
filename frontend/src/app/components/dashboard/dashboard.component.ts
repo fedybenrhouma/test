@@ -1,8 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AuthService, User } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AnalysisModalComponent } from '../analysis-modal/analysis-modal';
 
 export interface DebateMessage {
   agent_name: string;
@@ -43,19 +44,19 @@ export interface DashboardData {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AnalysisModalComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   dashboardData: DashboardData | null = null;
   isLoading = true;
 
-  // Agent Trigger Modal
-  selectedAsset: string = 'BTC/USDT';
-  selectedTimeframe: string = '1h';
-  isStartingAgents = false;
+  // Analysis Modal State
+  showAnalysisModal = false;
+  selectedAssetForAnalysis: string = 'BTC/USDT';
 
   constructor(
     private authService: AuthService,
@@ -108,29 +109,31 @@ export class DashboardComponent implements OnInit {
     return '#6b7280';
   }
 
-  triggerAgents(): void {
-    if (!this.selectedAsset) return;
-    
-    this.isStartingAgents = true;
-    this.userService.startAgents(this.selectedAsset, this.selectedTimeframe).subscribe({
-      next: (response) => {
-        alert('Agents are now debating in the background! The feed will update shortly.');
-        this.isStartingAgents = false;
-        // Poll for updates every 5 seconds for a minute
-        let count = 0;
-        const interval = setInterval(() => {
-          this.fetchDashboardData();
-          count++;
-          if (count > 12) clearInterval(interval);
-        }, 5000);
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error starting agents:', err);
-        alert('Failed to start agents. Check console for details.');
-        this.isStartingAgents = false;
+  openAnalysisModal(): void {
+    console.log('Opening Analysis Modal...');
+    this.showAnalysisModal = true;
+    this.cdr.markForCheck();
+  }
+
+  setExecutionMode(mode: 'manual' | 'automatic'): void {
+    if (!this.currentUser) return;
+    this.userService.updateExecutionMode(mode).subscribe({
+      next: (res) => {
+        if (this.currentUser) {
+          this.currentUser.executionMode = mode;
+        }
         this.cdr.markForCheck();
       }
     });
+  }
+
+  onAnalysisStarted(): void {
+    // Poll for updates every 5 seconds for a minute
+    let count = 0;
+    const interval = setInterval(() => {
+      this.fetchDashboardData();
+      count++;
+      if (count > 12) clearInterval(interval);
+    }, 5000);
   }
 }

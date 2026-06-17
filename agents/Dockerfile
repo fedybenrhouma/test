@@ -19,8 +19,14 @@ RUN pip install --no-cache-dir --upgrade pip wheel setuptools
 # Copy requirements
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --default-timeout=100 --retries=10 -r requirements.txt
+# Install Python dependencies with extreme network resilience
+RUN pip config set global.progress_bar off && \
+    pip install --no-cache-dir \
+    --default-timeout=1000 \
+    --retries=20 \
+    --index-url=https://pypi.org/simple/ \
+    --extra-index-url=https://www.piwheels.org/simple \
+    -r requirements.txt
 
 # Copy source code
 COPY . .

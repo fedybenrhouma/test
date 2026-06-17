@@ -22,11 +22,12 @@ export class UserService {
   private apiUrl = 'http://localhost:3000/api/users';
   private dashboardUrl = 'http://localhost:3000/api/dashboard';
   private agentsUrl = 'http://localhost:3000/api/agents';
+  private tradesUrl = 'http://localhost:3000/api/trades';
 
   constructor(private http: HttpClient) {}
 
-  startAgents(asset: string, timeframe: string = '1h'): Observable<{ success: boolean; message: string }> {
-    return this.http.post<{ success: boolean; message: string }>(`${this.agentsUrl}/start`, { asset, timeframe });
+  startAgents(asset: string, timeframe: string = '1h', targetPrice?: number, margin?: number): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.agentsUrl}/start`, { asset, timeframe, targetPrice, margin });
   }
 
   getDashboardSummary(): Observable<{ success: boolean; data: any }> {
@@ -43,6 +44,10 @@ export class UserService {
 
   closeTrade(tradeId: number): Observable<{ success: boolean; message: string; trade: any }> {
     return this.http.post<{ success: boolean; message: string; trade: any }>(`${this.dashboardUrl}/trades/${tradeId}/close`, {});
+  }
+
+  updateTrade(tradeId: number, data: { stop_loss?: number, take_profit?: number }): Observable<{ success: boolean; message: string; trade: any }> {
+    return this.http.patch<{ success: boolean; message: string; trade: any }>(`${this.tradesUrl}/${tradeId}`, data);
   }
 
   getProfile(): Observable<{ success: boolean; user: User }> {
@@ -79,5 +84,9 @@ export class UserService {
 
   removeFromWatchlist(coinId: string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/watchlist/${coinId}`);
+  }
+
+  updateExecutionMode(mode: 'manual' | 'automatic'): Observable<{ success: boolean; message: string; executionMode: string }> {
+    return this.http.patch<{ success: boolean; message: string; executionMode: string }>(`${this.apiUrl}/execution-mode`, { mode });
   }
 }
